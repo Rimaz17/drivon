@@ -1,0 +1,76 @@
+{
+  "info": {
+    "name": "Drivon API",
+    "description": "Requests for the Drivon REST API. Set the baseUrl collection variable (local: http://localhost:8080). Authenticated folders are added as each phase ships.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" }
+  ],
+  "item": [
+    {
+      "name": "Platform",
+      "item": [
+        {
+          "name": "Health",
+          "request": { "method": "GET", "url": "{{baseUrl}}/actuator/health" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('reports UP', () => pm.expect(pm.response.json().status).to.eql('UP'));",
+                  "pm.test('has request id', () => pm.response.to.have.header('X-Request-Id'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Info",
+          "request": { "method": "GET", "url": "{{baseUrl}}/actuator/info" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('status is 200', () => pm.response.to.have.status(200));"]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OpenAPI document",
+          "request": { "method": "GET", "url": "{{baseUrl}}/v3/api-docs" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('is the Drivon API', () => pm.expect(pm.response.json().info.title).to.eql('Drivon API'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Protected endpoint without token",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('status is 401', () => pm.response.to.have.status(401));"]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
