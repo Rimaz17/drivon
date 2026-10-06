@@ -24,3 +24,7 @@ end_of_line = crlf
 
 [Makefile]
 indent_style = tab
+
+[mvnw]
+# The wrapper relies on tab-indented <<- heredocs.
+indent_style = tab
