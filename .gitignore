@@ -1,0 +1,56 @@
+# ---------- Secrets & local env ----------
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+key.properties
+google-services.json
+GoogleService-Info.plist
+*.mobileprovision
+*.cer
+
+# ---------- OS ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------- IDEs ----------
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.code-workspace
+.project
+.classpath
+.settings/
+.factorypath
+.apt_generated
+.sts4-cache/
+.springBeans
+/nbproject/private/
+
+# ---------- Java / Maven (backend) ----------
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+*.class
+hs_err_pid*
+replay_pid*
+
+# ---------- Flutter / Dart (frontend) ----------
+frontend/.dart_tool/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/.pub-cache/
+frontend/.pub/
+frontend/build/
+frontend/coverage/
+*.g.dart.bak
+
+# ---------- Logs ----------
+*.log
+logs/
