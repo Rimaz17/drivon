@@ -15,6 +15,10 @@
   <description>Drivon REST API: personal vehicle companion backend</description>
   <properties>
     <java.version>17</java.version>
+    <springdoc.version>3.1.1</springdoc.version>
+    <spotless.version>3.10.3</spotless.version>
+    <!-- Spotless caps google-java-format at 1.28.0 when running on Java 17. -->
+    <google-java-format.version>1.28.0</google-java-format.version>
   </properties>
   <dependencies>
     <dependency>
@@ -103,6 +107,30 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <!-- Formatting is enforced: `./mvnw spotless:apply` fixes, `verify` fails on violations. -->
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>${spotless.version}</version>
+        <configuration>
+          <java>
+            <googleJavaFormat>
+              <version>${google-java-format.version}</version>
+            </googleJavaFormat>
+            <removeUnusedImports/>
+            <importOrder/>
+            <formatAnnotations/>
+          </java>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <phase>verify</phase>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
