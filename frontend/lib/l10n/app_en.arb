@@ -1,0 +1,15 @@
+{
+  "@@locale": "en",
+  "appTitle": "Drivon",
+  "@appTitle": {
+    "description": "Application name shown in the OS task switcher."
+  },
+  "homeTagline": "Every fill-up, service and renewal for your vehicles, in one place.",
+  "@homeTagline": {
+    "description": "One-line description of the app on the home screen."
+  },
+  "homeComingSoon": "Sign-in and your vehicles are coming next.",
+  "@homeComingSoon": {
+    "description": "Temporary status line shown until accounts and vehicles are available."
+  }
+}
