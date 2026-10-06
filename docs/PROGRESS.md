@@ -18,6 +18,7 @@
   - [x] CI: backend (verify + Docker build), frontend (analyze/test, Android APK, iOS no-codesign), linted with actionlint
   - [x] PR template, Dependabot
   - [x] README, backend/frontend READMEs, ADRs 0001–0004, Postman collection
+  - [x] Moved `.env.example` to `backend/`
   - [ ] CI confirmed green on GitHub (needs the user to push)
 - [ ] Phase 1 — Auth & Vehicles
 - [ ] Phase 2 — Fuel Tracking
@@ -44,6 +45,7 @@
 - 2026-10-07: Hanken Grotesk replaces the commercial Sequel Sans (see docs/adr/0002-typeface-hanken-grotesk.md).
 - 2026-10-07: Generated Dart code is not committed (see docs/adr/0003-generated-code-is-not-committed.md).
 - 2026-10-07: Primary color is the rendered swatch `#7D56EE`, not its `#E72068` label (see docs/adr/0004-design-tokens-from-inspiration.md).
+- 2026-10-07: `.env.example` lives in `backend/` (all variables belong to the API + its Postgres); the real `.env` stays at the repo root where Docker Compose reads it. Deviates from the root location in the original layout plan.
 - 2026-10-07: Android `gradlew`/wrapper jar follow Flutter's default and are not committed (the Flutter tool regenerates them), so no executable bit is needed for them.
 
 ## Pinned Versions

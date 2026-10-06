@@ -1,7 +1,7 @@
 # Local development stack: Postgres + the Spring Boot API.
 #   docker compose up -d postgres   # database only (run the API from your IDE)
 #   docker compose up --build       # database + API on http://localhost:8080
-# Values come from .env (copy .env.example to .env first).
+# Values come from .env at the repo root (cp backend/.env.example .env first).
 name: drivon
 
 services:

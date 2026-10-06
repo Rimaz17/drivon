@@ -64,7 +64,7 @@ The app only talks to the API. Every secret (database, AI, storage, Firebase) li
 ### Run the backend
 
 ```bash
-cp .env.example .env               # local-only values; never commit .env
+cp backend/.env.example .env       # local-only values; never commit .env
 docker compose up -d postgres      # Postgres 17 on localhost:5432
 cd backend && ./mvnw spring-boot:run
 ```
@@ -86,7 +86,7 @@ See [`backend/README.md`](backend/README.md) and [`frontend/README.md`](frontend
 
 ## Environment variables
 
-All variables are listed with placeholders in [`.env.example`](.env.example).
+All variables are listed with placeholders in [`backend/.env.example`](backend/.env.example) (copy it to `.env` at the repo root).
 
 | Variable | Used by | Purpose |
 |---|---|---|
@@ -111,12 +111,11 @@ CI runs the same checks on every push and pull request, builds a debug APK, and 
 
 ```
 drivon/
-├── backend/            Spring Boot API (package-by-feature under com.drivon.api)
+├── backend/            Spring Boot API (package-by-feature under com.drivon.api) + .env.example
 ├── frontend/           Flutter app (app/, core/, design_system/, features/)
 ├── docs/               Progress log, ADRs, API collection, screenshots
 ├── .github/            CI workflows, Dependabot, PR template
-├── docker-compose.yml  Local Postgres + API
-└── .env.example        Every environment variable, with placeholders
+└── docker-compose.yml  Local Postgres + API (reads .env from the repo root)
 ```
 
 ## Roadmap
