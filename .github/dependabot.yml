@@ -1,0 +1,38 @@
+version: 2
+updates:
+  - package-ecosystem: maven
+    directory: /backend
+    schedule:
+      interval: weekly
+    groups:
+      maven-minor-and-patch:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: "build(backend)"
+
+  - package-ecosystem: pub
+    directory: /frontend
+    schedule:
+      interval: weekly
+    groups:
+      pub-minor-and-patch:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: "build(frontend)"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: "ci"
+
+  - package-ecosystem: docker
+    directory: /backend
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "build(backend)"
