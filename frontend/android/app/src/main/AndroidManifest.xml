@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The app talks to the Drivon API in every build type. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="drivon"
+        android:label="Drivon"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
