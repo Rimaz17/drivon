@@ -27,3 +27,18 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+
+  fonts:
+    # Hanken Grotesk 3.014, SIL Open Font License (assets/fonts/hanken_grotesk/OFL.txt).
+    - family: HankenGrotesk
+      fonts:
+        - asset: assets/fonts/hanken_grotesk/HankenGrotesk-Light.ttf
+          weight: 300
+        - asset: assets/fonts/hanken_grotesk/HankenGrotesk-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/hanken_grotesk/HankenGrotesk-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/hanken_grotesk/HankenGrotesk-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/hanken_grotesk/HankenGrotesk-Bold.ttf
+          weight: 700
