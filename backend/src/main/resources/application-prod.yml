@@ -1,0 +1,19 @@
+# Production (Render + Neon). Every value comes from the environment; there are
+# deliberately no defaults so a missing variable fails fast at startup.
+# DB_URL must include sslmode=require for Neon.
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      # Neon autosuspends; retire connections before its idle timeout closes them.
+      max-lifetime: 240000
+      keepalive-time: 60000
+
+server:
+  forward-headers-strategy: framework
+
+logging:
+  level:
+    root: INFO

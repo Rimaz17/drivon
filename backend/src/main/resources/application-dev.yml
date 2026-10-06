@@ -1,0 +1,11 @@
+# Local development against the Postgres container from docker-compose.yml.
+# The defaults below only work for that throwaway local database.
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/drivon}
+    username: ${DB_USERNAME:drivon}
+    password: ${DB_PASSWORD:drivon}
+
+logging:
+  level:
+    com.drivon: DEBUG
