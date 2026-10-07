@@ -63,23 +63,22 @@ public class Vehicle {
       FuelType fuelType,
       int currentOdometerKm) {
     this.userId = userId;
-    update(make, model, year, registrationNumber, fuelType, currentOdometerKm);
+    this.currentOdometerKm = currentOdometerKm;
+    update(make, model, year, registrationNumber, fuelType);
   }
 
-  /** Replaces the editable details. Business rules are checked by {@link VehicleService}. */
-  void update(
-      String make,
-      String model,
-      int year,
-      String registrationNumber,
-      FuelType fuelType,
-      int currentOdometerKm) {
+  /** Replaces the descriptive details. Business rules are checked by {@link VehicleService}. */
+  void update(String make, String model, int year, String registrationNumber, FuelType fuelType) {
     this.make = make;
     this.model = model;
     this.year = year;
     this.registrationNumber = registrationNumber;
     this.fuelType = fuelType;
-    this.currentOdometerKm = currentOdometerKm;
+  }
+
+  /** Mirrors the highest reading on the odometer timeline; see {@link OdometerService}. */
+  void syncOdometer(int highestReadingKm) {
+    this.currentOdometerKm = highestReadingKm;
   }
 
   public UUID getId() {
