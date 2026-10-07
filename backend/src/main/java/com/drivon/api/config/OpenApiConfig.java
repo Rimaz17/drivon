@@ -1,11 +1,13 @@
 package com.drivon.api.config;
 
+import com.drivon.api.common.security.CurrentUserId;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springdoc.core.utils.SpringDocUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +17,11 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
 
   static final String BEARER_AUTH = "bearerAuth";
+
+  static {
+    // Filled from the access token, so it is not a client-facing parameter.
+    SpringDocUtils.getConfig().addAnnotationsToIgnore(CurrentUserId.class);
+  }
 
   @Bean
   OpenAPI drivonOpenApi(@Value("${info.app.version:dev}") String version) {
