@@ -4,6 +4,8 @@ import com.drivon.api.common.error.DrivonException;
 import com.drivon.api.common.error.ErrorCode;
 import com.drivon.api.common.stats.MonthlyAmount;
 import com.drivon.api.common.stats.MonthlySeries;
+import com.drivon.api.common.stats.MonthlySum;
+import com.drivon.api.common.stats.SpendTotal;
 import com.drivon.api.common.time.BusinessCalendar;
 import com.drivon.api.common.time.DateRange;
 import com.drivon.api.common.web.CreateResult;
@@ -165,6 +167,22 @@ public class FuelService {
     YearMonth first = MonthlySeries.firstMonth(last, months);
     return MonthlySeries.of(
         last, months, records.sumByMonth(vehicleId, first.atDay(1), last.atEndOfMonth()));
+  }
+
+  /**
+   * Fuel spend of a vehicle in an inclusive date range, for spending totals. The caller must have
+   * checked that the vehicle belongs to the user.
+   */
+  @Transactional(readOnly = true)
+  public SpendTotal spendBetween(UUID vehicleId, LocalDate from, LocalDate to) {
+    FuelRecordRepository.Totals totals = records.sumBetween(vehicleId, from, to);
+    return new SpendTotal(totals.getAmount(), totals.getFillUps());
+  }
+
+  /** Fuel spend of a vehicle per month in a range; the caller checked ownership. */
+  @Transactional(readOnly = true)
+  public List<MonthlySum> spendByMonth(UUID vehicleId, LocalDate from, LocalDate to) {
+    return records.sumByMonth(vehicleId, from, to);
   }
 
   private FuelDetails validate(FuelRecordRequest request) {

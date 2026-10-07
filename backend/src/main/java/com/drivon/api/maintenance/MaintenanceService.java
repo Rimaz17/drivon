@@ -2,6 +2,8 @@ package com.drivon.api.maintenance;
 
 import com.drivon.api.common.error.DrivonException;
 import com.drivon.api.common.error.ErrorCode;
+import com.drivon.api.common.stats.MonthlySum;
+import com.drivon.api.common.stats.SpendTotal;
 import com.drivon.api.common.time.BusinessCalendar;
 import com.drivon.api.common.web.CreateResult;
 import com.drivon.api.common.web.PageResponse;
@@ -142,6 +144,22 @@ public class MaintenanceService {
         .map(record -> toUpcoming(record, today, vehicle.getCurrentOdometerKm()))
         .sorted(SOONEST_FIRST)
         .toList();
+  }
+
+  /**
+   * Service costs of a vehicle in an inclusive date range, for spending totals. The caller must
+   * have checked that the vehicle belongs to the user.
+   */
+  @Transactional(readOnly = true)
+  public SpendTotal spendBetween(UUID vehicleId, LocalDate from, LocalDate to) {
+    MaintenanceRecordRepository.Totals totals = records.sumBetween(vehicleId, from, to);
+    return new SpendTotal(totals.getAmount(), totals.getCount());
+  }
+
+  /** Service costs of a vehicle per month in a range; the caller checked ownership. */
+  @Transactional(readOnly = true)
+  public List<MonthlySum> spendByMonth(UUID vehicleId, LocalDate from, LocalDate to) {
+    return records.sumByMonth(vehicleId, from, to);
   }
 
   static UpcomingServiceResponse toUpcoming(
