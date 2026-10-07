@@ -53,6 +53,14 @@ The Docker image defaults to `prod`, so a misconfigured deploy fails at startup 
 | `GET/PUT/DELETE /api/v1/vehicles/{id}/fuel-records/{recordId}` | Bearer | Closing full fills carry `kmPerLitre` |
 | `GET /api/v1/vehicles/{id}/fuel-stats?from=&to=` | Bearer | Spend, litres, fill-ups, average/best/latest km/L, fuel cost per km (dates optional, inclusive) |
 | `GET /api/v1/vehicles/{id}/fuel-stats/monthly?months=6` | Bearer | Fuel spend per month (1–24), oldest first, zero-filled |
+| `GET/POST /api/v1/vehicles/{id}/maintenance-records` | Bearer | Paged services (`?serviceType=` filter) / log a service with optional odometer and next date/mileage |
+| `GET/PUT/DELETE /api/v1/vehicles/{id}/maintenance-records/{recordId}` | Bearer | A service's odometer follows it on the timeline |
+| `GET /api/v1/vehicles/{id}/maintenance-records/upcoming` | Bearer | Next due service per type, with days/km remaining; overdue first |
+| `GET/POST /api/v1/vehicles/{id}/expenses` | Bearer | Paged expenses (`?category=` filter) / log an expense |
+| `GET/PUT/DELETE /api/v1/vehicles/{id}/expenses/{expenseId}` | Bearer | |
+| `GET /api/v1/vehicles/{id}/spending?from=&to=` | Bearer | Total and per-category spend; fill-ups count as FUEL, services as MAINTENANCE |
+| `GET /api/v1/vehicles/{id}/spending/monthly?months=6` | Bearer | Total spend per month (1–24), oldest first, zero-filled |
+| `GET /api/v1/spending/vehicles?from=&to=` | Bearer | Total spend of each of the user's vehicles |
 | `GET/POST /api/v1/vehicles/{id}/odometer-readings` | Bearer | Odometer history (paged) / add a manual reading |
 | `GET/PUT/DELETE /api/v1/vehicles/{id}/odometer-readings/{readingId}` | Bearer | Correct an initial or manual reading; delete a manual one |
 | `GET /actuator/health`, `/actuator/info` | Public | Render health check |
@@ -66,6 +74,7 @@ Tokens: access tokens are 15-minute JWTs sent as `Authorization: Bearer <token>`
 - **Dates** are ISO calendar dates (`2026-10-07`) in Sri Lankan time; record dates can't be in the future. Months are `2026-10`. Timestamps (`createdAt`) are UTC instants.
 - **Lists** return `{content, page, size, totalElements, totalPages, hasNext}`. Use `page` (from 0), `size` (default 20, at most 100) and `sort=field,asc|desc` with the fields listed in Swagger; other fields give `400 INVALID_SORT`.
 - **Odometer timeline** (`docs/adr/0007-odometer-timeline.md`): readings can't be lower than one on an earlier date or higher than one on a later date (`422 ODOMETER_OUT_OF_ORDER`, with `minKm`/`maxKm`). The vehicle's current odometer is its highest reading. A mistyped initial or manual reading is fixed with `PUT …/odometer-readings/{readingId}`.
+- **Spending** (`docs/adr/0009-maintenance-expenses-and-spending.md`) adds fill-ups and services to expenses, so a cost is entered once. Services may set a next date (after the service) and next mileage (above its odometer).
 - **Fuel efficiency** uses the full-tank method (`docs/adr/0008-fuel-records-and-efficiency.md`). A price per litre that is sent must match amount ÷ litres to within 1% (at least Rs. 1), or it is left out and derived.
 
 ### Errors
