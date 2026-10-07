@@ -33,7 +33,7 @@ class StatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colors = context.drivonColors;
-    final onHighlight = tone == DrivonCardTone.highlight;
+    final onHighlight = tone != DrivonCardTone.surface;
     final valueColor = onHighlight ? colors.onHighlight : colors.textPrimary;
     final captionColor = onHighlight
         ? colors.onHighlight

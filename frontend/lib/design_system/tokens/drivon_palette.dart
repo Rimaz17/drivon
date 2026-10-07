@@ -25,6 +25,7 @@ abstract final class DrivonPalette {
   static const Color violetPale = Color(0xFFE6DDFF);
   static const Color orchid = Color(0xFFD7ABD8); // gauge gradient
   static const Color lavender = Color(0xFFF3C7F8); // highlight cards
+  static const Color violetMist = Color(0xFFCDB8FF); // hero card gradient end
   static const Color mint = Color(0xFF99E7D8);
   static const Color mintDeep = Color(0xFF1F3B36);
   static const Color mintPale = Color(0xFFC9F4EB);

@@ -21,6 +21,7 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
     required this.onAccentSoft,
     required this.gaugeTrack,
     required this.signatureGradient,
+    required this.heroGradient,
     required this.chartSeries,
   });
 
@@ -44,6 +45,7 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
       DrivonPalette.lavender,
       DrivonPalette.mint,
     ],
+    heroGradient: [DrivonPalette.lavender, DrivonPalette.violetMist],
     chartSeries: [
       DrivonPalette.violetLight,
       DrivonPalette.mint,
@@ -76,6 +78,10 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
   /// Violet-to-mint sweep for gauges and hero cards only, never for text.
   final List<Color> signatureGradient;
 
+  /// Light fill for the one hero card on a screen; text on it uses
+  /// [onHighlight].
+  final List<Color> heroGradient;
+
   /// Ordered chart series colors; each is legible on dark surfaces.
   final List<Color> chartSeries;
 
@@ -94,6 +100,7 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
     Color? onAccentSoft,
     Color? gaugeTrack,
     List<Color>? signatureGradient,
+    List<Color>? heroGradient,
     List<Color>? chartSeries,
   }) {
     return DrivonColors(
@@ -110,6 +117,7 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
       onAccentSoft: onAccentSoft ?? this.onAccentSoft,
       gaugeTrack: gaugeTrack ?? this.gaugeTrack,
       signatureGradient: signatureGradient ?? this.signatureGradient,
+      heroGradient: heroGradient ?? this.heroGradient,
       chartSeries: chartSeries ?? this.chartSeries,
     );
   }
@@ -137,6 +145,7 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
       onAccentSoft: c(onAccentSoft, other.onAccentSoft),
       gaugeTrack: c(gaugeTrack, other.gaugeTrack),
       signatureGradient: list(signatureGradient, other.signatureGradient),
+      heroGradient: list(heroGradient, other.heroGradient),
       chartSeries: list(chartSeries, other.chartSeries),
     );
   }

@@ -218,4 +218,41 @@ void main() {
     expect(node.flagsCollection.isLiveRegion, isTrue);
     handle.dispose();
   });
+
+  testWidgets('hero card uses dark text and icons on its light gradient', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _host(
+        DrivonCard(
+          tone: DrivonCardTone.hero,
+          child: Builder(
+            builder: (context) => Row(
+              children: [
+                Text(
+                  'CAB-1234',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                IconButton(
+                  tooltip: 'Edit',
+                  icon: const Icon(Icons.edit_outlined),
+                  onPressed: () {},
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final text = tester.widget<Text>(find.text('CAB-1234'));
+    expect(text.style?.color, DrivonColors.dark.onHighlight);
+    final icon = tester.widget<RichText>(
+      find.descendant(
+        of: find.byType(IconButton),
+        matching: find.byType(RichText),
+      ),
+    );
+    expect(icon.text.style?.color, DrivonColors.dark.onHighlight);
+  });
 }
