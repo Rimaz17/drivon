@@ -352,4 +352,63 @@ void main() {
       expect(span.style?.color, DrivonColors.dark.textPrimary);
     });
   });
+
+  group('PillSegmentedControl', () {
+    Widget control(String selected, ValueChanged<String> onSelected) => _host(
+      SizedBox(
+        width: 360,
+        child: PillSegmentedControl<String>(
+          semanticsLabel: 'Choose a vehicle',
+          segments: const [
+            PillSegment(value: 'a', label: 'Aqua', detail: 'CAB-1234'),
+            PillSegment(value: 'b', label: 'Dio', detail: 'BGH-4521'),
+          ],
+          selected: selected,
+          onSelected: onSelected,
+        ),
+      ),
+    );
+
+    testWidgets('reports a newly picked option only', (tester) async {
+      final picked = <String>[];
+      await tester.pumpWidget(control('a', picked.add));
+
+      await tester.tap(find.textContaining('Dio'));
+      await tester.tap(find.textContaining('Aqua'));
+      await tester.pumpAndSettle();
+
+      expect(picked, ['b']);
+    });
+
+    testWidgets('tells screen readers which option is selected', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(control('b', (_) {}));
+
+      expect(
+        tester.getSemantics(find.textContaining('Dio')),
+        matchesSemantics(
+          label: 'Dio  BGH-4521',
+          isButton: true,
+          isSelected: true,
+          hasSelectedState: true,
+          isInMutuallyExclusiveGroup: true,
+          hasTapAction: true,
+          hasFocusAction: true,
+          isFocusable: true,
+        ),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('gives every option a 48 dp touch target', (tester) async {
+      await tester.pumpWidget(control('a', (_) {}));
+
+      for (final option in tester.widgetList(find.byType(InkWell))) {
+        final size = tester.getSize(find.byWidget(option));
+        expect(size.height, greaterThanOrEqualTo(48));
+      }
+    });
+  });
 }
