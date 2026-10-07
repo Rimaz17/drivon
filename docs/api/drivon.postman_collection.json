@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Drivon API",
-    "description": "Requests for the Drivon REST API. Set baseUrl (local: http://localhost:8080). Run 'Register' (or 'Login'), then the Vehicles requests: tokens and the vehicle ID are stored in collection variables by the test scripts.",
+    "description": "Requests for the Drivon REST API. Set baseUrl (local: http://localhost:8080). Run 'Register' (or 'Login'), then the folders in order: tokens and IDs are stored in collection variables by the test scripts, and {{today}} is set to today's date in Sri Lanka. Cleanup deletes the vehicle.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -10,7 +10,10 @@
     { "key": "password", "value": "correct-horse-battery" },
     { "key": "accessToken", "value": "" },
     { "key": "refreshToken", "value": "" },
-    { "key": "vehicleId", "value": "" }
+    { "key": "vehicleId", "value": "" },
+    { "key": "fuelRecordId", "value": "" },
+    { "key": "readingId", "value": "" },
+    { "key": "today", "value": "" }
   ],
   "auth": {
     "type": "bearer",
@@ -24,7 +27,9 @@
         "exec": [
           "if (!pm.collectionVariables.get('email')) {",
           "  pm.collectionVariables.set('email', `driver-${Date.now()}@example.com`);",
-          "}"
+          "}",
+          "// Record dates are Sri Lankan calendar dates (YYYY-MM-DD).",
+          "pm.collectionVariables.set('today', new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Colombo' }));"
         ]
       }
     }
@@ -272,7 +277,298 @@
               }
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "Fuel",
+      "item": [
+        {
+          "name": "Log full fill-up",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/fuel-records",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"{{today}}\",\n  \"litres\": \"30.000\",\n  \"amount\": \"10950.00\",\n  \"odometerKm\": 46000,\n  \"fullTank\": true,\n  \"station\": \"Ceypetco Kollupitiya\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('price per litre is derived', () => pm.expect(pm.response.json().pricePerLitre).to.eql('365.00'));"
+                ]
+              }
+            }
+          ]
         },
+        {
+          "name": "Log partial fill-up",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/fuel-records",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"{{today}}\",\n  \"litres\": \"10.000\",\n  \"amount\": \"3650.00\",\n  \"odometerKm\": 46200,\n  \"fullTank\": false,\n  \"station\": \"Ceypetco Kollupitiya\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('partial fills have no km/L', () => pm.expect(pm.response.json().kmPerLitre).to.be.null);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Log next full fill-up",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/fuel-records",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"{{today}}\",\n  \"litres\": \"15.000\",\n  \"amount\": \"5475.00\",\n  \"odometerKm\": 46500,\n  \"fullTank\": true,\n  \"station\": \"Ceypetco Kollupitiya\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('500 km over 25 L is 20 km/L', () => pm.expect(pm.response.json().kmPerLitre).to.eql('20.00'));",
+                  "pm.collectionVariables.set('fuelRecordId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Log fill-up with a mismatched price",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/fuel-records",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"{{today}}\",\n  \"litres\": \"30\",\n  \"amount\": \"12000\",\n  \"pricePerLitre\": \"365\",\n  \"odometerKm\": 46600,\n  \"fullTank\": true\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 422', () => pm.response.to.have.status(422));",
+                  "pm.test('code is FUEL_PRICE_MISMATCH', () => pm.expect(pm.response.json().code).to.eql('FUEL_PRICE_MISMATCH'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List fill-ups",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/fuel-records?page=0&size=20&sort=date,desc" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('is a page', () => pm.expect(pm.response.json()).to.have.property('totalElements'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get fill-up",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/fuel-records/{{fuelRecordId}}" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Fuel stats",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/fuel-stats" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('average km/L', () => pm.expect(pm.response.json().averageKmPerLitre).to.eql('20.00'));",
+                  "pm.test('cost per km', () => pm.expect(pm.response.json().costPerKm).to.eql('18.25'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Monthly fuel spend",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/fuel-stats/monthly?months=6" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('six months', () => pm.expect(pm.response.json()).to.have.length(6));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update fill-up",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/fuel-records/{{fuelRecordId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"{{today}}\",\n  \"litres\": \"15.500\",\n  \"amount\": \"5657.50\",\n  \"odometerKm\": 46500,\n  \"fullTank\": true,\n  \"station\": \"Ceypetco Kollupitiya\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete fill-up",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/fuel-records/{{fuelRecordId}}" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Odometer",
+      "item": [
+        {
+          "name": "Add odometer reading",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/odometer-readings",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"readingKm\": 46600,\n  \"date\": \"{{today}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('readingId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List odometer readings",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/odometer-readings?sort=date,desc" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Correct odometer reading",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/odometer-readings/{{readingId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"readingKm\": 46550,\n  \"date\": \"{{today}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete odometer reading",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/odometer-readings/{{readingId}}" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cleanup",
+      "item": [
         {
           "name": "Delete vehicle",
           "request": { "method": "DELETE", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}" },
@@ -281,7 +577,9 @@
               "listen": "test",
               "script": {
                 "type": "text/javascript",
-                "exec": ["pm.test('status is 204', () => pm.response.to.have.status(204));"]
+                "exec": [
+                  "pm.test('status is 204', () => pm.response.to.have.status(204));"
+                ]
               }
             }
           ]
