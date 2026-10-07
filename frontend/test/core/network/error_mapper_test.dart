@@ -55,6 +55,22 @@ void main() {
     );
   });
 
+  test('keeps rule-specific members such as the allowed odometer range', () {
+    final error =
+        mapDioException(
+              _response(422, {
+                'code': 'ODOMETER_OUT_OF_ORDER',
+                'minKm': 45000,
+                'maxKm': 47000,
+              }),
+            )
+            as ApiProblemException;
+
+    expect(error.intProperty('minKm'), 45000);
+    expect(error.intProperty('maxKm'), 47000);
+    expect(error.intProperty('missing'), isNull);
+  });
+
   test('falls back to an HTTP status code for non-JSON bodies', () {
     final error = mapDioException(_response(502, '<html>Bad gateway</html>'));
 
