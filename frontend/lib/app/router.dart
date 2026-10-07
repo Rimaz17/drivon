@@ -6,8 +6,12 @@ import '../features/auth/presentation/create_account_screen.dart';
 import '../features/auth/presentation/session_controller.dart';
 import '../features/auth/presentation/sign_in_screen.dart';
 import '../features/auth/presentation/splash_screen.dart';
+import '../features/expenses/presentation/expense_form_screen.dart';
+import '../features/expenses/presentation/expenses_screen.dart';
 import '../features/fuel/presentation/fuel_record_form_screen.dart';
 import '../features/fuel/presentation/fuel_screen.dart';
+import '../features/maintenance/presentation/maintenance_form_screen.dart';
+import '../features/maintenance/presentation/service_screen.dart';
 import '../features/vehicles/presentation/garage_screen.dart';
 import '../features/vehicles/presentation/odometer_history_screen.dart';
 import '../features/vehicles/presentation/odometer_reading_form_screen.dart';
@@ -21,10 +25,16 @@ abstract final class AppRoutes {
   static const String createAccount = '/create-account';
   static const String home = '/';
   static const String fuel = '/fuel';
+  static const String service = '/service';
+  static const String expenses = '/expenses';
   static const String addVehicle = '/vehicles/new';
   static const String editVehicle = '/vehicles/:vehicleId/edit';
   static const String addFuelRecord = '/vehicles/:vehicleId/fuel/new';
   static const String editFuelRecord = '/vehicles/:vehicleId/fuel/:recordId';
+  static const String addService = '/vehicles/:vehicleId/services/new';
+  static const String editService = '/vehicles/:vehicleId/services/:recordId';
+  static const String addExpense = '/vehicles/:vehicleId/expenses/new';
+  static const String editExpense = '/vehicles/:vehicleId/expenses/:expenseId';
   static const String odometerHistory = '/vehicles/:vehicleId/odometer';
   static const String addOdometerReading = '/vehicles/:vehicleId/odometer/new';
   static const String editOdometerReading =
@@ -38,6 +48,18 @@ abstract final class AppRoutes {
 
   static String editFuelRecordPath(String vehicleId, String recordId) =>
       '/vehicles/$vehicleId/fuel/$recordId';
+
+  static String addServicePath(String vehicleId) =>
+      '/vehicles/$vehicleId/services/new';
+
+  static String editServicePath(String vehicleId, String recordId) =>
+      '/vehicles/$vehicleId/services/$recordId';
+
+  static String addExpensePath(String vehicleId) =>
+      '/vehicles/$vehicleId/expenses/new';
+
+  static String editExpensePath(String vehicleId, String expenseId) =>
+      '/vehicles/$vehicleId/expenses/$expenseId';
 
   static String odometerHistoryPath(String vehicleId) =>
       '/vehicles/$vehicleId/odometer';
@@ -112,6 +134,22 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.service,
+                builder: (context, state) => const ServiceScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.expenses,
+                builder: (context, state) => const ExpensesScreen(),
+              ),
+            ],
+          ),
         ],
       ),
       GoRoute(
@@ -134,6 +172,31 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => FuelRecordFormScreen(
           vehicleId: state.pathParameters['vehicleId']!,
           recordId: state.pathParameters['recordId'],
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.addService,
+        builder: (context, state) => MaintenanceFormScreen(
+          vehicleId: state.pathParameters['vehicleId']!,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.editService,
+        builder: (context, state) => MaintenanceFormScreen(
+          vehicleId: state.pathParameters['vehicleId']!,
+          recordId: state.pathParameters['recordId'],
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.addExpense,
+        builder: (context, state) =>
+            ExpenseFormScreen(vehicleId: state.pathParameters['vehicleId']!),
+      ),
+      GoRoute(
+        path: AppRoutes.editExpense,
+        builder: (context, state) => ExpenseFormScreen(
+          vehicleId: state.pathParameters['vehicleId']!,
+          expenseId: state.pathParameters['expenseId'],
         ),
       ),
       GoRoute(

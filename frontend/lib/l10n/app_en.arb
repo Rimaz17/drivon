@@ -384,5 +384,203 @@
   "errorReadingLocked": "This reading belongs to a fill-up or service. Edit that record instead.",
   "errorReadingNotFound": "This reading no longer exists.",
   "linkedReadingFuelHint": "Tap to open the fill-up",
-  "linkedReadingServiceNote": "Change it from the service record"
+  "navService": "Service",
+  "navExpenses": "Expenses",
+  "serviceOilChange": "Oil change",
+  "serviceGeneral": "General service",
+  "serviceTyreRotation": "Tyre rotation",
+  "serviceTyreReplacement": "New tyres",
+  "serviceBrakes": "Brake service",
+  "serviceBattery": "New battery",
+  "serviceWheelAlignment": "Wheel alignment",
+  "serviceAirConditioning": "Air conditioning",
+  "serviceOther": "Other service",
+  "serviceTitle": "Service",
+  "logServiceTitle": "Log service",
+  "editServiceTitle": "Edit service",
+  "loadingServices": "Loading services",
+  "servicesLoadErrorTitle": "Couldn't load services",
+  "servicesLoadMoreFailed": "Couldn't load more services.",
+  "servicesEmptyTitle": "Log your first service",
+  "servicesEmptyMessage": "Record oil changes, services and repairs. Add when the next one is due and Drivon shows it here.",
+  "servicesFilteredEmpty": "No {service} records yet.",
+  "@servicesFilteredEmpty": {
+    "placeholders": {
+      "service": {
+        "type": "String",
+        "example": "brake service"
+      }
+    }
+  },
+  "allServicesFilter": "All",
+  "serviceFilterLabel": "Show services of type",
+  "upcomingTitle": "Coming up",
+  "historyTitle": "History",
+  "dueTodayHeadline": "{service} due today",
+  "@dueTodayHeadline": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "dueInDaysHeadline": "{service} due in {days, plural, =1{1 day} other{{days} days}}",
+  "@dueInDaysHeadline": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dueInKmHeadline": "{service} due in {km} km",
+  "@dueInKmHeadline": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "overdueHeadline": "{service} is overdue",
+  "@overdueHeadline": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "dueDetailDate": "Due {date}",
+  "@dueDetailDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dueDetailKm": "Due at {km} km",
+  "@dueDetailKm": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "dueDetailBoth": "Due {date} or at {km} km, whichever comes first",
+  "@dueDetailBoth": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "lastDoneDetail": "Last done {date}",
+  "@lastDoneDetail": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceRowDetails": "{date} · {km} km",
+  "@serviceRowDetails": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceTypeLabel": "Service type",
+  "costLabel": "Cost",
+  "costHelper": "Enter 0 for free or warranty work.",
+  "odometerOptionalLabel": "Odometer (optional)",
+  "notesLabel": "Notes (optional)",
+  "serviceNotesHint": "e.g. garage, parts, oil grade",
+  "nextServiceSectionTitle": "Next service (optional)",
+  "nextServiceExplainer": "Set a date, a mileage or both. Drivon shows the next service on the Service tab.",
+  "nextServiceDateLabel": "Next service date",
+  "nextServiceKmLabel": "Next service at",
+  "clearDateTooltip": "Clear date",
+  "savingService": "Saving service",
+  "serviceLogged": "Service logged",
+  "serviceDeleted": "Service deleted",
+  "deleteServiceTooltip": "Delete service",
+  "deleteServiceTitle": "Delete this service?",
+  "deleteServiceMessage": "It's removed from the history, totals and upcoming services. This can't be undone.",
+  "serviceTypeRequired": "Choose a service type.",
+  "costRequired": "Enter the cost.",
+  "costInvalid": "Enter a cost from 0 to Rs. 9,999,999.99.",
+  "nextServiceKmTooHigh": "Enter a mileage up to 2,000,000 km.",
+  "errorNextServiceKm": "Enter more than {km} km, the odometer at this service.",
+  "@errorNextServiceKm": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "errorNextServiceDate": "Choose a date after the service date.",
+  "errorServiceNotFound": "This service no longer exists.",
+  "linkedReadingServiceHint": "Tap to open the service",
+  "categoryFuel": "Fuel",
+  "categoryMaintenance": "Maintenance",
+  "categoryRepairs": "Repairs",
+  "categoryInsurance": "Insurance",
+  "categoryParking": "Parking",
+  "categoryTolls": "Tolls",
+  "categoryWashing": "Washing",
+  "categoryOther": "Other",
+  "expensesTitle": "Expenses",
+  "addExpenseAction": "Add expense",
+  "periodLabel": "Period",
+  "periodThisMonth": "This month",
+  "periodThisYear": "This year",
+  "periodAllTime": "All time",
+  "spentInPeriodSemantics": "Spent {period}: {amount}",
+  "@spentInPeriodSemantics": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "spendingSourcesCaption": "Fill-ups, services and expenses",
+  "loadingSpending": "Loading spending",
+  "spendingLoadErrorTitle": "Couldn't load spending",
+  "byCategoryTitle": "By category",
+  "noSpendingInPeriod": "Nothing spent in this period yet.",
+  "monthlySpendingTitle": "Monthly spending",
+  "yourVehiclesTitle": "Your vehicles",
+  "loggedExpensesTitle": "Expenses you logged",
+  "expensesEmptyMessage": "Fill-ups and services are counted automatically. Add other costs such as insurance, parking and tolls.",
+  "expensesLoadErrorTitle": "Couldn't load expenses",
+  "expensesLoadMoreFailed": "Couldn't load more expenses.",
+  "addExpenseTitle": "Add expense",
+  "editExpenseTitle": "Edit expense",
+  "categoryLabel": "Category",
+  "amountLabel": "Amount",
+  "categoryRequired": "Choose a category.",
+  "fuelCategoryNote": "Fill-ups from the Fuel tab are already counted as fuel. Use this for other fuel costs.",
+  "maintenanceCategoryNote": "Services from the Service tab are already counted as maintenance. Use this for other costs, such as parts you bought yourself.",
+  "expenseNotesHint": "e.g. annual policy, Majestic City car park",
+  "savingExpense": "Saving expense",
+  "expenseAdded": "Expense added",
+  "expenseDeleted": "Expense deleted",
+  "deleteExpenseTooltip": "Delete expense",
+  "deleteExpenseTitle": "Delete this expense?",
+  "deleteExpenseMessage": "It's removed from your totals. This can't be undone.",
+  "errorExpenseNotFound": "This expense no longer exists."
 }

@@ -64,7 +64,9 @@ lib/
 ├── features/
 │   ├── auth/        Sign in, create account, session state
 │   ├── vehicles/    Garage home, vehicle switcher, add/edit/delete form, odometer history and corrections
-│   └── fuel/        Fuel tab (km/L gauge, spend, history), fill-up form
+│   ├── fuel/        Fuel tab (km/L gauge, spend, history), fill-up form
+│   ├── maintenance/ Service tab (upcoming services, filtered history), service form
+│   └── expenses/    Expenses tab (spending by period, category, month and vehicle), expense form
 │       └── data/ (DTOs, API, repositories) · domain/ (models) · presentation/ (screens, controllers)
 └── l10n/            ARB strings (English)
 ```
@@ -80,7 +82,8 @@ Signed-in screens sit in a tab shell (`app/app_shell.dart`, go_router `StatefulS
 - The API sends decimals as strings. The app keeps them as `FixedDecimal`, whole numbers of cents or millilitres, and never as `double`. `FuelMath` converts between litres, price and amount with the backend's half-up rounding.
 - The server calculates every figure (km/L, cost per km, totals). The app only formats them: `formatRupees` gives `Rs. 18,500` (cents only when present), and `formatDate` gives `7 Oct 2026`.
 - In the fill-up form, any two of litres, price per litre and amount calculate the third, and the least recently edited field is the calculated one (`FillUpCalculator`).
-- New fill-ups carry an app-generated UUID, so a retried request can't log the same fill-up twice.
+- New fill-ups, services and expenses carry an app-generated UUID, so a retried request can't save the same record twice.
+- Spending totals on the Expenses tab come from the server and include fill-ups (as fuel) and services (as maintenance), so a cost is entered once. Logging, editing or deleting any of the three refreshes them.
 
 ### Sessions
 
@@ -96,7 +99,7 @@ Dark theme first, built from the inspiration boards' palette and shapes. Feature
 - **Colors:** `Theme.of(context).colorScheme` for Material roles, `context.drivonColors` for text levels, status, highlight, hero and chart colors.
 - **Type:** Hanken Grotesk (OFL) through `Theme.of(context).textTheme`; numeric styles use tabular figures.
 - **Spacing / radii / motion / widths:** `DrivonSpacing` (including `formMaxWidth` and `contentMaxWidth`), `DrivonRadii`, `DrivonMotion`.
-- **Components:** `DrivonCard` (surface, highlight, hero), `TagChip`, `StatTile`, `ArcGauge`, `BarList`, `InlineNotice`, `PrimaryButton`, `ContentWidth`, `EmptyState`, `ErrorState`, `LoadingState`. Form helpers live in `core/ui/` (`DateFormField` opens the Material calendar on Android and a Cupertino wheel on iOS).
+- **Components:** `DrivonCard` (surface, highlight, hero), `TagChip`, `StatTile`, `ArcGauge`, `BarList`, `InlineNotice`, `PrimaryButton`, `ContentWidth`, `EmptyState`, `ErrorState`, `LoadingState`. Form and list helpers live in `core/ui/`: `DateFormField` opens the Material calendar on Android and a Cupertino wheel on iOS (optional dates can be cleared), `RecordTile` is a history row, and `PagedListController` with `LoadMoreFooter` pages any list.
 
 A test checks every text/surface pairing, including the hero gradient, for WCAG AA contrast.
 

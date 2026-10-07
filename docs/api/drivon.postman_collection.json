@@ -13,6 +13,8 @@
     { "key": "vehicleId", "value": "" },
     { "key": "fuelRecordId", "value": "" },
     { "key": "readingId", "value": "" },
+    { "key": "serviceId", "value": "" },
+    { "key": "expenseId", "value": "" },
     { "key": "today", "value": "" }
   ],
   "auth": {
@@ -552,6 +554,261 @@
         {
           "name": "Delete odometer reading",
           "request": { "method": "DELETE", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/odometer-readings/{{readingId}}" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Maintenance",
+      "item": [
+        {
+          "name": "Log service",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/maintenance-records",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceType\": \"OIL_CHANGE\",\n  \"date\": \"{{today}}\",\n  \"odometerKm\": 46600,\n  \"cost\": \"9800.00\",\n  \"notes\": \"Lanka Auto Care, 5W-30\",\n  \"nextServiceKm\": 51600\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('serviceId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Log service with next mileage below the odometer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/maintenance-records",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceType\": \"OIL_CHANGE\",\n  \"date\": \"{{today}}\",\n  \"odometerKm\": 46600,\n  \"cost\": \"9800\",\n  \"nextServiceKm\": 46000\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 422', () => pm.response.to.have.status(422));",
+                  "pm.test('code is NEXT_SERVICE_KM_INVALID', () => pm.expect(pm.response.json().code).to.eql('NEXT_SERVICE_KM_INVALID'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List services",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/maintenance-records?serviceType=OIL_CHANGE" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Upcoming services",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/maintenance-records/upcoming" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('oil change is due in 5,000 km', () => pm.expect(pm.response.json()[0].kmRemaining).to.eql(5000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update service",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/maintenance-records/{{serviceId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceType\": \"OIL_CHANGE\",\n  \"date\": \"{{today}}\",\n  \"odometerKm\": 46600,\n  \"cost\": \"9800.00\",\n  \"notes\": \"Lanka Auto Care, 5W-30\",\n  \"nextServiceKm\": 51600\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Expenses",
+      "item": [
+        {
+          "name": "Log expense",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/expenses",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"INSURANCE\",\n  \"amount\": \"45000.00\",\n  \"date\": \"{{today}}\",\n  \"notes\": \"Annual comprehensive policy\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('expenseId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List expenses",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/expenses?category=INSURANCE" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update expense",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/expenses/{{expenseId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"INSURANCE\",\n  \"amount\": \"47500.00\",\n  \"date\": \"{{today}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Spending",
+      "item": [
+        {
+          "name": "Spending by category",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/spending" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('lists every category', () => pm.expect(pm.response.json().categories).to.have.length(8));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Monthly spending",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/spending/monthly?months=6" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Spending per vehicle",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/spending/vehicles" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete service",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/maintenance-records/{{serviceId}}" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete expense",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/expenses/{{expenseId}}" },
           "event": [
             {
               "listen": "test",

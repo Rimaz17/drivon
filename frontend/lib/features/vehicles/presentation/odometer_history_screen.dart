@@ -13,7 +13,7 @@ import '../domain/odometer_reading.dart';
 import 'odometer_controllers.dart';
 
 /// A vehicle's odometer readings, newest first. Initial and manual readings
-/// open for correction; a fill-up's reading opens that fill-up.
+/// open for correction; a fill-up's or service's reading opens that record.
 class OdometerHistoryScreen extends ConsumerWidget {
   const OdometerHistoryScreen({required this.vehicleId, super.key});
 
@@ -108,12 +108,14 @@ class _ReadingTile extends StatelessWidget {
         ? () => context.push(
             AppRoutes.editOdometerReadingPath(vehicleId, reading.id),
           )
-        : reading.source == OdometerSource.fuel && sourceId != null
+        : sourceId == null
+        ? null
+        : reading.source == OdometerSource.fuel
         ? () => context.push(AppRoutes.editFuelRecordPath(vehicleId, sourceId))
-        : null;
+        : () => context.push(AppRoutes.editServicePath(vehicleId, sourceId));
     final note = switch (reading.source) {
       OdometerSource.fuel => l10n.linkedReadingFuelHint,
-      OdometerSource.maintenance => l10n.linkedReadingServiceNote,
+      OdometerSource.maintenance => l10n.linkedReadingServiceHint,
       OdometerSource.initial || OdometerSource.manual => null,
     };
 

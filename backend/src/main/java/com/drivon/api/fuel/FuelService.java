@@ -4,8 +4,11 @@ import com.drivon.api.common.error.DrivonException;
 import com.drivon.api.common.error.ErrorCode;
 import com.drivon.api.common.stats.MonthlyAmount;
 import com.drivon.api.common.stats.MonthlySeries;
+import com.drivon.api.common.stats.MonthlySum;
+import com.drivon.api.common.stats.SpendTotal;
 import com.drivon.api.common.time.BusinessCalendar;
 import com.drivon.api.common.time.DateRange;
+import com.drivon.api.common.web.CreateResult;
 import com.drivon.api.common.web.PageResponse;
 import com.drivon.api.common.web.SortOptions;
 import com.drivon.api.fuel.FuelRecord.FuelDetails;
@@ -65,9 +68,6 @@ public class FuelService {
     this.calendar = calendar;
   }
 
-  /** The result of a create: the record and whether it was new or an earlier save (a retry). */
-  public record Saved(FuelRecordResponse record, boolean created) {}
-
   @Transactional(readOnly = true)
   public PageResponse<FuelRecordResponse> list(UUID userId, UUID vehicleId, Pageable pageable) {
     vehicles.requireOwned(userId, vehicleId);
@@ -88,7 +88,8 @@ public class FuelService {
    * that was already saved for this vehicle, that record is returned unchanged (an offline retry).
    */
   @Transactional
-  public Saved create(UUID userId, UUID vehicleId, FuelRecordRequest request) {
+  public CreateResult<FuelRecordResponse> create(
+      UUID userId, UUID vehicleId, FuelRecordRequest request) {
     Vehicle vehicle = odometer.lockVehicle(userId, vehicleId);
     Optional<FuelRecord> earlier =
         request.id() == null ? Optional.empty() : records.findById(request.id());
@@ -97,14 +98,14 @@ public class FuelService {
         throw new DrivonException(
             ErrorCode.RECORD_ID_CONFLICT, "This ID is already used by another record.");
       }
-      return new Saved(withEfficiency(earlier.get()), false);
+      return new CreateResult<>(withEfficiency(earlier.get()), false);
     }
     FuelDetails details = validate(request);
     FuelRecord record = new FuelRecord(request.id(), vehicleId, details);
     odometer.recordLinked(
         vehicle, OdometerSource.FUEL, record.getId(), details.date(), details.odometerKm());
     records.saveAndFlush(record);
-    return new Saved(withEfficiency(record), true);
+    return new CreateResult<>(withEfficiency(record), true);
   }
 
   /** Replaces a fill-up's details; its odometer reading moves with it. */
@@ -166,6 +167,22 @@ public class FuelService {
     YearMonth first = MonthlySeries.firstMonth(last, months);
     return MonthlySeries.of(
         last, months, records.sumByMonth(vehicleId, first.atDay(1), last.atEndOfMonth()));
+  }
+
+  /**
+   * Fuel spend of a vehicle in an inclusive date range, for spending totals. The caller must have
+   * checked that the vehicle belongs to the user.
+   */
+  @Transactional(readOnly = true)
+  public SpendTotal spendBetween(UUID vehicleId, LocalDate from, LocalDate to) {
+    FuelRecordRepository.Totals totals = records.sumBetween(vehicleId, from, to);
+    return new SpendTotal(totals.getAmount(), totals.getFillUps());
+  }
+
+  /** Fuel spend of a vehicle per month in a range; the caller checked ownership. */
+  @Transactional(readOnly = true)
+  public List<MonthlySum> spendByMonth(UUID vehicleId, LocalDate from, LocalDate to) {
+    return records.sumByMonth(vehicleId, from, to);
   }
 
   private FuelDetails validate(FuelRecordRequest request) {

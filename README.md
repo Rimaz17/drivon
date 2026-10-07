@@ -6,7 +6,7 @@
 [![Frontend CI](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-violet.svg)](LICENSE)
 
-> **Status:** Phases 1 and 2 are complete: accounts, up to two vehicles with an odometer history, and fuel tracking with km/L, fuel cost per km and monthly spend. Features land phase by phase; see the [roadmap](#roadmap).
+> **Status:** Phases 1–3 are complete: accounts, up to two vehicles with an odometer history, fuel tracking with km/L and fuel cost per km, service records with upcoming services, and expenses with spending totals by period, category, month and vehicle. Features land phase by phase; see the [roadmap](#roadmap).
 
 ## Features (MVP)
 
@@ -14,7 +14,7 @@
 |---|---|
 | Vehicles | Up to 2 vehicles per user (make, model, year, registration, fuel type, odometer) with a switcher |
 | Fuel tracking | Litres, amount, price/L, odometer, station, full or partial fill; km/L by the full-tank method, fuel cost per km, monthly and total fuel spend |
-| Maintenance | Service history with next service date and mileage |
+| Maintenance | Service history with next service date and mileage, and what is due next |
 | Expenses | Fuel, maintenance, repairs, insurance, parking, tolls, washing and other; monthly/yearly/category totals |
 | Analytics | Efficiency trends, monthly costs, category split and cost per km, with vehicle comparison |
 | Documents | Insurance, revenue licence, registration, invoices and receipts stored privately in Cloudflare R2 |
@@ -129,8 +129,8 @@ drivon/
 | 0 | Setup: repo, Spring Boot, Docker Compose, Flutter (Android + iOS), CI, design system | ✅ Done |
 | 1 | Auth & vehicles | ✅ Done |
 | 2 | Fuel tracking | ✅ Done |
-| 3 | Maintenance & expenses | Next |
-| 4 | Documents (Cloudflare R2) | |
+| 3 | Maintenance & expenses | ✅ Done |
+| 4 | Documents (Cloudflare R2) | Next |
 | 5 | Analytics & cost per km | |
 | 6 | Reminders & notifications | |
 | 7 | Ask My Vehicle | |

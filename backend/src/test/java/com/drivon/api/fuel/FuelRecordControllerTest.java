@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
+import com.drivon.api.common.web.CreateResult;
 import com.drivon.api.config.JacksonConfig;
 import com.drivon.api.config.SecurityConfig;
 import com.drivon.api.config.WebConfig;
@@ -64,7 +65,7 @@ class FuelRecordControllerTest {
   void createReturns201WithLocationAndDecimalsAsStrings() {
     UUID id = UUID.randomUUID();
     when(service.create(eq(USER), eq(VEHICLE), any()))
-        .thenReturn(new FuelService.Saved(record(id), true));
+        .thenReturn(new CreateResult<>(record(id), true));
 
     assertThat(
             mvc.post()
@@ -87,7 +88,7 @@ class FuelRecordControllerTest {
   void aRetryOfASavedRecordReturns200WithoutLocation() {
     UUID id = UUID.randomUUID();
     when(service.create(eq(USER), eq(VEHICLE), any()))
-        .thenReturn(new FuelService.Saved(record(id), false));
+        .thenReturn(new CreateResult<>(record(id), false));
 
     assertThat(
             mvc.post()
@@ -126,7 +127,7 @@ class FuelRecordControllerTest {
   @Test
   void numbersAreAcceptedAsWellAsStrings() {
     when(service.create(eq(USER), eq(VEHICLE), any()))
-        .thenReturn(new FuelService.Saved(record(UUID.randomUUID()), true));
+        .thenReturn(new CreateResult<>(record(UUID.randomUUID()), true));
 
     assertThat(
             mvc.post()
