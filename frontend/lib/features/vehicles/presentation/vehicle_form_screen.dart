@@ -86,6 +86,8 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen>
 
   Future<void> _save() async {
     setState(() => _serverErrors = const {});
+    await settleFields();
+    if (!mounted) return;
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -310,6 +312,7 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen>
                     helperText: original != null
                         ? l10n.odometerHelperMin(formattedMinimum)
                         : null,
+                    helperMaxLines: 2,
                   ),
                   keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.done,
