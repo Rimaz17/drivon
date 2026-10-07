@@ -15,6 +15,7 @@ export 'widgets/content_width.dart';
 export 'widgets/drivon_card.dart';
 export 'widgets/inline_notice.dart';
 export 'widgets/primary_button.dart';
+export 'widgets/sheet_scroll_view.dart';
 export 'widgets/stat_tile.dart';
 export 'widgets/state_views.dart';
 export 'widgets/tag_chip.dart';

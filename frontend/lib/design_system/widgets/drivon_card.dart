@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../tokens/drivon_colors.dart';
 import '../tokens/drivon_radii.dart';
 import '../tokens/drivon_spacing.dart';
+import 'sheet_scroll_view.dart';
 
 /// Visual weight of a [DrivonCard].
 enum DrivonCardTone {
@@ -19,6 +20,9 @@ enum DrivonCardTone {
 }
 
 /// Rounded container used for every grouped block of content.
+///
+/// On a [SheetScrollView]'s paper sheet, cards keep the app's dark theme
+/// (a slightly deeper surface, light text), like dark tiles laid on paper.
 ///
 /// Never nest cards inside cards; group with spacing instead.
 class DrivonCard extends StatelessWidget {
@@ -37,14 +41,19 @@ class DrivonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.drivonColors;
-    final theme = Theme.of(context);
+    final appTheme = SheetScrollView.appThemeOf(context);
+    final onSheet = appTheme != null;
+    final theme = appTheme ?? Theme.of(context);
+    final colors = theme.extension<DrivonColors>()!;
     final isLight = tone != DrivonCardTone.surface;
     final foreground = isLight ? colors.onHighlight : colors.textPrimary;
     final decoration = BoxDecoration(
       borderRadius: DrivonRadii.lgAll,
       color: switch (tone) {
-        DrivonCardTone.surface => theme.colorScheme.surfaceContainer,
+        DrivonCardTone.surface =>
+          onSheet
+              ? theme.colorScheme.surfaceContainerLow
+              : theme.colorScheme.surfaceContainer,
         DrivonCardTone.highlight => colors.highlight,
         DrivonCardTone.hero => null,
       },
@@ -86,6 +95,8 @@ class DrivonCard extends StatelessWidget {
         ),
         child: content,
       );
+    } else if (onSheet) {
+      content = Theme(data: theme, child: content);
     }
 
     return Material(

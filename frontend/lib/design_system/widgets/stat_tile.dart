@@ -31,13 +31,6 @@ class StatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final colors = context.drivonColors;
-    final onHighlight = tone != DrivonCardTone.surface;
-    final valueColor = onHighlight ? colors.onHighlight : colors.textPrimary;
-    final captionColor = onHighlight
-        ? colors.onHighlight
-        : colors.textSecondary;
     final semanticsLabel = [
       label,
       [value, ?unit].join(' '),
@@ -52,50 +45,60 @@ class StatTile extends StatelessWidget {
       child: DrivonCard(
         tone: tone,
         onTap: onTap,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TagChip(label: label, tone: tagTone),
-            const SizedBox(height: DrivonSpacing.lg),
-            // A figure is never cut off: long values shrink to fit.
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: value,
-                      style: textTheme.displaySmall?.copyWith(
-                        color: valueColor,
-                      ),
-                    ),
-                    if (unit != null)
-                      TextSpan(
-                        text: ' $unit',
-                        style: textTheme.titleMedium?.copyWith(
-                          color: captionColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                  ],
-                ),
-                maxLines: 1,
-              ),
-            ),
-            if (caption != null) ...[
-              const SizedBox(height: DrivonSpacing.xs),
-              Text(
-                caption!,
-                style: textTheme.bodySmall?.copyWith(color: captionColor),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ],
-        ),
+        // Read the theme below the card, which may re-theme its content.
+        child: Builder(builder: _content),
       ),
+    );
+  }
+
+  Widget _content(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colors = context.drivonColors;
+    final onHighlight = tone != DrivonCardTone.surface;
+    final valueColor = onHighlight ? colors.onHighlight : colors.textPrimary;
+    final captionColor = onHighlight
+        ? colors.onHighlight
+        : colors.textSecondary;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TagChip(label: label, tone: tagTone),
+        const SizedBox(height: DrivonSpacing.lg),
+        // A figure is never cut off: long values shrink to fit.
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: value,
+                  style: textTheme.displaySmall?.copyWith(color: valueColor),
+                ),
+                if (unit != null)
+                  TextSpan(
+                    text: ' $unit',
+                    style: textTheme.titleMedium?.copyWith(
+                      color: captionColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+              ],
+            ),
+            maxLines: 1,
+          ),
+        ),
+        if (caption != null) ...[
+          const SizedBox(height: DrivonSpacing.xs),
+          Text(
+            caption!,
+            style: textTheme.bodySmall?.copyWith(color: captionColor),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ],
     );
   }
 }

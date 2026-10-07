@@ -85,10 +85,7 @@ abstract final class DrivonTheme {
   /// Theme for content placed directly on the light paper sheet. Built once,
   /// because every sheet applies it to its subtree.
   static ThemeData paper() => _paper;
-  static final ThemeData _paper = _build(
-    paperColorScheme,
-    DrivonColors.paper,
-  );
+  static final ThemeData _paper = _build(paperColorScheme, DrivonColors.paper);
 
   static ThemeData _build(ColorScheme scheme, DrivonColors colors) {
     final textTheme = DrivonTypography.textTheme(

@@ -290,4 +290,66 @@ void main() {
       handle.dispose();
     });
   });
+
+  group('SheetScrollView', () {
+    Widget sheetHost(List<Widget> sheet) => MaterialApp(
+      theme: DrivonTheme.dark(),
+      home: Scaffold(
+        body: SheetScrollView(header: const [Text('Header')], sheet: sheet),
+      ),
+    );
+
+    testWidgets('gives content on the paper the paper theme', (tester) async {
+      late ThemeData onPaper;
+      await tester.pumpWidget(
+        sheetHost([
+          Builder(
+            builder: (context) {
+              onPaper = Theme.of(context);
+              return const Text('Row');
+            },
+          ),
+        ]),
+      );
+
+      expect(find.text('Header'), findsOneWidget);
+      expect(onPaper.brightness, Brightness.light);
+      expect(
+        onPaper.extension<DrivonColors>()!.textPrimary,
+        DrivonColors.paper.textPrimary,
+      );
+    });
+
+    testWidgets('keeps cards on the paper dark', (tester) async {
+      late ThemeData inCard;
+      await tester.pumpWidget(
+        sheetHost([
+          DrivonCard(
+            child: Builder(
+              builder: (context) {
+                inCard = Theme.of(context);
+                return const Text('Card');
+              },
+            ),
+          ),
+        ]),
+      );
+
+      expect(inCard.brightness, Brightness.dark);
+      expect(
+        inCard.extension<DrivonColors>()!.textPrimary,
+        DrivonColors.dark.textPrimary,
+      );
+    });
+
+    testWidgets('stat tiles on the paper keep light figures', (tester) async {
+      await tester.pumpWidget(
+        sheetHost([const StatTile(label: 'Average', value: '14.2')]),
+      );
+
+      final figure = tester.widget<Text>(find.textContaining('14.2'));
+      final span = (figure.textSpan! as TextSpan).children!.first as TextSpan;
+      expect(span.style?.color, DrivonColors.dark.textPrimary);
+    });
+  });
 }
