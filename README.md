@@ -94,6 +94,7 @@ All variables are listed with placeholders in [`backend/.env.example`](backend/.
 | `API_PORT` | Docker Compose | Host port for the containerised API |
 | `SPRING_PROFILES_ACTIVE` | Backend | `dev` locally, `prod` on Render |
 | `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | Backend | Database connection (Neon needs `sslmode=require`) |
+| `JWT_SECRET` | Backend | Base64 HS256 signing key (≥ 256 bits, `openssl rand -base64 48`); required in prod |
 | `PORT` | Backend | HTTP port, injected by Render |
 
 The Flutter app takes only non-secret build settings via `--dart-define` (`API_BASE_URL`).
