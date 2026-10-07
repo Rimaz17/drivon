@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
@@ -304,5 +305,79 @@ class FuelServiceTest {
         ArgumentCaptor.forClass(org.springframework.data.domain.Pageable.class);
     verify(records).findByVehicleId(eq(VEHICLE), pageable.capture());
     assertThat(pageable.getValue().getSort().getOrderFor("date")).isNotNull();
+  }
+
+  private static FuelFill fill(LocalDate date, int odometer, String litres, boolean full) {
+    BigDecimal quantity = new BigDecimal(litres);
+    return new FuelFill(
+        UUID.randomUUID(),
+        date,
+        odometer,
+        quantity,
+        quantity.multiply(new BigDecimal("365")),
+        full);
+  }
+
+  @Test
+  void statsUseOnlyTheStretchesThatEndedInTheRange() {
+    FuelRecordRepository.Totals totals = mock(FuelRecordRepository.Totals.class);
+    when(totals.getAmount()).thenReturn(new BigDecimal("18250"));
+    when(totals.getLitres()).thenReturn(new BigDecimal("50"));
+    when(totals.getFillUps()).thenReturn(2L);
+    LocalDate from = LocalDate.of(2026, 9, 1);
+    LocalDate to = LocalDate.of(2026, 9, 30);
+    when(records.sumBetween(VEHICLE, from, to)).thenReturn(totals);
+    when(records.findFillsInOdometerOrder(VEHICLE))
+        .thenReturn(
+            List.of(
+                fill(LocalDate.of(2026, 8, 1), 10_000, "30", true),
+                fill(LocalDate.of(2026, 8, 20), 10_600, "40", true), // 15 km/L, ends in August
+                fill(LocalDate.of(2026, 9, 10), 10_900, "20", true), // 15 km/L
+                fill(LocalDate.of(2026, 9, 25), 11_200, "30", true))); // 10 km/L
+
+    FuelStatsResponse stats = service.stats(USER, VEHICLE, from, to);
+
+    verify(vehicles).requireOwned(USER, VEHICLE);
+    assertThat(stats.totalSpend().toPlainString()).isEqualTo("18250.00");
+    assertThat(stats.totalLitres().toPlainString()).isEqualTo("50.000");
+    assertThat(stats.fillUps()).isEqualTo(2);
+    assertThat(stats.trackedDistanceKm()).isEqualTo(600);
+    assertThat(stats.averageKmPerLitre()).isEqualByComparingTo("12.00"); // 600 km / 50 L
+    assertThat(stats.bestKmPerLitre()).isEqualByComparingTo("15.00");
+    assertThat(stats.latestKmPerLitre()).isEqualByComparingTo("10.00");
+    assertThat(stats.costPerKm()).isEqualByComparingTo("30.42"); // Rs. 18,250 / 600 km
+  }
+
+  @Test
+  void statsHaveNoEfficiencyBeforeTwoFullFills() {
+    FuelRecordRepository.Totals totals = mock(FuelRecordRepository.Totals.class);
+    when(totals.getAmount()).thenReturn(BigDecimal.ZERO);
+    when(totals.getLitres()).thenReturn(BigDecimal.ZERO);
+    when(records.sumBetween(eq(VEHICLE), any(), any())).thenReturn(totals);
+    when(records.findFillsInOdometerOrder(VEHICLE))
+        .thenReturn(List.of(fill(TODAY, 10_000, "30", true)));
+
+    FuelStatsResponse stats = service.stats(USER, VEHICLE, null, null);
+
+    assertThat(stats.from()).isEqualTo(BusinessCalendar.EARLIEST);
+    assertThat(stats.to()).isEqualTo(TODAY);
+    assertThat(stats.totalSpend().toPlainString()).isEqualTo("0.00");
+    assertThat(stats.averageKmPerLitre()).isNull();
+    assertThat(stats.costPerKm()).isNull();
+    assertThat(stats.trackedDistanceKm()).isZero();
+  }
+
+  @Test
+  void monthlySpendCoversTheLastMonthsUpToThisOne() {
+    when(records.sumByMonth(VEHICLE, LocalDate.of(2026, 5, 1), LocalDate.of(2026, 10, 31)))
+        .thenReturn(List.of());
+
+    var months = service.monthlySpend(USER, VEHICLE, 6);
+
+    verify(vehicles).requireOwned(USER, VEHICLE);
+    assertThat(months).hasSize(6);
+    assertThat(months.get(0).month()).isEqualTo(YearMonth.of(2026, 5));
+    assertThat(months.get(5).month()).isEqualTo(YearMonth.of(2026, 10));
+    assertThat(months.get(5).total().toPlainString()).isEqualTo("0.00");
   }
 }

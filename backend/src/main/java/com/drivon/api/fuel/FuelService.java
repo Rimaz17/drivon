@@ -2,7 +2,10 @@ package com.drivon.api.fuel;
 
 import com.drivon.api.common.error.DrivonException;
 import com.drivon.api.common.error.ErrorCode;
+import com.drivon.api.common.stats.MonthlyAmount;
+import com.drivon.api.common.stats.MonthlySeries;
 import com.drivon.api.common.time.BusinessCalendar;
+import com.drivon.api.common.time.DateRange;
 import com.drivon.api.common.web.PageResponse;
 import com.drivon.api.common.web.SortOptions;
 import com.drivon.api.fuel.FuelRecord.FuelDetails;
@@ -12,6 +15,9 @@ import com.drivon.api.vehicle.Vehicle;
 import com.drivon.api.vehicle.VehicleService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -122,6 +128,44 @@ public class FuelService {
     FuelRecord record = find(vehicleId, recordId);
     records.delete(record);
     odometer.removeLinked(vehicle, record.getId());
+  }
+
+  /**
+   * Spend, litres and efficiency for a date range (open ends mean "from the beginning" and "up to
+   * today"). Efficiency uses the full-to-full stretches that ended inside the range.
+   */
+  @Transactional(readOnly = true)
+  public FuelStatsResponse stats(
+      UUID userId, UUID vehicleId, @Nullable LocalDate from, @Nullable LocalDate to) {
+    vehicles.requireOwned(userId, vehicleId);
+    DateRange range = calendar.range(from, to);
+    FuelRecordRepository.Totals totals = records.sumBetween(vehicleId, range.from(), range.to());
+    List<FuelInterval> intervals =
+        FuelEfficiencyCalculator.intervals(records.findFillsInOdometerOrder(vehicleId)).stream()
+            .filter(interval -> range.contains(interval.endDate()))
+            .toList();
+    FuelEfficiencyCalculator.Summary efficiency = FuelEfficiencyCalculator.summarize(intervals);
+    return new FuelStatsResponse(
+        range.from(),
+        range.to(),
+        totals.getAmount().setScale(2, RoundingMode.HALF_UP),
+        totals.getLitres().setScale(3, RoundingMode.HALF_UP),
+        totals.getFillUps(),
+        efficiency.averageKmPerLitre(),
+        efficiency.bestKmPerLitre(),
+        efficiency.latestKmPerLitre(),
+        efficiency.costPerKm(),
+        efficiency.distanceKm());
+  }
+
+  /** Fuel spend for each of the last {@code months} months up to this one, oldest first. */
+  @Transactional(readOnly = true)
+  public List<MonthlyAmount> monthlySpend(UUID userId, UUID vehicleId, int months) {
+    vehicles.requireOwned(userId, vehicleId);
+    YearMonth last = calendar.currentMonth();
+    YearMonth first = MonthlySeries.firstMonth(last, months);
+    return MonthlySeries.of(
+        last, months, records.sumByMonth(vehicleId, first.atDay(1), last.atEndOfMonth()));
   }
 
   private FuelDetails validate(FuelRecordRequest request) {
