@@ -181,7 +181,14 @@ class _NextServiceCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: DrivonSpacing.lg),
-                Text(headline, style: textTheme.headlineSmall),
+                // A due date reads as a headline; a prompt or status line
+                // (nothing logged yet, loading, failed) stays smaller.
+                Text(
+                  headline,
+                  style: detailText != null
+                      ? textTheme.headlineSmall
+                      : textTheme.titleMedium,
+                ),
                 if (detailText != null) ...[
                   const SizedBox(height: DrivonSpacing.xs),
                   Text(detailText, style: textTheme.bodyMedium),
