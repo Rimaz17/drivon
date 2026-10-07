@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Drivon — Manual Test Guide, Phases 1–3</title>
+<style>
+  @font-face { font-family: "Hanken"; font-weight: 400; src: url("../../frontend/assets/fonts/hanken_grotesk/HankenGrotesk-Regular.ttf"); }
+  @font-face { font-family: "Hanken"; font-weight: 500; src: url("../../frontend/assets/fonts/hanken_grotesk/HankenGrotesk-Medium.ttf"); }
+  @font-face { font-family: "Hanken"; font-weight: 600; src: url("../../frontend/assets/fonts/hanken_grotesk/HankenGrotesk-SemiBold.ttf"); }
+  @font-face { font-family: "Hanken"; font-weight: 700; src: url("../../frontend/assets/fonts/hanken_grotesk/HankenGrotesk-Bold.ttf"); }
+  @font-face { font-family: "Hanken"; font-weight: 300; src: url("../../frontend/assets/fonts/hanken_grotesk/HankenGrotesk-Light.ttf"); }
+
+  @page { size: A4; margin: 16mm 15mm 18mm; }
+  :root { --ink: #17151c; --muted: #55525d; --line: #dcd9e2; --violet: #5b3cc4; --violet-soft: #efe9ff; --mint: #dff6f0; --amber: #fff3dd; }
+  * { box-sizing: border-box; }
+  body { font-family: "Hanken", "Segoe UI", sans-serif; color: var(--ink); font-size: 10.5pt; line-height: 1.45; margin: 0; }
+  h1 { font-size: 26pt; font-weight: 300; letter-spacing: -0.02em; margin: 0 0 4pt; }
+  h2 { font-size: 16pt; font-weight: 600; margin: 22pt 0 8pt; padding-top: 6pt; border-top: 2px solid var(--violet); break-after: avoid; }
+  h3 { font-size: 11.5pt; font-weight: 700; margin: 0 0 6pt; break-after: avoid; }
+  p { margin: 0 0 7pt; }
+  .lead { color: var(--muted); font-size: 11pt; margin-bottom: 14pt; }
+  .meta { color: var(--muted); font-size: 9pt; }
+  code, .v { font-family: "Hanken", sans-serif; font-weight: 600; background: var(--violet-soft); padding: 0 3pt; border-radius: 3pt; white-space: nowrap; }
+  .ui { font-weight: 600; }
+  .say { font-weight: 600; color: var(--violet); }
+  .box { border: 1px solid var(--line); border-radius: 8pt; padding: 9pt 11pt; margin: 0 0 10pt; }
+  .note { background: var(--amber); border-radius: 8pt; padding: 8pt 11pt; margin: 0 0 10pt; }
+  .tip { background: var(--mint); border-radius: 8pt; padding: 8pt 11pt; margin: 0 0 10pt; }
+  .test { border: 1px solid var(--line); border-radius: 8pt; padding: 9pt 11pt 7pt; margin: 0 0 10pt; break-inside: avoid; }
+  .test .id { color: var(--violet); font-weight: 700; margin-right: 4pt; }
+  .label { font-size: 8.5pt; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 6pt 0 3pt; }
+  ol, ul { margin: 0 0 4pt; padding-left: 16pt; }
+  li { margin: 0 0 2.5pt; }
+  ul.expect { list-style: none; padding-left: 0; }
+  ul.expect li { padding-left: 15pt; position: relative; }
+  ul.expect li::before { content: "✓"; position: absolute; left: 0; color: #138a6d; font-weight: 700; }
+  .result { border-top: 1px dashed var(--line); margin-top: 6pt; padding-top: 5pt; font-size: 9.5pt; color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 10pt; font-size: 9.5pt; }
+  th, td { text-align: left; border-bottom: 1px solid var(--line); padding: 4pt 6pt; vertical-align: top; }
+  th { font-weight: 700; background: #f6f4fa; }
+  .num { text-align: right; white-space: nowrap; }
+  .cover { margin-bottom: 8pt; }
+  .toc { font-size: 9.5pt; }
+  .toc div { margin-bottom: 4pt; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>Drivon — Manual Test Guide</h1>
+  <p class="lead">Phases 1–3: accounts and vehicles, fuel tracking, maintenance and expenses. Every test is done in the app on your phone. Each one lists exactly what to type and tap, and what you should see.</p>
+  <p class="meta">Expected values were checked against the API with this exact scenario. Text in <span class="say">violet</span> is shown by the app word for word.</p>
+</div>
+
+<h2>Before you start</h2>
+<div class="box">
+  <ol>
+    <li>Start the API on your laptop and run the latest app build on your phone, as usual (see <code>frontend/README.md</code>).</li>
+    <li>Use a <b>new account</b> (an email you have not registered before) so the numbers match this guide. If you repeat the guide, change the email, for example <code>nimal.drivon2@example.com</code>.</li>
+    <li>Run the tests <b>in order and on the same day</b>. Later tests build on earlier ones, and dates are relative to <b>today</b>.</li>
+    <li>Wherever the guide says <b>today</b>, the app shows today's date in the format <code>7 Oct 2026</code>. <b>Current month</b> means the month name and year, for example <code>October 2026</code>.</li>
+    <li>Confirmation messages such as <span class="say">Fill-up logged</span> appear briefly in a dark bar at the bottom of the screen (a snackbar). If two come quickly, the second shows after the first fades, so wait a few seconds before checking it.</li>
+  </ol>
+</div>
+<div class="note"><b>How to read a test.</b> <b>Steps</b> say what to do: <i>Field → value</i> means tap the field and type the value. <b>Expected</b> lists what must be true. Tick Pass or Fail and note anything odd.</div>
+
+<h3>Test data used throughout</h3>
+<table>
+  <tr><th>Item</th><th>Value</th></tr>
+  <tr><td>Your name</td><td>Nimal Perera</td></tr>
+  <tr><td>Email</td><td>nimal.drivon@example.com</td></tr>
+  <tr><td>Password</td><td>Drivon2026</td></tr>
+  <tr><td>Vehicle 1</td><td>Toyota Aqua, 2018, registration <code>cab - 1234</code>, Hybrid, odometer 45,000 km</td></tr>
+  <tr><td>Vehicle 2</td><td>Honda Dio, 2021, registration <code>BGH-4521</code>, Petrol, odometer 12,000 km</td></tr>
+  <tr><td>Fuel price</td><td>Rs. 365 per litre</td></tr>
+</table>
+
+<div class="toc">
+  <div><b>Phase 1 — Accounts &amp; vehicles</b></div>
+  <div>1.1 Create-account checks · 1.2 Create the account · 1.3 Stay signed in · 1.4 Sign out and sign in · 1.5 Vehicle form checks · 1.6 Add the first vehicle · 1.7 Add a second vehicle · 1.8 Duplicate plate · 1.9 Odometer can't go down · 1.10 Remembered vehicle · 1.11 Delete a vehicle</div>
+  <div><b>Phase 2 — Fuel tracking</b></div>
+  <div>2.1 Tabs and empty Fuel tab · 2.2 Fill-up form checks · 2.3 First fill-up · 2.4 Top-up · 2.5 First km/L · 2.6 Another full tank · 2.7 Odometer order · 2.8 Litres from an amount · 2.9 Edit a fill-up · 2.10 Delete a fill-up · 2.11 Odometer history · 2.12 Add and delete a reading · 2.13 Correct a reading · 2.14 Raise the odometer</div>
+  <div><b>Phase 3 — Maintenance &amp; expenses</b></div>
+  <div>3.1 Empty Service tab · 3.2 Service form checks · 3.3 Log an oil change · 3.4 Service with a next date · 3.5 Filter the history · 3.6 Free service · 3.7 Edit and delete services · 3.8 Service reading in odometer history · 3.9 Expenses tab totals · 3.10 Expense form checks · 3.11 Add expenses · 3.12 Periods and months · 3.13 Edit and delete an expense · 3.14 Compare two vehicles</div>
+</div>
+
+<!-- ======================================================= PHASE 1 -->
+<h2>Phase 1 — Accounts &amp; vehicles</h2>
+
+<div class="test">
+  <h3><span class="id">1.1</span>Create-account form checks</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Open the app. On <span class="say">Welcome back</span>, tap <span class="ui">Create an account</span>.</li>
+    <li>Leave every field empty and tap <span class="ui">Create account</span>.</li>
+    <li>Your name → <code>Nimal Perera</code>, Email → <code>nimal@</code>, Password → <code>short1</code>. Tap <span class="ui">Create account</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 2: under the fields: <span class="say">Enter your name.</span>, <span class="say">Enter your email.</span> and <span class="say">Enter your password.</span> Nothing is sent.</li>
+    <li>The password field has the hint <span class="say">At least 8 characters</span>.</li>
+    <li>Step 3: <span class="say">Enter a valid email, like name@example.com.</span> under Email and <span class="say">Use at least 8 characters.</span> under Password.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">1.2</span>Create the account</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Email → <code>nimal.drivon@example.com</code>, Password → <code>Drivon2026</code> (name stays Nimal Perera).</li>
+    <li>Tap the eye icon in the password field, then tap it again.</li>
+    <li>Tap <span class="ui">Create account</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>The eye icon shows, then hides, the password.</li>
+    <li>The Garage opens with <span class="say">Hello, Nimal</span> and the empty state <span class="say">Add your first vehicle</span> with an <span class="ui">Add vehicle</span> button.</li>
+    <li>The bottom bar shows <span class="ui">Garage</span>, <span class="ui">Fuel</span>, <span class="ui">Service</span> and <span class="ui">Expenses</span>, with Garage selected.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">1.3</span>Stay signed in after restarting</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Close the app completely (swipe it away from recent apps), then open it again.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>After a short loading moment the Garage opens again with <span class="say">Hello, Nimal</span>. You are not asked to sign in.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">1.4</span>Sign out, duplicate email, wrong password, sign in</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap the account icon (top right of the Garage).</li>
+    <li>Tap <span class="ui">Sign out</span>.</li>
+    <li>Tap <span class="ui">Create an account</span>. Enter Nimal Perera, <code>nimal.drivon@example.com</code>, <code>Drivon2026</code> again and tap <span class="ui">Create account</span>.</li>
+    <li>Tap <span class="ui">Sign in</span> at the bottom. Email → <code>nimal.drivon@example.com</code>, Password → <code>Wrong2026</code>. Tap <span class="ui">Sign in</span>.</li>
+    <li>Change the password to <code>Drivon2026</code> and tap <span class="ui">Sign in</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 1: a sheet shows <span class="say">Nimal Perera</span>, <span class="say">nimal.drivon@example.com</span> and a <span class="ui">Sign out</span> button.</li>
+    <li>Step 2: the <span class="say">Welcome back</span> sign-in screen opens.</li>
+    <li>Step 3: a message reads <span class="say">An account with this email already exists. Sign in instead.</span></li>
+    <li>Step 4: a message reads <span class="say">That email and password don't match. Try again.</span></li>
+    <li>Step 5: the Garage opens with <span class="say">Hello, Nimal</span>.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">1.5</span>Vehicle form checks</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap <span class="ui">Add vehicle</span>. Without filling anything, scroll down and tap <span class="ui">Add vehicle</span>.</li>
+    <li>Model year → <code>1899</code>, Registration number → <code>CAB/1234</code>. Tap <span class="ui">Add vehicle</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 1: <span class="say">Enter the make.</span>, <span class="say">Enter the model.</span>, <span class="say">Enter the model year.</span>, <span class="say">Enter the registration number.</span>, <span class="say">Choose a fuel type.</span> and <span class="say">Enter the odometer reading.</span></li>
+    <li>Step 2: <span class="say">Enter a year from 1900 to 2027.</span> (the last year is next year) and <span class="say">Use up to 20 letters, numbers, spaces and hyphens.</span></li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">1.6</span>Add the first vehicle</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Fill the form: Make → <code>Toyota</code>, Model → <code>Aqua</code>, Model year → <code>2018</code>, Registration number → <code>cab - 1234</code>, Fuel type → tap <span class="ui">Hybrid</span>, Current odometer → <code>45000</code>.</li>
+    <li>Tap <span class="ui">Add vehicle</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>A message shows <span class="say">Vehicle added</span> and the Garage opens.</li>
+    <li>The large card shows <span class="say">CAB-1234</span> (normalized: upper case, no spaces around the hyphen), <span class="say">Toyota Aqua</span>, <span class="say">Odometer</span> and <span class="say">45,000 km</span>.</li>
+    <li>Below it: an <span class="ui">Odometer history</span> link, a <span class="say">Fuel type</span> tile showing <span class="say">Hybrid</span>, a <span class="say">Model year</span> tile showing <span class="say">2018</span>, and an <span class="ui">Add another vehicle</span> button.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">1.7</span>Add a second vehicle (limit of two)</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap <span class="ui">Add another vehicle</span>. Make → <code>Honda</code>, Model → <code>Dio</code>, Model year → <code>2021</code>, Registration number → <code>BGH-4521</code>, Fuel type → <span class="ui">Petrol</span>, Current odometer → <code>12000</code>. Tap <span class="ui">Add vehicle</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li><span class="say">Vehicle added</span>. A switcher with <span class="ui">Aqua</span> and <span class="ui">Dio</span> appears above the card, with <b>Dio</b> selected.</li>
+    <li>The card shows <span class="say">BGH-4521</span>, <span class="say">Honda Dio</span>, <span class="say">12,000 km</span>; the tiles show <span class="say">Petrol</span> and <span class="say">2021</span>.</li>
+    <li>The Add another vehicle button is gone and the text <span class="say">You've added the maximum of two vehicles.</span> appears instead.</li>
+    <li>Tapping <span class="ui">Aqua</span> in the switcher shows the Toyota again; tap <span class="ui">Dio</span> to go back.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">1.8</span>Registration numbers are unique per user</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>With Dio selected, tap the pencil icon on the card (<span class="ui">Edit vehicle</span>).</li>
+    <li>Registration number → <code>cab-1234</code>. Tap <span class="ui">Save changes</span>.</li>
+    <li>Change it back to <code>BGH-4521</code> and tap <span class="ui">Save changes</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 2: under the registration field: <span class="say">You already have a vehicle with this registration number.</span> Nothing is saved.</li>
+    <li>Step 3: <span class="say">Changes saved</span> and the Garage shows BGH-4521 again.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">1.9</span>The odometer can't go down in the vehicle form</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Open <span class="ui">Edit vehicle</span> for Dio again. Read the hint under <span class="ui">Current odometer</span>.</li>
+    <li>Current odometer → <code>11000</code>. Tap <span class="ui">Save changes</span>.</li>
+    <li>Current odometer → <code>12500</code>. Tap <span class="ui">Save changes</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 1: the hint reads <span class="say">At least 12,000 km. To fix a mistyped reading, use Odometer history.</span></li>
+    <li>Step 2: <span class="say">Can't be lower than 12,000 km, the last saved reading.</span> Nothing is saved.</li>
+    <li>Step 3: <span class="say">Changes saved</span>; the card shows <span class="say">12,500 km</span>.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">1.10</span>The selected vehicle is remembered</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap <span class="ui">Aqua</span> in the switcher.</li>
+    <li>Close the app completely and open it again.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>The Garage reopens with <b>Aqua</b> selected (CAB-1234, 45,000 km).</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">1.11</span>Delete a vehicle</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap <span class="ui">Dio</span>, then the pencil icon.</li>
+    <li>Tap the bin icon at the top right (<span class="ui">Delete vehicle</span>), then tap <span class="ui">Cancel</span>.</li>
+    <li>Tap the bin icon again, then <span class="ui">Delete</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 2: a dialog asks <span class="say">Delete Honda Dio?</span> with <span class="say">This removes the vehicle and its details from Drivon. It can't be undone.</span> Cancel closes it and nothing changes.</li>
+    <li>Step 3: <span class="say">Vehicle deleted</span>. The Garage shows only the Toyota Aqua, with no switcher, and the <span class="ui">Add another vehicle</span> button is back.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<!-- ======================================================= PHASE 2 -->
+<h2>Phase 2 — Fuel tracking</h2>
+<div class="tip">From here on, the vehicle is the <b>Toyota Aqua</b> (added today at 45,000 km). km/L uses the <b>full-tank method</b>: the distance between two fill-ups to full, divided by all litres added after the first of them.</div>
+
+<div class="test">
+  <h3><span class="id">2.1</span>Fuel tab before any fill-up</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap <span class="ui">Fuel</span> in the bottom bar.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>The title is <span class="say">Fuel</span> and the Fuel tab is highlighted in the bottom bar.</li>
+    <li>The screen shows <span class="say">Log your first fill-up</span>, the explanation <span class="say">Fill the tank to full and log it. After your next full fill-up, Drivon shows your km/L and fuel cost per km.</span>, and a <span class="ui">Log fill-up</span> button.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">2.2</span>Fill-up form checks</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap <span class="ui">Log fill-up</span>. Look at the form before typing.</li>
+    <li>Scroll down and tap the purple <span class="ui">Log fill-up</span> button without filling anything.</li>
+    <li>Tap the system back button (or swipe back) to leave the form.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 1: the title is <span class="say">Log fill-up</span>. <span class="ui">Date</span> shows <b>today</b>. The hint under <span class="ui">Odometer reading</span> reads <span class="say">Currently 45,000 km</span>. The fields are Litres, Amount paid and Price per litre, with the text <span class="say">Enter any two of litres, price and amount.</span> above them. <span class="ui">Filled to full</span> is switched on. There is a Station (optional) field.</li>
+    <li>Step 2: <span class="say">Enter the odometer reading.</span>, <span class="say">Enter the litres.</span> and <span class="say">Enter the amount paid.</span> Nothing is saved.</li>
+    <li>Step 3: back on the empty Fuel tab.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">2.3</span>Log the first fill-up (full tank)</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap <span class="ui">Log fill-up</span>. Odometer reading → <code>45000</code>, Litres → <code>30</code>, Amount paid → <code>10950</code>.</li>
+    <li>Look at <span class="ui">Price per litre</span> (don't type in it).</li>
+    <li>Leave <span class="ui">Filled to full</span> on. Station (optional) → <code>Ceypetco Kollupitiya</code>. Tap <span class="ui">Log fill-up</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 2: Price per litre fills in by itself as <code>Rs. 365</code>, with the hint <span class="say">Calculated from the other two</span>.</li>
+    <li>Step 3: <span class="say">Fill-up logged</span>. The Fuel tab now shows:
+      <ul>
+        <li>a card <span class="say">km/L comes after two full fill-ups</span> (no gauge yet);</li>
+        <li><span class="say">This month</span>: <span class="say">Rs. 10,950</span>; <span class="say">Fuel cost</span>: <span class="say">–</span> with <span class="say">After two full fill-ups</span>;</li>
+        <li><span class="say">Monthly fuel spend</span>: the current month (top row) Rs. 10,950, the five earlier months Rs. 0, and the footnote <span class="say">All time: Rs. 10,950 on 1 fill-up, 30 L</span>;</li>
+        <li>under <span class="say">Fill-ups</span>: a row <span class="say">Rs. 10,950</span> / <span class="say">today · 30 L · 45,000 km</span> / <span class="say">Ceypetco Kollupitiya</span>, with no tag.</li>
+      </ul></li>
+    <li>A purple <span class="ui">Log fill-up</span> button now floats at the bottom right.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">2.4</span>Log a top-up (partial fill), with litres calculated</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap <span class="ui">Log fill-up</span>. Odometer reading → <code>45200</code>.</li>
+    <li>Price per litre → <code>365</code>, then Amount paid → <code>3650</code>. Look at Litres.</li>
+    <li>Switch <span class="ui">Filled to full</span> <b>off</b>. Tap <span class="ui">Log fill-up</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 2: Litres fills in as <code>10</code> with <span class="say">Calculated from the other two</span>.</li>
+    <li>Step 3: <span class="say">Fill-up logged</span>. The newest row reads <span class="say">Rs. 3,650</span> / <span class="say">today · 10 L · 45,200 km</span> with a grey <span class="say">Top-up</span> tag. Still no km/L (only one full fill so far).</li>
+    <li>This month: <span class="say">Rs. 14,600</span>; footnote <span class="say">All time: Rs. 14,600 on 2 fill-ups, 40 L</span>.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">2.5</span>The second full tank gives the first km/L</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap <span class="ui">Log fill-up</span>. Odometer reading → <code>45500</code>, Litres → <code>15</code>, Amount paid → <code>5475</code> (Price per litre becomes Rs. 365). Leave Filled to full <b>on</b>. Tap <span class="ui">Log fill-up</span>.</li>
+    <li>Scroll the Fuel tab from top to bottom.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>A gauge shows <span class="say">20.00 km/L</span> with <span class="say">Last tank</span>, filled all the way (this is the best tank so far). Below it: <span class="say">Average 20.00 km/L</span> and <span class="say">Best tank 20.00 km/L</span>.<br><i>Why 20.00: 45,500 − 45,000 = 500 km on the 10 L + 15 L added after the first full fill = 25 L.</i></li>
+    <li><span class="say">This month</span>: <span class="say">Rs. 20,075</span>; <span class="say">Fuel cost</span>: <span class="say">Rs. 18.25 / km</span> (Rs. 3,650 + Rs. 5,475 over 500 km).</li>
+    <li>Footnote: <span class="say">All time: Rs. 20,075 on 3 fill-ups, 55 L</span>.</li>
+    <li>The newest row <span class="say">Rs. 5,475</span> / <span class="say">today · 15 L · 45,500 km</span> has a mint <span class="say">20.00 km/L</span> tag. The top-up keeps <span class="say">Top-up</span> and the first fill-up has no tag.</li>
+    <li>Garage tab: the odometer is now <span class="say">45,500 km</span>.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">2.6</span>Another full tank: latest, average and best differ</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>On the Fuel tab tap <span class="ui">Log fill-up</span>. Odometer reading → <code>45800</code>, Litres → <code>20</code>, Amount paid → <code>7300</code>, Filled to full <b>on</b>. Tap <span class="ui">Log fill-up</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Gauge: <span class="say">15.00 km/L</span> / <span class="say">Last tank</span>, now only partly filled. <span class="say">Average 17.78 km/L</span>, <span class="say">Best tank 20.00 km/L</span>.<br><i>Last tank: 300 km ÷ 20 L. Average: 800 km ÷ 45 L = 17.78 (distance-weighted).</i></li>
+    <li><span class="say">This month</span>: <span class="say">Rs. 27,375</span>; <span class="say">Fuel cost</span>: <span class="say">Rs. 20.53 / km</span> (Rs. 16,425 ÷ 800 km).</li>
+    <li>Footnote: <span class="say">All time: Rs. 27,375 on 4 fill-ups, 75 L</span>. The new row <span class="say">Rs. 7,300</span> has a <span class="say">15.00 km/L</span> tag.</li>
+    <li>Garage odometer: <span class="say">45,800 km</span>.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">2.7</span>A back-dated fill-up must fit the odometer timeline</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap <span class="ui">Log fill-up</span>. Tap <span class="ui">Date</span> and pick <b>yesterday</b> in the calendar.</li>
+    <li>Odometer reading → <code>46000</code>, Litres → <code>10</code>, Amount paid → <code>3650</code>. Tap <span class="ui">Log fill-up</span>.</li>
+    <li>Tap back to leave the form without saving.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 1: the calendar doesn't let you pick a date after today.</li>
+    <li>Step 2: under Odometer reading: <span class="say">For this date, enter at most 45,000 km, the reading on a later date.</span> (Today's readings start at 45,000 km, so yesterday can't be higher.) Nothing is saved.</li>
+    <li>Step 3: the Fuel tab is unchanged (still Rs. 27,375 this month).</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">2.8</span>Litres from a rupee amount (exact rounding)</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap <span class="ui">Log fill-up</span>. Price per litre → <code>365</code>, then Amount paid → <code>5000</code>.</li>
+    <li>Tap back to leave without saving.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Litres fills in as <code>13.699</code> (5,000 ÷ 365 = 13.6986…, rounded to 3 decimals).</li>
+    <li>Nothing is logged.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">2.9</span>Edit a fill-up: a full tank becomes a top-up</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap the <span class="say">Rs. 7,300</span> row. The <span class="say">Edit fill-up</span> form opens with its values filled in.</li>
+    <li>Switch <span class="ui">Filled to full</span> <b>off</b>. Tap <span class="ui">Save changes</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li><span class="say">Changes saved</span>. The Rs. 7,300 row now shows <span class="say">Top-up</span> instead of a km/L tag.</li>
+    <li>Gauge back to <span class="say">20.00 km/L</span>; <span class="say">Average 20.00</span>, <span class="say">Best tank 20.00</span>; <span class="say">Fuel cost Rs. 18.25 / km</span>. (A top-up after the last full tank waits for the next full fill.)</li>
+    <li>Spend is unchanged: <span class="say">Rs. 27,375</span> this month, <span class="say">All time: Rs. 27,375 on 4 fill-ups, 75 L</span>.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">2.10</span>Delete a fill-up</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap the <span class="say">Rs. 7,300</span> row, then the bin icon (<span class="ui">Delete fill-up</span>), then <span class="ui">Delete</span>.</li>
+    <li>Open the <span class="ui">Garage</span> tab.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>The dialog reads <span class="say">Delete this fill-up?</span> / <span class="say">km/L and fuel totals will be recalculated without it. This can't be undone.</span></li>
+    <li><span class="say">Fill-up deleted</span>. This month: <span class="say">Rs. 20,075</span>; footnote <span class="say">All time: Rs. 20,075 on 3 fill-ups, 55 L</span>; gauge 20.00.</li>
+    <li>Garage odometer: back to <span class="say">45,500 km</span> (the highest remaining reading).</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">2.11</span>Odometer history</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>On the Garage, tap <span class="ui">Odometer history</span> (under the vehicle card).</li>
+    <li>Tap the first <span class="say">45,500 km</span> row, then tap back.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Title <span class="say">Odometer history</span> and the explanation <span class="say">Readings from fill-ups, services and your own entries. A reading can't be lower than one on an earlier date or higher than one on a later date.</span></li>
+    <li>Four rows, newest first: <span class="say">45,500 km</span> (today · From a fill-up), <span class="say">45,200 km</span> (today · From a fill-up), <span class="say">45,000 km</span> (today · From a fill-up) and <span class="say">45,000 km</span> (today · Added with the vehicle). Fill-up rows also show <span class="say">Tap to open the fill-up</span>.</li>
+    <li>Step 2: the <span class="say">Edit fill-up</span> form for the Rs. 5,475 fill-up opens.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">2.12</span>Add and delete a manual reading</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>On Odometer history tap <span class="ui">Add reading</span>. Leave Date as today. Odometer reading → <code>45600</code>. Tap <span class="ui">Save reading</span>.</li>
+    <li>Tap back to the Garage and check the odometer, then open Odometer history again.</li>
+    <li>Tap <span class="ui">Add reading</span>, set Date to <b>yesterday</b>, Odometer reading → <code>46000</code>, tap <span class="ui">Save reading</span>. Then tap back.</li>
+    <li>Tap the <span class="say">45,600 km</span> row (Entered by you), tap the bin icon (<span class="ui">Delete reading</span>), then <span class="ui">Delete</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 1: <span class="say">Reading added</span>; a new top row <span class="say">45,600 km</span> / <span class="say">today · Entered by you</span>.</li>
+    <li>Step 2: Garage odometer <span class="say">45,600 km</span>.</li>
+    <li>Step 3: <span class="say">For this date, enter at most 45,000 km, the reading on a later date.</span> Nothing is saved.</li>
+    <li>Step 4: the dialog reads <span class="say">Delete this reading?</span> / <span class="say">The vehicle's odometer will show the highest remaining reading.</span>; then <span class="say">Reading deleted</span>. The Garage odometer is back to <span class="say">45,500 km</span>.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">2.13</span>Correct the reading the vehicle was added with</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>In Odometer history tap the <span class="say">45,000 km</span> row that says <span class="say">Added with the vehicle</span>.</li>
+    <li>Odometer reading → <code>44900</code>. Tap <span class="ui">Save reading</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 1: the title is <span class="say">Correct reading</span>, with the note <span class="say">Fix a mistyped reading here. The vehicle's odometer always shows the highest reading, so a correction can lower it.</span> There is <b>no</b> bin icon (this reading can be corrected but not deleted).</li>
+    <li>Step 2: <span class="say">Reading corrected</span>; the row now shows <span class="say">44,900 km</span> · Added with the vehicle. The Garage odometer stays <span class="say">45,500 km</span>.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">2.14</span>Raising the odometer in the vehicle form adds a reading</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>On the Garage tap the pencil icon. Read the hint under Current odometer.</li>
+    <li>Current odometer → <code>45550</code>. Tap <span class="ui">Save changes</span>.</li>
+    <li>Open <span class="ui">Odometer history</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 1: <span class="say">At least 45,500 km. To fix a mistyped reading, use Odometer history.</span></li>
+    <li>Step 2: <span class="say">Changes saved</span>; the Garage shows <span class="say">45,550 km</span>.</li>
+    <li>Step 3: the top row is <span class="say">45,550 km</span> / <span class="say">today · Entered by you</span>.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<!-- ======================================================= PHASE 3 -->
+<h2>Phase 3 — Maintenance &amp; expenses</h2>
+
+<div class="test">
+  <h3><span class="id">3.1</span>Service tab before any service</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap <span class="ui">Service</span> in the bottom bar.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Title <span class="say">Service</span>; the screen shows <span class="say">Log your first service</span>, the text <span class="say">Record oil changes, services and repairs. Add when the next one is due and Drivon shows it here.</span> and a <span class="ui">Log service</span> button.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">3.2</span>Service form checks</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap <span class="ui">Log service</span>. Look at the form.</li>
+    <li>Scroll down and tap the purple <span class="ui">Log service</span> button without filling anything.</li>
+    <li>Odometer (optional) → <code>45700</code>, Next service at → <code>45000</code>. Tap <span class="ui">Log service</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 1: fields <span class="ui">Service type</span>, <span class="ui">Date</span> (today), <span class="ui">Odometer (optional)</span> with <span class="say">Currently 45,550 km</span>, <span class="ui">Cost</span> with <span class="say">Enter 0 for free or warranty work.</span>, <span class="ui">Notes (optional)</span>, then a section <span class="say">Next service (optional)</span> with <span class="say">Set a date, a mileage or both. Drivon shows the next service on the Service tab.</span>, <span class="ui">Next service date</span> and <span class="ui">Next service at</span>.</li>
+    <li>Step 2: <span class="say">Choose a service type.</span> and <span class="say">Enter the cost.</span></li>
+    <li>Step 3: under Next service at: <span class="say">Enter more than 45,700 km, the odometer at this service.</span> The type and cost messages from step 2 are still shown. Nothing is saved.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">3.3</span>Log an oil change due again by mileage</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>In the same form: tap <span class="ui">Service type</span> and choose <span class="ui">Oil change</span>.</li>
+    <li>Keep Odometer at <code>45700</code>. Cost → <code>9800</code>, Notes → <code>Lanka Auto Care</code>, Next service at → <code>50700</code>. Leave Next service date empty.</li>
+    <li>Tap <span class="ui">Log service</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>The service type list offers: Oil change, General service, Tyre rotation, New tyres, Brake service, New battery, Wheel alignment, Air conditioning, Other service.</li>
+    <li><span class="say">Service logged</span>. Under <span class="say">Coming up</span>, a lavender card reads <span class="say">Oil change due in 5,000 km</span> / <span class="say">Due at 50,700 km</span> / <span class="say">Last done</span> today.</li>
+    <li>Under <span class="say">History</span>: filter chips (All selected) and a row <span class="say">Oil change</span> · <span class="say">Rs. 9,800</span> / <span class="say">today · 45,700 km</span> / <span class="say">Lanka Auto Care</span>.</li>
+    <li>Garage odometer: <span class="say">45,700 km</span>.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">3.4</span>A service due by date (no odometer)</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>On the Service tab tap the floating <span class="ui">Log service</span>. Service type → <span class="ui">Brake service</span>. Leave Odometer empty. Cost → <code>4500</code>.</li>
+    <li>Tap <span class="ui">Next service date</span> and pick the date <b>30 days from today</b> (for example 6 Nov 2026 if today is 7 Oct 2026). Then tap the <b>×</b> in the field, and pick the same date again.</li>
+    <li>Tap <span class="ui">Log service</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 2: the calendar starts the day after the service date. The × clears the date, and picking again sets it.</li>
+    <li>Step 3: <span class="say">Service logged</span>. The Coming up card now reads <span class="say">Brake service due in 30 days</span> / <span class="say">Due</span> + that date. Below the card a smaller row reads <span class="say">Oil change due in 5,000 km</span> / <span class="say">Due at 50,700 km</span>. (Services with a due date are listed before mileage-only ones.)</li>
+    <li>The brake row in History shows <span class="say">Rs. 4,500</span> and only the date (no km). The Garage odometer stays <span class="say">45,700 km</span>.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">3.5</span>Filter the service history</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Under History, swipe the chips left and tap <span class="ui">Brake service</span>.</li>
+    <li>Tap <span class="ui">Air conditioning</span>.</li>
+    <li>Tap <span class="ui">All</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 1: only the Brake service row is listed.</li>
+    <li>Step 2: <span class="say">No air conditioning records yet.</span></li>
+    <li>Step 3: both services are listed again. The Coming up section stays the same throughout.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">3.6</span>A free service</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap <span class="ui">Log service</span>. Service type → <span class="ui">Wheel alignment</span>, Cost → <code>0</code>. Leave everything else empty. Tap <span class="ui">Log service</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li><span class="say">Service logged</span>; a row <span class="say">Wheel alignment</span> · <span class="say">Rs. 0</span> appears at the top of History. Coming up is unchanged (it set no next service).</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">3.7</span>Edit and delete services</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap the <span class="say">Oil change</span> row. Cost → <code>10500</code>. Tap <span class="ui">Save changes</span>.</li>
+    <li>Tap the <span class="say">Brake service</span> row, tap the bin icon (<span class="ui">Delete service</span>), then <span class="ui">Delete</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 1: <span class="say">Changes saved</span>; the Oil change row shows <span class="say">Rs. 10,500</span>.</li>
+    <li>Step 2: the dialog reads <span class="say">Delete this service?</span> / <span class="say">It's removed from the history, totals and upcoming services. This can't be undone.</span>; then <span class="say">Service deleted</span>. The Coming up card is back to <span class="say">Oil change due in 5,000 km</span>. History lists Wheel alignment (Rs. 0) and Oil change (Rs. 10,500).</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">3.8</span>A service's reading in the odometer history</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Garage → <span class="ui">Odometer history</span>. Tap the top row.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>The rows, newest first: <span class="say">45,700 km</span> (From a service, <span class="say">Tap to open the service</span>), 45,550 km (Entered by you), 45,500 km, 45,200 km, 45,000 km (From a fill-up) and 44,900 km (Added with the vehicle).</li>
+    <li>Tapping the 45,700 km row opens <span class="say">Edit service</span> for the oil change.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">3.9</span>Expenses tab: fill-ups and services are already counted</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap <span class="ui">Expenses</span> in the bottom bar.</li>
+    <li>Scroll to the bottom.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>A period switch <span class="ui">This month</span> | <span class="ui">This year</span> | <span class="ui">All time</span> with This month selected.</li>
+    <li>The total is <span class="say">Rs. 30,575</span> with <span class="say">Fill-ups, services and expenses</span> under it (Rs. 20,075 fuel + Rs. 10,500 + Rs. 0 services).</li>
+    <li><span class="say">By category</span>: <span class="say">Fuel Rs. 20,075</span> (longest bar), then <span class="say">Maintenance Rs. 10,500</span>. Categories with nothing spent are not listed.</li>
+    <li><span class="say">Monthly spending</span>: the current month Rs. 30,575; earlier months Rs. 0.</li>
+    <li><span class="say">Expenses you logged</span>: <span class="say">Fill-ups and services are counted automatically. Add other costs such as insurance, parking and tolls.</span> An <span class="ui">Add expense</span> button floats at the bottom right.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">3.10</span>Expense form checks</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap <span class="ui">Add expense</span>, then the purple <span class="ui">Add expense</span> button without filling anything.</li>
+    <li>Tap the <span class="ui">Fuel</span> chip. Then tap the <span class="ui">Maintenance</span> chip.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 1: <span class="say">Choose a category.</span> and <span class="say">Enter the amount paid.</span> The category chips are Fuel, Maintenance, Repairs, Insurance, Parking, Tolls, Washing, Other.</li>
+    <li>Step 2: with Fuel selected a note reads <span class="say">Fill-ups from the Fuel tab are already counted as fuel. Use this for other fuel costs.</span>; with Maintenance: <span class="say">Services from the Service tab are already counted as maintenance. Use this for other costs, such as parts you bought yourself.</span></li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">3.11</span>Add expenses</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>In the same form: tap <span class="ui">Insurance</span>. Amount → <code>45000</code>, Notes → <code>Annual policy</code>. Tap <span class="ui">Add expense</span>.</li>
+    <li>Tap <span class="ui">Add expense</span> again: <span class="ui">Parking</span>, Amount → <code>200</code>, Notes → <code>Majestic City</code>. Tap <span class="ui">Add expense</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 1: <span class="say">Expense added</span>; the total is <span class="say">Rs. 75,575</span>; By category: <span class="say">Insurance Rs. 45,000</span>, <span class="say">Fuel Rs. 20,075</span>, <span class="say">Maintenance Rs. 10,500</span>.</li>
+    <li>Step 2: total <span class="say">Rs. 75,775</span>; Parking <span class="say">Rs. 200</span> is added as the fourth category.</li>
+    <li>Under Expenses you logged: <span class="say">Parking</span> · Rs. 200 / today / Majestic City, and <span class="say">Insurance</span> · Rs. 45,000 / today / Annual policy.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">3.12</span>Periods and monthly totals</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap <span class="ui">This year</span>, then <span class="ui">All time</span>, then <span class="ui">This month</span>.</li>
+    <li>Scroll to <span class="say">Monthly spending</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Each period shows a total of <span class="say">Rs. 75,775</span> (everything was logged today).</li>
+    <li>Monthly spending: the current month <span class="say">Rs. 75,775</span> with a full bar; the five earlier months Rs. 0.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">3.13</span>Edit and delete an expense</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Tap the <span class="say">Parking</span> row. Amount → <code>250</code>. Tap <span class="ui">Save changes</span>.</li>
+    <li>Tap the Parking row again, tap the bin icon (<span class="ui">Delete expense</span>), then <span class="ui">Delete</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 1: <span class="say">Changes saved</span>; total <span class="say">Rs. 75,825</span>.</li>
+    <li>Step 2: the dialog reads <span class="say">Delete this expense?</span> / <span class="say">It's removed from your totals. This can't be undone.</span>; then <span class="say">Expense deleted</span>; total <span class="say">Rs. 75,575</span>; Parking disappears from By category.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<div class="test">
+  <h3><span class="id">3.14</span>Compare two vehicles</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Garage → <span class="ui">Add another vehicle</span>: Honda, Dio, 2021, <code>BGH-4521</code>, Petrol, <code>12000</code>. Tap <span class="ui">Add vehicle</span> (Dio becomes selected).</li>
+    <li>Open <span class="ui">Expenses</span>.</li>
+    <li>Tap <span class="ui">Add expense</span>: <span class="ui">Washing</span>, Amount → <code>500</code>. Tap <span class="ui">Add expense</span>.</li>
+    <li>Tap <span class="ui">Aqua</span> in the switcher at the top of the Expenses tab.</li>
+    <li>Open the <span class="ui">Fuel</span> and <span class="ui">Service</span> tabs with Dio selected, then with Aqua selected.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 2: the switcher shows Aqua | Dio with Dio selected; total <span class="say">Rs. 0</span> and <span class="say">Nothing spent in this period yet.</span> under By category. A <span class="say">Your vehicles</span> card lists <span class="say">Toyota Aqua Rs. 75,575</span> and <span class="say">Honda Dio Rs. 0</span>.</li>
+    <li>Step 3: <span class="say">Expense added</span>; Dio total <span class="say">Rs. 500</span> (Washing). Your vehicles now shows <span class="say">Toyota Aqua Rs. 75,575</span> and <span class="say">Honda Dio Rs. 500</span>, with the selected vehicle in brighter text.</li>
+    <li>Step 4: the Aqua totals return (Rs. 75,575).</li>
+    <li>Step 5: Dio has the empty states <span class="say">Log your first fill-up</span> and <span class="say">Log your first service</span>. Aqua shows its fill-ups and services as before. The vehicle you pick is the same on every tab.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+<h2>Optional checks</h2>
+<div class="test">
+  <h3><span class="id">X.1</span>Server not reachable</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>Stop the API on your laptop. Close the app completely and open it again.</li>
+    <li>Start the API again, wait until it is running, then tap <span class="ui">Try again</span>.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Step 1: you stay signed in (the app remembers your session). The Garage shows <span class="say">Couldn't load your vehicles</span> with a short explanation (usually <span class="say">Can't reach Drivon. Check your connection and try again.</span>; over the USB cable it may read <span class="say">Something went wrong. Try again.</span>) and a <span class="ui">Try again</span> button. The app doesn't crash.</li>
+    <li>Step 2: your vehicle loads again.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+<div class="test">
+  <h3><span class="id">X.2</span>Large text and back navigation</h3>
+  <div class="label">Steps</div>
+  <ol>
+    <li>In the phone's Settings, make the font size the largest, then open each tab and each form.</li>
+    <li>On any form, use the system back gesture or button.</li>
+  </ol>
+  <div class="label">Expected</div>
+  <ul class="expect">
+    <li>Text grows. Figures such as <span class="say">Rs. 18.25 / km</span> shrink to fit their tile and are never cut off, and nothing overlaps.</li>
+    <li>Back closes the form without saving and returns to the tab you came from.</li>
+  </ul>
+  <div class="result">☐ Pass &nbsp; ☐ Fail &nbsp; Notes: ______________________________</div>
+</div>
+
+</body>
+</html>
