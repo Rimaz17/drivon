@@ -4,8 +4,6 @@ import 'package:drivon/core/errors/app_exception.dart';
 import 'package:drivon/core/storage/token_store.dart';
 import 'package:drivon/design_system/design_system.dart';
 import 'package:drivon/features/auth/presentation/session_controller.dart';
-import 'package:drivon/features/vehicles/data/selected_vehicle_store.dart';
-import 'package:drivon/features/vehicles/data/vehicle_api.dart';
 import 'package:drivon/features/vehicles/presentation/vehicle_form_screen.dart';
 import 'package:drivon/features/vehicles/presentation/vehicles_controller.dart';
 import 'package:drivon/l10n/app_localizations.dart';
@@ -33,12 +31,7 @@ void main() {
         tokens: InMemoryTokenStore(
           const AuthTokens(accessToken: 'a', refreshToken: 'r'),
         ),
-        extra: [
-          vehicleApiProvider.overrideWithValue(api),
-          selectedVehicleStoreProvider.overrideWithValue(
-            InMemorySelectedVehicleStore(),
-          ),
-        ],
+        vehicleApi: api,
       ),
     );
     addTearDown(container.dispose);

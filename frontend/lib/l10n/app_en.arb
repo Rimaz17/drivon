@@ -4,14 +4,6 @@
   "@appTitle": {
     "description": "Application name, used as the wordmark and in the OS task switcher."
   },
-  "homeTagline": "Every fill-up, service and renewal for your vehicles, in one place.",
-  "@homeTagline": {
-    "description": "One-line description of the app."
-  },
-  "homeComingSoon": "Sign-in and your vehicles are coming next.",
-  "@homeComingSoon": {
-    "description": "Temporary status line shown until accounts and vehicles are available."
-  },
   "loadingSession": "Opening Drivon",
   "@loadingSession": {
     "description": "Screen reader label while the saved session is checked at launch."
@@ -130,5 +122,41 @@
   "vehicleSaved": "Changes saved",
   "vehicleDeleted": "Vehicle deleted",
   "backAction": "Go back",
-  "vehicleMissingMessage": "It may have been deleted on another device."
+  "vehicleMissingMessage": "It may have been deleted on another device.",
+  "greeting": "Hello, {name}",
+  "@greeting": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Rimaz"
+      }
+    }
+  },
+  "accountTooltip": "Account",
+  "signOutAction": "Sign out",
+  "loadingVehicles": "Loading your vehicles",
+  "vehiclesLoadErrorTitle": "Couldn't load your vehicles",
+  "retryAction": "Try again",
+  "emptyGarageTitle": "Add your first vehicle",
+  "emptyGarageMessage": "Log fill-ups, services and costs for each vehicle. You can add up to two.",
+  "addAnotherVehicleAction": "Add another vehicle",
+  "vehicleLimitNote": "You've added the maximum of two vehicles.",
+  "vehicleSwitcherLabel": "Choose a vehicle",
+  "odometerLabel": "Odometer",
+  "editVehicleTooltip": "Edit vehicle",
+  "vehicleSummary": "{vehicle}, registration {plate}, odometer {km} kilometres",
+  "@vehicleSummary": {
+    "description": "Screen reader summary of the selected vehicle card.",
+    "placeholders": {
+      "vehicle": {
+        "type": "String"
+      },
+      "plate": {
+        "type": "String"
+      },
+      "km": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -6,7 +6,7 @@ import '../features/auth/presentation/create_account_screen.dart';
 import '../features/auth/presentation/session_controller.dart';
 import '../features/auth/presentation/sign_in_screen.dart';
 import '../features/auth/presentation/splash_screen.dart';
-import '../features/home/presentation/home_screen.dart';
+import '../features/vehicles/presentation/garage_screen.dart';
 import '../features/vehicles/presentation/vehicle_form_screen.dart';
 
 /// Route paths, kept in one place so screens never hardcode strings.
@@ -65,7 +65,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.home,
-        builder: (context, state) => const HomeScreen(),
+        builder: (context, state) => const GarageScreen(),
       ),
       GoRoute(
         path: AppRoutes.addVehicle,
