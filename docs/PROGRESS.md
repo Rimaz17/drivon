@@ -1,8 +1,8 @@
 # Drivon — Progress
 
 ## Current Status
-- Current phase: Phase 1 — Auth & Vehicles (complete, awaiting review, merge and go-ahead for Phase 2)
-- Current branch: `feat/phase-1-auth-vehicles` (local, not pushed); also `ci/dependabot-ignore-rules` (local, not pushed)
+- Current phase: Phase 2 — Fuel Tracking (in progress; backend done, Flutter mostly done)
+- Current branch: `feat/phase-2-fuel-tracking` (local, not pushed)
 - Last updated: 2026-10-07
 
 ## Phase Checklist
@@ -24,6 +24,12 @@
   - [x] Native audit fixes: tablet width caps, layout tokens, Android predictive back
   - [x] Dependabot ignores Java majors and SDK-pinned `intl` (separate branch)
 - [ ] Phase 2 — Fuel Tracking
+  - [x] Backend: odometer timeline + correction endpoints (ADR 0007), fuel CRUD with client IDs, full-tank km/L, fuel stats and monthly spend (ADR 0008); 167 tests green
+  - [x] Postman collection: Fuel, Odometer, Cleanup folders
+  - [x] Flutter: exact decimals/formatters, fuel data layer and controllers, fill-up form (two-of-three calculation), tab shell, Fuel tab (130 tests green)
+  - [ ] Flutter: widget tests for the Fuel tab and fill-up form, router test for the new routes
+  - [ ] Flutter: odometer history screen with corrections (add a link from the garage hero card); refresh it after fuel changes
+  - [ ] Docs: frontend README, DESIGN.md (workspace), progress
 - [ ] Phase 3 — Maintenance & Expenses
 - [ ] Phase 4 — Documents (Cloudflare R2)
 - [ ] Phase 5 — Analytics & Cost/km
@@ -33,10 +39,8 @@
 - [ ] Phase 9 — Deploy & Polish
 
 ## Next Steps
-1. User pushes `ci/dependabot-ignore-rules` and `feat/phase-1-auth-vehicles`, opens PRs, waits for green CI (especially the iOS job), and merges.
-2. User tests Phase 1 by hand on an Android phone (steps in `frontend/README.md`).
-3. Tag `v0.1.0` after Phase 1 is merged (if the user approves).
-4. Phase 2 (after go-ahead): odometer readings history (with an explicit correction flow), fuel records CRUD with client UUIDs, full-tank km/L, fuel cost/km, monthly and total fuel spend.
+1. Finish Phase 2 (unchecked items above), then Phase 3 on `feat/phase-3-maintenance-expenses` branched from Phase 2: maintenance records with next date/km and upcoming list, expenses, spending totals by month/year/category/vehicle (fuel + services + expenses), Service and Expenses tabs.
+2. Write the manual test guide PDF for Phases 1-3 (app-only steps with exact values and expected results).
 
 ## Blockers / Questions for the User
 - Pushing and merging are done by the user. Phase 1 CI has only run locally (same commands); the iOS build of the new plugins (secure storage, preferences) is first proven when the branch is pushed.
@@ -71,6 +75,10 @@
 - GitHub Actions: checkout v7.0.1, setup-java v6.0.1, subosito/flutter-action v2.23.0, upload-artifact v7.0.1; runners ubuntu-24.04 and macos-latest
 
 ## Session Log
+### 2026-10-07 (Phase 2, part 1)
+- Done: Phase 1 and Dependabot branches were merged on GitHub; local main fast-forwarded. Phase 2 backend complete; Flutter data layer, fill-up form, tab shell and Fuel tab.
+- Notes: decimals travel as JSON strings and the app keeps cents/millilitres as integers. Same-day odometer readings may be in any order (time of day isn't recorded). Session stopped at the usage limit.
+
 ### 2026-10-07 (Phase 1)
 - Done: full Phase 1 on `feat/phase-1-auth-vehicles`: backend auth and vehicles with error handling, rate limiting and tests; Flutter auth, session handling, garage and vehicle form with tests; docs, ADRs 0005 and 0006, Postman collection.
 - Verified locally: `./mvnw verify` (73 tests incl. Testcontainers), live Docker smoke test of the dev profile (register → create vehicle → list; 401 Problem Details without a token), `flutter analyze` / `dart format` / `flutter test` (91 tests), `flutter build apk --debug`, actionlint.
