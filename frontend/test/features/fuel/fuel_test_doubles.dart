@@ -201,3 +201,8 @@ class FakeFuelApi implements FuelApi {
     station: draft.station,
   );
 }
+
+MonthlyAmount fuelMonth(int year, int month, String total) => MonthlyAmount(
+  month: DateTime(year, month),
+  total: FixedDecimal.parse(total, scale: 2),
+);
