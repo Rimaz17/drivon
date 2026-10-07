@@ -54,3 +54,7 @@ frontend/coverage/
 # ---------- Logs ----------
 *.log
 logs/
+
+# Gradle output inside the Android project
+frontend/android/build/
+frontend/android/.gradle/
