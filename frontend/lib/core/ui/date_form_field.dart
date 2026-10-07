@@ -6,7 +6,8 @@ import '../utils/date_format.dart';
 
 /// A date input that opens the platform's picker: the Material calendar on
 /// Android, a Cupertino wheel in a bottom sheet on iOS. Dates run from
-/// [firstDate] to [lastDate] inclusive.
+/// [firstDate] to [lastDate] inclusive. With [onCleared] an optional date
+/// shows a clear button once set.
 class DateFormField extends FormField<DateTime> {
   DateFormField({
     required String label,
@@ -19,6 +20,8 @@ class DateFormField extends FormField<DateTime> {
     super.enabled,
     String? errorText,
     String? helperText,
+    VoidCallback? onCleared,
+    String? clearTooltip,
     super.key,
   }) : super(
          builder: (state) {
@@ -51,7 +54,19 @@ class DateFormField extends FormField<DateTime> {
                    helperText: helperText,
                    errorText: errorText ?? state.errorText,
                    enabled: state.widget.enabled,
-                   suffixIcon: const Icon(Icons.calendar_today_outlined),
+                   // Optional dates can be cleared once set.
+                   suffixIcon: onCleared != null && value != null
+                       ? IconButton(
+                           tooltip: clearTooltip,
+                           icon: const Icon(Icons.close_rounded),
+                           onPressed: state.widget.enabled
+                               ? () {
+                                   state.didChange(null);
+                                   onCleared();
+                                 }
+                               : null,
+                         )
+                       : const Icon(Icons.calendar_today_outlined),
                  ),
                  child: value == null
                      ? null
