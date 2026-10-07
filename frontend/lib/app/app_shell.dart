@@ -24,6 +24,7 @@ class AppShell extends StatelessWidget {
     final destinations = [
       (Icons.directions_car_outlined, Icons.directions_car, l10n.navGarage),
       (Icons.local_gas_station_outlined, Icons.local_gas_station, l10n.navFuel),
+      (Icons.build_outlined, Icons.build, l10n.navService),
     ];
     final wide =
         MediaQuery.sizeOf(context).width >=

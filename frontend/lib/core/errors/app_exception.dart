@@ -81,4 +81,9 @@ abstract final class ApiErrorCodes {
   static const String odometerReadingNotFound = 'ODOMETER_READING_NOT_FOUND';
   static const String fuelRecordNotFound = 'FUEL_RECORD_NOT_FOUND';
   static const String fuelPriceMismatch = 'FUEL_PRICE_MISMATCH';
+  static const String maintenanceRecordNotFound =
+      'MAINTENANCE_RECORD_NOT_FOUND';
+  static const String nextServiceDateInvalid = 'NEXT_SERVICE_DATE_INVALID';
+  static const String nextServiceKmInvalid = 'NEXT_SERVICE_KM_INVALID';
+  static const String expenseNotFound = 'EXPENSE_NOT_FOUND';
 }
