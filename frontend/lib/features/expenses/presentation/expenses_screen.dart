@@ -258,8 +258,6 @@ class _TotalCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TagChip(label: _periodLabel(l10n, period), tone: TagTone.violet),
-            const SizedBox(height: DrivonSpacing.lg),
             FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,

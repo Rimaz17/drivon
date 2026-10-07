@@ -81,7 +81,7 @@ class FuelEfficiencyCard extends StatelessWidget {
               figure(best),
             ),
           ),
-          const SizedBox(height: DrivonSpacing.lg),
+          // The arc's open bottom already separates the gauge from the row.
           ExcludeSemantics(
             child: Row(
               children: [

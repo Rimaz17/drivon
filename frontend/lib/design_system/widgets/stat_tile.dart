@@ -58,25 +58,31 @@ class StatTile extends StatelessWidget {
           children: [
             TagChip(label: label, tone: tagTone),
             const SizedBox(height: DrivonSpacing.lg),
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: value,
-                    style: textTheme.displaySmall?.copyWith(color: valueColor),
-                  ),
-                  if (unit != null)
+            // A figure is never cut off: long values shrink to fit.
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text.rich(
+                TextSpan(
+                  children: [
                     TextSpan(
-                      text: ' $unit',
-                      style: textTheme.titleMedium?.copyWith(
-                        color: captionColor,
-                        fontWeight: FontWeight.w500,
+                      text: value,
+                      style: textTheme.displaySmall?.copyWith(
+                        color: valueColor,
                       ),
                     ),
-                ],
+                    if (unit != null)
+                      TextSpan(
+                        text: ' $unit',
+                        style: textTheme.titleMedium?.copyWith(
+                          color: captionColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                  ],
+                ),
+                maxLines: 1,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
             if (caption != null) ...[
               const SizedBox(height: DrivonSpacing.xs),
