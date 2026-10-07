@@ -16,6 +16,7 @@ export 'widgets/drivon_card.dart';
 export 'widgets/inline_notice.dart';
 export 'widgets/pill_segmented_control.dart';
 export 'widgets/primary_button.dart';
+export 'widgets/section_title.dart';
 export 'widgets/sheet_scroll_view.dart';
 export 'widgets/stat_tile.dart';
 export 'widgets/state_views.dart';
