@@ -19,6 +19,10 @@ abstract final class DrivonSpacing {
   /// Widest a screen's main content grows on tablets and in landscape.
   static const double contentMaxWidth = 600;
 
+  /// Window width from which the app shows a navigation rail instead of a
+  /// bottom navigation bar (Material's medium window class).
+  static const double navigationRailMinWidth = 600;
+
   /// Minimum touch target on both platforms (Material 48dp > iOS 44pt).
   static const double minTouchTarget = 48;
 }

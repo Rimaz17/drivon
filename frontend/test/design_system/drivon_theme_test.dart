@@ -72,6 +72,23 @@ void main() {
       );
     });
 
+    test('navigation labels and icons meet WCAG AA on their surfaces', () {
+      // Unselected items on the bar/rail background, selected icons on the
+      // indicator pill.
+      expect(
+        contrast(colors.textSecondary, scheme.surfaceContainerLow),
+        greaterThanOrEqualTo(4.5),
+      );
+      expect(
+        contrast(colors.textPrimary, scheme.surfaceContainerLow),
+        greaterThanOrEqualTo(4.5),
+      );
+      expect(
+        contrast(scheme.onPrimaryContainer, scheme.primaryContainer),
+        greaterThanOrEqualTo(4.5),
+      );
+    });
+
     test('dark text stays readable across the hero gradient', () {
       for (final color in colors.heroGradient) {
         expect(contrast(colors.onHighlight, color), greaterThanOrEqualTo(4.5));

@@ -255,4 +255,39 @@ void main() {
     );
     expect(icon.text.style?.color, DrivonColors.dark.onHighlight);
   });
+  group('BarList', () {
+    testWidgets('shows each label and value and reads them as one', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _host(
+          const SizedBox(
+            width: 320,
+            child: BarList(
+              items: [
+                BarListItem(label: 'Sep', value: 'Rs. 9,000', fraction: 0.5),
+                BarListItem(
+                  label: 'Oct',
+                  value: 'Rs. 18,000',
+                  fraction: 1,
+                  emphasized: true,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Rs. 18,000'), findsOneWidget);
+      expect(find.bySemanticsLabel('Sep, Rs. 9,000'), findsOneWidget);
+      final bars = tester
+          .widgetList<FractionallySizedBox>(find.byType(FractionallySizedBox))
+          .map((bar) => bar.widthFactor)
+          .toList();
+      expect(bars, [0.5, 1]);
+      handle.dispose();
+    });
+  });
 }
