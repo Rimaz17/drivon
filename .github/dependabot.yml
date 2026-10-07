@@ -14,6 +14,10 @@ updates:
     directory: /frontend
     schedule:
       interval: weekly
+    ignore:
+      # flutter_localizations pins intl exactly for each Flutter SDK; intl moves
+      # only when Flutter is upgraded.
+      - dependency-name: intl
     groups:
       pub-minor-and-patch:
         update-types: [minor, patch]
@@ -34,5 +38,9 @@ updates:
     directory: /backend
     schedule:
       interval: weekly
+    ignore:
+      # The project is pinned to Java 17; only take 17.x patch images.
+      - dependency-name: eclipse-temurin
+        update-types: ["version-update:semver-major"]
     commit-message:
       prefix: "build(backend)"
