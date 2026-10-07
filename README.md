@@ -6,7 +6,7 @@
 [![Frontend CI](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-violet.svg)](LICENSE)
 
-> **Status:** Phase 1 (accounts and vehicles) is complete: sign up, sign in, and manage up to two vehicles. Features land phase by phase; see the [roadmap](#roadmap) and [`docs/PROGRESS.md`](docs/PROGRESS.md).
+> **Status:** Phase 1 (accounts and vehicles) is complete: sign up, sign in, and manage up to two vehicles. Features land phase by phase; see the [roadmap](#roadmap).
 
 ## Features (MVP)
 
@@ -117,7 +117,7 @@ CI runs the same checks on every push and pull request, builds a debug APK, and 
 drivon/
 ├── backend/            Spring Boot API (package-by-feature under com.drivon.api) + .env.example
 ├── frontend/           Flutter app (app/, core/, design_system/, features/)
-├── docs/               Progress log, ADRs, API collection, screenshots
+├── docs/               ADRs, API collection, screenshots
 ├── .github/            CI workflows, Dependabot, PR template
 └── docker-compose.yml  Local Postgres + API (reads .env from the repo root)
 ```

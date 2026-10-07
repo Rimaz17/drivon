@@ -22,4 +22,4 @@
 - [ ] UI handles loading, empty and error states and uses design-system tokens
 - [ ] New logic has tests, including edge cases
 - [ ] No secrets, `.env` files or debug leftovers
-- [ ] Docs updated (READMEs, ADRs, API docs, `docs/PROGRESS.md`)
+- [ ] Docs updated (READMEs, ADRs, API docs)
