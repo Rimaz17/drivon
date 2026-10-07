@@ -24,6 +24,12 @@ spring:
     locations: classpath:db/migration
   jackson:
     time-zone: UTC
+  data:
+    web:
+      pageable:
+        # Matches SortOptions.MAX_PAGE_SIZE; larger requests are capped, not rejected.
+        default-page-size: 20
+        max-page-size: 100
 
 server:
   port: ${PORT:8080}

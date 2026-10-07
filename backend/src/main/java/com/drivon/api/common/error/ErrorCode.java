@@ -10,6 +10,7 @@ public enum ErrorCode {
   // 400
   VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "Validation failed"),
   MALFORMED_REQUEST(HttpStatus.BAD_REQUEST, "Malformed request"),
+  INVALID_SORT(HttpStatus.BAD_REQUEST, "Invalid sort"),
 
   // 401 / 403
   UNAUTHENTICATED(HttpStatus.UNAUTHORIZED, "Authentication required"),
