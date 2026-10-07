@@ -40,6 +40,7 @@ void main() {
       'success text': colors.success,
       'warning text': colors.warning,
       'info text': colors.info,
+      'accent text': colors.accentText,
     };
 
     for (final surface in surfaces.entries) {
@@ -70,6 +71,10 @@ void main() {
         contrast(scheme.onSecondary, scheme.secondary),
         greaterThanOrEqualTo(4.5),
       );
+      expect(
+        contrast(colors.onSelectedFill, colors.selectedFill),
+        greaterThanOrEqualTo(4.5),
+      );
     });
 
     test('navigation labels and icons meet WCAG AA on their surfaces', () {
@@ -98,6 +103,62 @@ void main() {
     test('input borders meet the 3:1 non-text contrast minimum', () {
       expect(
         contrast(scheme.outline, scheme.surfaceContainer),
+        greaterThanOrEqualTo(3),
+      );
+    });
+  });
+
+  group('paper theme', () {
+    final paper = DrivonTheme.paper();
+    final paperScheme = paper.colorScheme;
+    const paperColors = DrivonColors.paper;
+
+    test('is light and exposes the paper colors', () {
+      expect(paper.brightness, Brightness.light);
+      expect(paper.extension<DrivonColors>(), paperColors);
+      expect(paperScheme.surface, colors.sheet);
+    });
+
+    final surfaces = {
+      'paper': paperScheme.surface,
+      'chip / notice fill': paperScheme.surfaceContainerHigh,
+    };
+    final texts = {
+      'primary text': paperColors.textPrimary,
+      'secondary text': paperColors.textSecondary,
+      'tertiary text': paperColors.textTertiary,
+      'danger text': paperColors.danger,
+      'success text': paperColors.success,
+      'warning text': paperColors.warning,
+      'info text': paperColors.info,
+      'accent text': paperColors.accentText,
+    };
+
+    for (final surface in surfaces.entries) {
+      for (final text in texts.entries) {
+        test('${text.key} meets WCAG AA on ${surface.key}', () {
+          expect(
+            contrast(text.value, surface.value),
+            greaterThanOrEqualTo(4.5),
+          );
+        });
+      }
+    }
+
+    test('selected chips and filled buttons meet WCAG AA', () {
+      expect(
+        contrast(paperColors.onSelectedFill, paperColors.selectedFill),
+        greaterThanOrEqualTo(4.5),
+      );
+      expect(
+        contrast(paperScheme.onPrimary, paperScheme.primary),
+        greaterThanOrEqualTo(4.5),
+      );
+    });
+
+    test('input and button borders meet the 3:1 non-text minimum', () {
+      expect(
+        contrast(paperScheme.outline, paperScheme.surface),
         greaterThanOrEqualTo(3),
       );
     });
