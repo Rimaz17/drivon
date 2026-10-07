@@ -243,6 +243,22 @@ void main() {
     expect(find.text('Log your first fill-up'), findsOneWidget);
   });
 
+  testWidgets('shows more fill-ups on request', (tester) async {
+    fuel.records.addAll([
+      for (var i = 0; i < 21; i++)
+        fuelRecordDto(id: 'record-$i', odometerKm: 50000 - i * 100),
+    ]);
+    await openFuelTab(tester);
+
+    await tester.scrollUntilVisible(find.text('Show more'), 500);
+    await tester.tap(find.text('Show more'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Show more'), findsNothing);
+    await tester.scrollUntilVisible(find.textContaining('48,000 km'), 500);
+    expect(find.textContaining('48,000 km'), findsOneWidget);
+  });
+
   testWidgets('offers a retry when fill-ups fail to load', (tester) async {
     fuel.nextError = const NoConnectionException();
     await openFuelTab(tester);

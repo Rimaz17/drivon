@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../core/errors/error_text.dart';
+import '../../../core/ui/load_more_footer.dart';
 import '../../../core/utils/number_format.dart';
 import '../../../design_system/design_system.dart';
 import '../../../l10n/app_localizations.dart';
@@ -27,7 +28,7 @@ class FuelScreen extends ConsumerWidget {
     final vehicle = ref.watch(selectedVehicleProvider);
     final hasRecords =
         vehicle != null &&
-        (ref.watch(fuelHistoryProvider(vehicle.id)).value?.records.isNotEmpty ??
+        (ref.watch(fuelHistoryProvider(vehicle.id)).value?.items.isNotEmpty ??
             false);
 
     return Scaffold(
@@ -89,7 +90,7 @@ class _FuelBody extends ConsumerWidget {
         retryLabel: l10n.retryAction,
         onRetry: retry,
       ),
-      data: (data) => data.records.isEmpty
+      data: (data) => data.items.isEmpty
           ? EmptyState(
               icon: Icons.local_gas_station_outlined,
               title: l10n.fuelEmptyTitle,
@@ -158,7 +159,7 @@ class _FuelBody extends ConsumerWidget {
               child: Text(l10n.fillUpsTitle, style: textTheme.titleLarge),
             ),
             const SizedBox(height: DrivonSpacing.xs),
-            for (final (index, record) in data.records.indexed) ...[
+            for (final (index, record) in data.items.indexed) ...[
               if (index > 0) const Divider(),
               FuelRecordTile(
                 record: record,
@@ -167,31 +168,12 @@ class _FuelBody extends ConsumerWidget {
                 ),
               ),
             ],
-            if (data.hasMore) ...[
-              const SizedBox(height: DrivonSpacing.md),
-              if (data.loadingMore)
-                Center(
-                  child: CircularProgressIndicator(
-                    semanticsLabel: l10n.loadingMore,
-                  ),
-                )
-              else ...[
-                if (data.loadMoreFailed) ...[
-                  InlineNotice(message: l10n.loadMoreFailed),
-                  const SizedBox(height: DrivonSpacing.sm),
-                ],
-                OutlinedButton(
-                  onPressed: () => ref
-                      .read(fuelHistoryProvider(vehicle.id).notifier)
-                      .loadMore(),
-                  child: Text(
-                    data.loadMoreFailed
-                        ? l10n.retryAction
-                        : l10n.showMoreAction,
-                  ),
-                ),
-              ],
-            ],
+            LoadMoreFooter(
+              list: data,
+              failedMessage: l10n.loadMoreFailed,
+              onLoadMore: () =>
+                  ref.read(fuelHistoryProvider(vehicle.id).notifier).loadMore(),
+            ),
           ],
         ),
       ),

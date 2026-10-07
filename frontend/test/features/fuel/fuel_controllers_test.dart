@@ -50,13 +50,13 @@ void main() {
     await signedIn();
 
     var history = await container.read(fuelHistoryProvider('vehicle-1').future);
-    expect(history.records, hasLength(20));
+    expect(history.items, hasLength(20));
     expect(history.hasMore, isTrue);
 
     await container.read(fuelHistoryProvider('vehicle-1').notifier).loadMore();
     history = container.read(fuelHistoryProvider('vehicle-1')).value!;
-    expect(history.records, hasLength(25));
-    expect(history.records.last.id, 'record-24');
+    expect(history.items, hasLength(25));
+    expect(history.items.last.id, 'record-24');
     expect(history.hasMore, isFalse);
   });
 
@@ -68,7 +68,7 @@ void main() {
     await container.read(fuelHistoryProvider('vehicle-1').notifier).loadMore();
 
     final history = container.read(fuelHistoryProvider('vehicle-1')).value!;
-    expect(history.records, hasLength(20));
+    expect(history.items, hasLength(20));
     expect(history.loadMoreFailed, isTrue);
     expect(history.loadingMore, isFalse);
   });
@@ -91,7 +91,7 @@ void main() {
       final history = await container.read(
         fuelHistoryProvider('vehicle-1').future,
       );
-      expect(history.records.first.odometerKm, 12100);
+      expect(history.items.first.odometerKm, 12100);
       await container.read(fuelSummaryProvider('vehicle-1').future);
       expect(fuel.statsCalls, statsCalls + 1);
       expect(vehicles.listCalls, vehicleCalls + 1);
