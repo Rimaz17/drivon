@@ -13,6 +13,7 @@ import '../domain/vehicle.dart';
 import 'fuel_type_label.dart';
 import 'vehicles_controller.dart';
 import 'widgets/vehicle_hero_card.dart';
+import 'widgets/vehicle_snapshot.dart';
 import 'widgets/vehicle_switcher.dart';
 
 /// Home screen: the user's vehicles, with the selected one in focus.
@@ -116,17 +117,13 @@ class _Garage extends ConsumerWidget {
     final canAddMore = vehicles.length < maxVehiclesPerUser;
 
     return RefreshIndicator.adaptive(
-      onRefresh: () => ref.read(vehiclesControllerProvider.notifier).reload(),
+      onRefresh: () {
+        VehicleSnapshot.refresh(ref, selected.id);
+        return ref.read(vehiclesControllerProvider.notifier).reload();
+      },
       child: ContentWidth(
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(
-            DrivonSpacing.screenGutter,
-            DrivonSpacing.sm,
-            DrivonSpacing.screenGutter,
-            DrivonSpacing.xxxl,
-          ),
-          children: [
+        child: SheetScrollView(
+          header: [
             Semantics(
               header: true,
               child: Text(
@@ -149,6 +146,7 @@ class _Garage extends ConsumerWidget {
               onEdit: () =>
                   context.push(AppRoutes.editVehiclePath(selected.id)),
             ),
+            const SizedBox(height: DrivonSpacing.xs),
             Align(
               alignment: AlignmentDirectional.centerStart,
               child: TextButton.icon(
@@ -158,7 +156,10 @@ class _Garage extends ConsumerWidget {
                     context.push(AppRoutes.odometerHistoryPath(selected.id)),
               ),
             ),
-            const SizedBox(height: DrivonSpacing.xs),
+          ],
+          sheet: [
+            VehicleSnapshot(vehicle: selected),
+            const SizedBox(height: DrivonSpacing.md),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -187,10 +188,13 @@ class _Garage extends ConsumerWidget {
                 onPressed: () => context.push(AppRoutes.addVehicle),
               )
             else
-              Text(
-                l10n.vehicleLimitNote,
-                textAlign: TextAlign.center,
-                style: textTheme.bodySmall,
+              Builder(
+                // Reads the sheet's paper theme, not the screen's.
+                builder: (context) => Text(
+                  l10n.vehicleLimitNote,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ),
           ],
         ),

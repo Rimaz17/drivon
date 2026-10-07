@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../theme/drivon_theme.dart';
@@ -12,7 +14,9 @@ import '../tokens/drivon_spacing.dart';
 ///
 /// Content placed directly on the sheet gets [DrivonTheme.paper], so text,
 /// rows, chips and buttons turn dark. [DrivonCard]s on the sheet switch back
-/// to the app theme, giving dark cards on light paper.
+/// to the app theme, giving dark cards on light paper. Sheet widgets must
+/// read the theme in their own build (or under a [Builder]); a style taken
+/// from the screen's context would carry the canvas colors onto the paper.
 class SheetScrollView extends StatelessWidget {
   const SheetScrollView({
     required this.header,
@@ -92,8 +96,20 @@ class SheetScrollView extends StatelessWidget {
                           ],
                         ),
                       ),
-                      // Carries the paper down to the bottom edge.
-                      const SliverFillRemaining(hasScrollBody: false),
+                      // Carries the paper down to the bottom edge when the
+                      // content is short. (SliverFillRemaining fails inside a
+                      // group once the content outgrows the screen.)
+                      SliverLayoutBuilder(
+                        builder: (context, constraints) => SliverToBoxAdapter(
+                          child: SizedBox(
+                            height: math.max(
+                              0,
+                              constraints.viewportMainAxisExtent -
+                                  constraints.precedingScrollExtent,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
