@@ -26,7 +26,9 @@ class _StatusMessage extends StatelessWidget {
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(DrivonSpacing.xxl),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
+          constraints: const BoxConstraints(
+            maxWidth: DrivonSpacing.formMaxWidth,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

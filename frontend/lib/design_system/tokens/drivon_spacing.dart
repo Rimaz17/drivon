@@ -13,6 +13,12 @@ abstract final class DrivonSpacing {
   /// Horizontal padding between the screen edges and content.
   static const double screenGutter = xl;
 
+  /// Widest a form or message column grows, so lines stay readable on tablets.
+  static const double formMaxWidth = 440;
+
+  /// Widest a screen's main content grows on tablets and in landscape.
+  static const double contentMaxWidth = 600;
+
   /// Minimum touch target on both platforms (Material 48dp > iOS 44pt).
   static const double minTouchTarget = 48;
 }

@@ -210,140 +210,143 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen>
       body: SafeArea(
         child: Form(
           key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(
-              DrivonSpacing.screenGutter,
-              DrivonSpacing.lg,
-              DrivonSpacing.screenGutter,
-              DrivonSpacing.xxxl,
-            ),
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            children: [
-              TextFormField(
-                controller: _make,
-                enabled: !busy,
-                decoration: InputDecoration(
-                  labelText: l10n.makeLabel,
-                  hintText: l10n.makeHint,
-                ),
-                textCapitalization: TextCapitalization.words,
-                textInputAction: TextInputAction.next,
-                maxLength: VehicleFormValidators.maxTextLength,
-                buildCounter: _noCounter,
-                forceErrorText: _serverErrors[_Fields.make],
-                onChanged: (_) => _clearServerError(_Fields.make),
-                validator: validators.make,
+          child: ContentWidth(
+            maxWidth: DrivonSpacing.formMaxWidth,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(
+                DrivonSpacing.screenGutter,
+                DrivonSpacing.lg,
+                DrivonSpacing.screenGutter,
+                DrivonSpacing.xxxl,
               ),
-              const SizedBox(height: DrivonSpacing.lg),
-              TextFormField(
-                controller: _model,
-                enabled: !busy,
-                decoration: InputDecoration(
-                  labelText: l10n.modelLabel,
-                  hintText: l10n.modelHint,
-                ),
-                textCapitalization: TextCapitalization.words,
-                textInputAction: TextInputAction.next,
-                maxLength: VehicleFormValidators.maxTextLength,
-                buildCounter: _noCounter,
-                forceErrorText: _serverErrors[_Fields.model],
-                onChanged: (_) => _clearServerError(_Fields.model),
-                validator: validators.model,
-              ),
-              const SizedBox(height: DrivonSpacing.lg),
-              TextFormField(
-                controller: _year,
-                enabled: !busy,
-                decoration: InputDecoration(labelText: l10n.yearLabel),
-                keyboardType: TextInputType.number,
-                textInputAction: TextInputAction.next,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(4),
-                ],
-                forceErrorText: _serverErrors[_Fields.year],
-                onChanged: (_) => _clearServerError(_Fields.year),
-                validator: validators.year,
-              ),
-              const SizedBox(height: DrivonSpacing.lg),
-              TextFormField(
-                controller: _registration,
-                enabled: !busy,
-                decoration: InputDecoration(
-                  labelText: l10n.registrationLabel,
-                  helperText: l10n.registrationHelper,
-                ),
-                textCapitalization: TextCapitalization.characters,
-                autocorrect: false,
-                enableSuggestions: false,
-                textInputAction: TextInputAction.next,
-                inputFormatters: [
-                  LengthLimitingTextInputFormatter(
-                    VehicleFormValidators.maxRegistrationLength,
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              children: [
+                TextFormField(
+                  controller: _make,
+                  enabled: !busy,
+                  decoration: InputDecoration(
+                    labelText: l10n.makeLabel,
+                    hintText: l10n.makeHint,
                   ),
-                ],
-                forceErrorText: _serverErrors[_Fields.registration],
-                onChanged: (_) => _clearServerError(_Fields.registration),
-                validator: validators.registration,
-              ),
-              const SizedBox(height: DrivonSpacing.xl),
-              FuelTypeField(
-                initialValue: _fuelType,
-                enabled: !busy,
-                onChanged: (type) {
-                  _fuelType = type;
-                  _clearServerError(_Fields.fuelType);
-                },
-                validator: (value) =>
-                    _serverErrors[_Fields.fuelType] ??
-                    validators.fuelType(value),
-              ),
-              const SizedBox(height: DrivonSpacing.xl),
-              TextFormField(
-                controller: _odometer,
-                enabled: !busy,
-                decoration: InputDecoration(
-                  labelText: l10n.odometerFieldLabel,
-                  suffixText: l10n.kmUnit,
-                  helperText: original != null
-                      ? l10n.odometerHelperMin(formattedMinimum)
-                      : null,
-                ),
-                keyboardType: TextInputType.number,
-                textInputAction: TextInputAction.done,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(7),
-                ],
-                forceErrorText: _serverErrors[_Fields.odometer],
-                onChanged: (_) => _clearServerError(_Fields.odometer),
-                onFieldSubmitted: (_) => _save(),
-                validator: (value) => validators.odometer(
-                  value,
-                  formattedMinimum: formattedMinimum,
-                ),
-              ),
-              const SizedBox(height: DrivonSpacing.xxl),
-              if (error != null) ...[
-                InlineNotice(message: error!),
-                const SizedBox(height: DrivonSpacing.lg),
-              ],
-              if (slow) ...[
-                InlineNotice(
-                  message: l10n.slowServerNotice,
-                  tone: InlineNoticeTone.info,
+                  textCapitalization: TextCapitalization.words,
+                  textInputAction: TextInputAction.next,
+                  maxLength: VehicleFormValidators.maxTextLength,
+                  buildCounter: _noCounter,
+                  forceErrorText: _serverErrors[_Fields.make],
+                  onChanged: (_) => _clearServerError(_Fields.make),
+                  validator: validators.make,
                 ),
                 const SizedBox(height: DrivonSpacing.lg),
+                TextFormField(
+                  controller: _model,
+                  enabled: !busy,
+                  decoration: InputDecoration(
+                    labelText: l10n.modelLabel,
+                    hintText: l10n.modelHint,
+                  ),
+                  textCapitalization: TextCapitalization.words,
+                  textInputAction: TextInputAction.next,
+                  maxLength: VehicleFormValidators.maxTextLength,
+                  buildCounter: _noCounter,
+                  forceErrorText: _serverErrors[_Fields.model],
+                  onChanged: (_) => _clearServerError(_Fields.model),
+                  validator: validators.model,
+                ),
+                const SizedBox(height: DrivonSpacing.lg),
+                TextFormField(
+                  controller: _year,
+                  enabled: !busy,
+                  decoration: InputDecoration(labelText: l10n.yearLabel),
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.next,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(4),
+                  ],
+                  forceErrorText: _serverErrors[_Fields.year],
+                  onChanged: (_) => _clearServerError(_Fields.year),
+                  validator: validators.year,
+                ),
+                const SizedBox(height: DrivonSpacing.lg),
+                TextFormField(
+                  controller: _registration,
+                  enabled: !busy,
+                  decoration: InputDecoration(
+                    labelText: l10n.registrationLabel,
+                    helperText: l10n.registrationHelper,
+                  ),
+                  textCapitalization: TextCapitalization.characters,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  textInputAction: TextInputAction.next,
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(
+                      VehicleFormValidators.maxRegistrationLength,
+                    ),
+                  ],
+                  forceErrorText: _serverErrors[_Fields.registration],
+                  onChanged: (_) => _clearServerError(_Fields.registration),
+                  validator: validators.registration,
+                ),
+                const SizedBox(height: DrivonSpacing.xl),
+                FuelTypeField(
+                  initialValue: _fuelType,
+                  enabled: !busy,
+                  onChanged: (type) {
+                    _fuelType = type;
+                    _clearServerError(_Fields.fuelType);
+                  },
+                  validator: (value) =>
+                      _serverErrors[_Fields.fuelType] ??
+                      validators.fuelType(value),
+                ),
+                const SizedBox(height: DrivonSpacing.xl),
+                TextFormField(
+                  controller: _odometer,
+                  enabled: !busy,
+                  decoration: InputDecoration(
+                    labelText: l10n.odometerFieldLabel,
+                    suffixText: l10n.kmUnit,
+                    helperText: original != null
+                        ? l10n.odometerHelperMin(formattedMinimum)
+                        : null,
+                  ),
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.done,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(7),
+                  ],
+                  forceErrorText: _serverErrors[_Fields.odometer],
+                  onChanged: (_) => _clearServerError(_Fields.odometer),
+                  onFieldSubmitted: (_) => _save(),
+                  validator: (value) => validators.odometer(
+                    value,
+                    formattedMinimum: formattedMinimum,
+                  ),
+                ),
+                const SizedBox(height: DrivonSpacing.xxl),
+                if (error != null) ...[
+                  InlineNotice(message: error!),
+                  const SizedBox(height: DrivonSpacing.lg),
+                ],
+                if (slow) ...[
+                  InlineNotice(
+                    message: l10n.slowServerNotice,
+                    tone: InlineNoticeTone.info,
+                  ),
+                  const SizedBox(height: DrivonSpacing.lg),
+                ],
+                PrimaryButton(
+                  label: original != null
+                      ? l10n.saveChangesAction
+                      : l10n.addVehicleAction,
+                  busyLabel: l10n.savingVehicle,
+                  busy: busy,
+                  onPressed: _save,
+                ),
               ],
-              PrimaryButton(
-                label: original != null
-                    ? l10n.saveChangesAction
-                    : l10n.addVehicleAction,
-                busyLabel: l10n.savingVehicle,
-                busy: busy,
-                onPressed: _save,
-              ),
-            ],
+            ),
           ),
         ),
       ),

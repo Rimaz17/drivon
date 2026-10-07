@@ -117,71 +117,74 @@ class _Garage extends ConsumerWidget {
 
     return RefreshIndicator.adaptive(
       onRefresh: () => ref.read(vehiclesControllerProvider.notifier).reload(),
-      child: ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(
-          DrivonSpacing.screenGutter,
-          DrivonSpacing.sm,
-          DrivonSpacing.screenGutter,
-          DrivonSpacing.xxxl,
-        ),
-        children: [
-          Semantics(
-            header: true,
-            child: Text(
-              l10n.greeting(firstName),
-              style: textTheme.headlineLarge,
-            ),
+      child: ContentWidth(
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(
+            DrivonSpacing.screenGutter,
+            DrivonSpacing.sm,
+            DrivonSpacing.screenGutter,
+            DrivonSpacing.xxxl,
           ),
-          const SizedBox(height: DrivonSpacing.xl),
-          if (vehicles.length > 1) ...[
-            VehicleSwitcher(
-              vehicles: vehicles,
-              selectedId: selected.id,
-              onSelected: (id) =>
-                  ref.read(selectedVehicleIdProvider.notifier).select(id),
+          children: [
+            Semantics(
+              header: true,
+              child: Text(
+                l10n.greeting(firstName),
+                style: textTheme.headlineLarge,
+              ),
             ),
-            const SizedBox(height: DrivonSpacing.lg),
-          ],
-          VehicleHeroCard(
-            vehicle: selected,
-            onEdit: () => context.push(AppRoutes.editVehiclePath(selected.id)),
-          ),
-          const SizedBox(height: DrivonSpacing.md),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: StatTile(
-                  label: l10n.fuelTypeLabel,
-                  value: selected.fuelType.label(l10n),
-                  tagTone: TagTone.mint,
-                ),
+            const SizedBox(height: DrivonSpacing.xl),
+            if (vehicles.length > 1) ...[
+              VehicleSwitcher(
+                vehicles: vehicles,
+                selectedId: selected.id,
+                onSelected: (id) =>
+                    ref.read(selectedVehicleIdProvider.notifier).select(id),
               ),
-              const SizedBox(width: DrivonSpacing.md),
-              Expanded(
-                child: StatTile(
-                  label: l10n.yearLabel,
-                  value: '${selected.year}',
-                  tagTone: TagTone.sky,
-                ),
-              ),
+              const SizedBox(height: DrivonSpacing.lg),
             ],
-          ),
-          const SizedBox(height: DrivonSpacing.xxl),
-          if (canAddMore)
-            OutlinedButton.icon(
-              icon: const Icon(Icons.add_rounded),
-              label: Text(l10n.addAnotherVehicleAction),
-              onPressed: () => context.push(AppRoutes.addVehicle),
-            )
-          else
-            Text(
-              l10n.vehicleLimitNote,
-              textAlign: TextAlign.center,
-              style: textTheme.bodySmall,
+            VehicleHeroCard(
+              vehicle: selected,
+              onEdit: () =>
+                  context.push(AppRoutes.editVehiclePath(selected.id)),
             ),
-        ],
+            const SizedBox(height: DrivonSpacing.md),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: StatTile(
+                    label: l10n.fuelTypeLabel,
+                    value: selected.fuelType.label(l10n),
+                    tagTone: TagTone.mint,
+                  ),
+                ),
+                const SizedBox(width: DrivonSpacing.md),
+                Expanded(
+                  child: StatTile(
+                    label: l10n.yearLabel,
+                    value: '${selected.year}',
+                    tagTone: TagTone.sky,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: DrivonSpacing.xxl),
+            if (canAddMore)
+              OutlinedButton.icon(
+                icon: const Icon(Icons.add_rounded),
+                label: Text(l10n.addAnotherVehicleAction),
+                onPressed: () => context.push(AppRoutes.addVehicle),
+              )
+            else
+              Text(
+                l10n.vehicleLimitNote,
+                textAlign: TextAlign.center,
+                style: textTheme.bodySmall,
+              ),
+          ],
+        ),
       ),
     );
   }
