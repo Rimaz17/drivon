@@ -58,6 +58,7 @@ ApiProblemException problemFromResponse(Response<dynamic> response) {
     code: code is String ? code : 'HTTP_$status',
     detail: detail is String ? detail : null,
     fieldErrors: fieldErrors,
+    properties: body ?? const {},
   );
 }
 

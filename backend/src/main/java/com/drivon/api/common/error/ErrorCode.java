@@ -10,6 +10,8 @@ public enum ErrorCode {
   // 400
   VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "Validation failed"),
   MALFORMED_REQUEST(HttpStatus.BAD_REQUEST, "Malformed request"),
+  INVALID_SORT(HttpStatus.BAD_REQUEST, "Invalid sort"),
+  INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "Invalid date range"),
 
   // 401 / 403
   UNAUTHENTICATED(HttpStatus.UNAUTHORIZED, "Authentication required"),
@@ -20,6 +22,8 @@ public enum ErrorCode {
   // 404 / 405 / 415
   NOT_FOUND(HttpStatus.NOT_FOUND, "Not found"),
   VEHICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "Vehicle not found"),
+  ODOMETER_READING_NOT_FOUND(HttpStatus.NOT_FOUND, "Odometer reading not found"),
+  FUEL_RECORD_NOT_FOUND(HttpStatus.NOT_FOUND, "Fuel record not found"),
   METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "Method not allowed"),
   UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported media type"),
 
@@ -27,11 +31,18 @@ public enum ErrorCode {
   CONFLICT(HttpStatus.CONFLICT, "Conflict"),
   EMAIL_ALREADY_REGISTERED(HttpStatus.CONFLICT, "Email already registered"),
   REGISTRATION_NUMBER_IN_USE(HttpStatus.CONFLICT, "Registration number already in use"),
+  RECORD_ID_CONFLICT(HttpStatus.CONFLICT, "Record ID already in use"),
 
   // 422: well-formed requests that break a business rule
   VEHICLE_LIMIT_REACHED(HttpStatus.UNPROCESSABLE_CONTENT, "Vehicle limit reached"),
   ODOMETER_DECREASE(HttpStatus.UNPROCESSABLE_CONTENT, "Odometer cannot go backwards"),
+  ODOMETER_OUT_OF_ORDER(
+      HttpStatus.UNPROCESSABLE_CONTENT, "Odometer reading out of order with other dates"),
+  ODOMETER_READING_LOCKED(HttpStatus.UNPROCESSABLE_CONTENT, "Odometer reading can't be changed"),
   INVALID_MODEL_YEAR(HttpStatus.UNPROCESSABLE_CONTENT, "Invalid model year"),
+  DATE_IN_FUTURE(HttpStatus.UNPROCESSABLE_CONTENT, "Date in the future"),
+  FUEL_PRICE_MISMATCH(
+      HttpStatus.UNPROCESSABLE_CONTENT, "Price per litre doesn't match the amount and litres"),
 
   // 429 / 5xx
   RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "Too many requests"),

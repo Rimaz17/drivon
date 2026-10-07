@@ -67,6 +67,45 @@ public final class ApiClient {
     return request.exchange();
   }
 
+  public MvcTestResult putJson(String uri, String json, String bearer) {
+    return mvc.put()
+        .uri(uri)
+        .header(HttpHeaders.AUTHORIZATION, bearer)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(json)
+        .exchange();
+  }
+
+  public MvcTestResult get(String uri, String bearer) {
+    return mvc.get().uri(uri).header(HttpHeaders.AUTHORIZATION, bearer).exchange();
+  }
+
+  public MvcTestResult delete(String uri, String bearer) {
+    return mvc.delete().uri(uri).header(HttpHeaders.AUTHORIZATION, bearer).exchange();
+  }
+
+  /** Adds a vehicle for [session] and returns its ID. */
+  public String createVehicle(Session session, String registration, int odometerKm) {
+    MvcTestResult result =
+        postJson(
+            "/api/v1/vehicles",
+            """
+            {"make": "Toyota", "model": "Aqua", "year": 2018, "registrationNumber": "%s",
+             "fuelType": "HYBRID", "currentOdometerKm": %d}
+            """
+                .formatted(registration, odometerKm),
+            session.bearer());
+    assertThat(result).hasStatus(HttpStatus.CREATED);
+    return JsonPath.read(body(result), "$.id");
+  }
+
+  /** The vehicle's current odometer as the API reports it. */
+  public int odometerOf(Session session, String vehicleId) {
+    MvcTestResult result = get("/api/v1/vehicles/" + vehicleId, session.bearer());
+    assertThat(result).hasStatusOk();
+    return JsonPath.read(body(result), "$.currentOdometerKm");
+  }
+
   public static String body(MvcTestResult result) {
     try {
       return result.getResponse().getContentAsString();

@@ -49,10 +49,24 @@ The Docker image defaults to `prod`, so a misconfigured deploy fails at startup 
 | `GET /api/v1/vehicles` | Bearer | Own vehicles, oldest first (at most two) |
 | `POST /api/v1/vehicles` | Bearer | 201 + `Location` |
 | `GET/PUT/DELETE /api/v1/vehicles/{id}` | Bearer | 404 for missing *or someone else's* vehicle |
+| `GET/POST /api/v1/vehicles/{id}/fuel-records` | Bearer | Paged fill-ups (newest first) / log a fill-up; an app-generated `id` makes retries return the saved record (200) |
+| `GET/PUT/DELETE /api/v1/vehicles/{id}/fuel-records/{recordId}` | Bearer | Closing full fills carry `kmPerLitre` |
+| `GET /api/v1/vehicles/{id}/fuel-stats?from=&to=` | Bearer | Spend, litres, fill-ups, average/best/latest km/L, fuel cost per km (dates optional, inclusive) |
+| `GET /api/v1/vehicles/{id}/fuel-stats/monthly?months=6` | Bearer | Fuel spend per month (1–24), oldest first, zero-filled |
+| `GET/POST /api/v1/vehicles/{id}/odometer-readings` | Bearer | Odometer history (paged) / add a manual reading |
+| `GET/PUT/DELETE /api/v1/vehicles/{id}/odometer-readings/{readingId}` | Bearer | Correct an initial or manual reading; delete a manual one |
 | `GET /actuator/health`, `/actuator/info` | Public | Render health check |
 | `GET /v3/api-docs`, `/swagger-ui.html` | Public | API documentation |
 
 Tokens: access tokens are 15-minute JWTs sent as `Authorization: Bearer <token>`; refresh tokens last 30 days and rotate on each use (`docs/adr/0005-authentication-tokens.md`). A Postman collection is in `docs/api/`.
+
+### Data conventions
+
+- **Decimals are strings.** Money, litres and ratios are written as JSON strings such as `"10950.00"`, so no client turns them into floating point; requests may send strings or numbers.
+- **Dates** are ISO calendar dates (`2026-10-07`) in Sri Lankan time; record dates can't be in the future. Months are `2026-10`. Timestamps (`createdAt`) are UTC instants.
+- **Lists** return `{content, page, size, totalElements, totalPages, hasNext}`. Use `page` (from 0), `size` (default 20, at most 100) and `sort=field,asc|desc` with the fields listed in Swagger; other fields give `400 INVALID_SORT`.
+- **Odometer timeline** (`docs/adr/0007-odometer-timeline.md`): readings can't be lower than one on an earlier date or higher than one on a later date (`422 ODOMETER_OUT_OF_ORDER`, with `minKm`/`maxKm`). The vehicle's current odometer is its highest reading. A mistyped initial or manual reading is fixed with `PUT …/odometer-readings/{readingId}`.
+- **Fuel efficiency** uses the full-tank method (`docs/adr/0008-fuel-records-and-efficiency.md`). A price per litre that is sent must match amount ÷ litres to within 1% (at least Rs. 1), or it is left out and derived.
 
 ### Errors
 
@@ -77,5 +91,6 @@ Validation failures (`VALIDATION_FAILED`, 400) add `errors: [{field, message}]`.
 - Controller → Service → Repository; DTOs are records; entities never leave the service layer.
 - The user ID always comes from the token via `@CurrentUserId`, and every query is scoped to it.
 - Schema changes only through Flyway migrations in `src/main/resources/db/migration`; Hibernate runs with `ddl-auto=validate`. Never edit a committed migration.
-- Money is `BigDecimal` / `NUMERIC(12,2)`; timestamps are UTC `Instant`; time-dependent logic uses the injected `Clock`.
+- Money is `BigDecimal` / `NUMERIC(12,2)`; timestamps are UTC `Instant`; time-dependent logic uses the injected `Clock`, and calendar dates come from `BusinessCalendar` (Asia/Colombo).
+- Records the app may create offline extend `AssignedIdEntity`, so a client-generated UUID is accepted and a reused one fails instead of overwriting a row.
 - google-java-format is enforced by Spotless. The formatter is pinned to 1.28.0, the newest version Spotless supports on Java 17.

@@ -42,6 +42,12 @@ mixin SubmissionStatus<T extends StatefulWidget> on State<T> {
     }
   }
 
+  /// Waits for the next frame so pending rebuilds (such as clearing
+  /// server-side field errors shown with `forceErrorText`) reach the fields
+  /// before they are validated; otherwise a stale error fails validation.
+  /// Check `mounted` afterwards.
+  Future<void> settleFields() => WidgetsBinding.instance.endOfFrame;
+
   @override
   void dispose() {
     _slowTimer?.cancel();

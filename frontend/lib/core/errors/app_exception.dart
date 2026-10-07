@@ -26,6 +26,7 @@ final class ApiProblemException extends AppException {
     required this.code,
     this.detail,
     this.fieldErrors = const {},
+    this.properties = const {},
   });
 
   final int statusCode;
@@ -38,6 +39,16 @@ final class ApiProblemException extends AppException {
 
   /// Field name to message, for `VALIDATION_FAILED` responses.
   final Map<String, String> fieldErrors;
+
+  /// Every member of the Problem Details body, including rule-specific ones
+  /// such as `minKm` and `maxKm` of `ODOMETER_OUT_OF_ORDER`.
+  final Map<String, Object?> properties;
+
+  /// An integer member of the body, or null when absent.
+  int? intProperty(String name) {
+    final value = properties[name];
+    return value is int ? value : null;
+  }
 
   @override
   String toString() => 'ApiProblemException($statusCode $code)';
@@ -64,4 +75,10 @@ abstract final class ApiErrorCodes {
   static const String odometerDecrease = 'ODOMETER_DECREASE';
   static const String invalidModelYear = 'INVALID_MODEL_YEAR';
   static const String rateLimited = 'RATE_LIMITED';
+  static const String dateInFuture = 'DATE_IN_FUTURE';
+  static const String odometerOutOfOrder = 'ODOMETER_OUT_OF_ORDER';
+  static const String odometerReadingLocked = 'ODOMETER_READING_LOCKED';
+  static const String odometerReadingNotFound = 'ODOMETER_READING_NOT_FOUND';
+  static const String fuelRecordNotFound = 'FUEL_RECORD_NOT_FOUND';
+  static const String fuelPriceMismatch = 'FUEL_PRICE_MISMATCH';
 }

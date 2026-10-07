@@ -149,7 +149,16 @@ class _Garage extends ConsumerWidget {
               onEdit: () =>
                   context.push(AppRoutes.editVehiclePath(selected.id)),
             ),
-            const SizedBox(height: DrivonSpacing.md),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                icon: const Icon(Icons.history_rounded),
+                label: Text(l10n.odometerHistoryTitle),
+                onPressed: () =>
+                    context.push(AppRoutes.odometerHistoryPath(selected.id)),
+              ),
+            ),
+            const SizedBox(height: DrivonSpacing.xs),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

@@ -42,7 +42,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     if (ex instanceof RateLimitedException limited) {
       headers.set(HttpHeaders.RETRY_AFTER, Long.toString(limited.retryAfterSeconds()));
     }
-    return respond(ex.code(), ex.getMessage(), headers);
+    ProblemDetail problem = problem(ex.code(), ex.getMessage());
+    ex.properties().forEach(problem::setProperty);
+    return respond(problem, headers);
   }
 
   /** Reached from the security filter chain via the authentication entry point. */
@@ -122,10 +124,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
   private static ResponseEntity<ProblemDetail> respond(
       ErrorCode code, String detail, HttpHeaders headers) {
-    if (code.status().value() == 401) {
+    return respond(problem(code, detail), headers);
+  }
+
+  private static ResponseEntity<ProblemDetail> respond(ProblemDetail problem, HttpHeaders headers) {
+    if (problem.getStatus() == 401) {
       headers.set(HttpHeaders.WWW_AUTHENTICATE, "Bearer");
     }
-    return ResponseEntity.status(code.status()).headers(headers).body(problem(code, detail));
+    return ResponseEntity.status(problem.getStatus()).headers(headers).body(problem);
   }
 
   private static ProblemDetail problem(ErrorCode code, String detail) {

@@ -62,7 +62,7 @@
   "fuelHybrid": "Hybrid",
   "odometerFieldLabel": "Current odometer",
   "kmUnit": "km",
-  "odometerHelperMin": "At least {km} km, the last saved reading",
+  "odometerHelperMin": "At least {km} km. To fix a mistyped reading, use Odometer history.",
   "@odometerHelperMin": {
     "description": "Helper under the odometer field when editing.",
     "placeholders": {
@@ -158,5 +158,231 @@
         "type": "String"
       }
     }
-  }
+  },
+  "logFillUpTitle": "Log fill-up",
+  "editFillUpTitle": "Edit fill-up",
+  "fillUpDateLabel": "Date",
+  "doneAction": "Done",
+  "odometerReadingLabel": "Odometer reading",
+  "odometerCurrentHelper": "Currently {km} km",
+  "@odometerCurrentHelper": {
+    "description": "Helper under an odometer field showing the vehicle's current reading.",
+    "placeholders": {
+      "km": {
+        "type": "String",
+        "example": "46,000"
+      }
+    }
+  },
+  "litresLabel": "Litres",
+  "litresUnit": "L",
+  "pricePerLitreLabel": "Price per litre",
+  "amountPaidLabel": "Amount paid",
+  "rupeePrefix": "Rs. ",
+  "@rupeePrefix": {
+    "description": "Prefix inside money fields, followed directly by the number."
+  },
+  "calculatedHelper": "Calculated from the other two",
+  "fillUpNumbersHint": "Enter any two of litres, price and amount.",
+  "fullTankLabel": "Filled to full",
+  "fullTankHelper": "km/L is measured between fill-ups to full. Turn off for a top-up.",
+  "stationLabel": "Station (optional)",
+  "stationHint": "e.g. Ceypetco Kollupitiya",
+  "savingFillUp": "Saving fill-up",
+  "fillUpLogged": "Fill-up logged",
+  "changesSaved": "Changes saved",
+  "fillUpDeleted": "Fill-up deleted",
+  "deleteFillUpTooltip": "Delete fill-up",
+  "deleteFillUpTitle": "Delete this fill-up?",
+  "deleteFillUpMessage": "km/L and fuel totals will be recalculated without it. This can't be undone.",
+  "litresRequired": "Enter the litres.",
+  "litresInvalid": "Enter litres above 0, up to 999.999.",
+  "pricePerLitreRequired": "Enter the price per litre.",
+  "pricePerLitreInvalid": "Enter a price above 0, up to Rs. 99,999.99.",
+  "amountRequired": "Enter the amount paid.",
+  "amountInvalid": "Enter an amount above 0, up to Rs. 9,999,999.99.",
+  "dateRequired": "Choose a date.",
+  "errorOdometerBetween": "For this date, enter a reading from {min} to {max} km.",
+  "@errorOdometerBetween": {
+    "placeholders": {
+      "min": {
+        "type": "String",
+        "example": "45,000"
+      },
+      "max": {
+        "type": "String",
+        "example": "47,000"
+      }
+    }
+  },
+  "errorOdometerAtLeast": "For this date, enter at least {km} km, the reading on an earlier date.",
+  "@errorOdometerAtLeast": {
+    "placeholders": {
+      "km": {
+        "type": "String",
+        "example": "45,000"
+      }
+    }
+  },
+  "errorOdometerAtMost": "For this date, enter at most {km} km, the reading on a later date.",
+  "@errorOdometerAtMost": {
+    "placeholders": {
+      "km": {
+        "type": "String",
+        "example": "45,000"
+      }
+    }
+  },
+  "errorDateInFuture": "The date can't be in the future.",
+  "errorFuelPriceMismatch": "Litres × price per litre doesn't match the amount. Check the three numbers.",
+  "errorFuelRecordNotFound": "This fill-up no longer exists.",
+  "recordMissingMessage": "It may have been deleted on another device.",
+  "loadingRecord": "Loading",
+  "recordLoadErrorTitle": "Couldn't open this record",
+  "navGarage": "Garage",
+  "navFuel": "Fuel",
+  "noVehicleTitle": "Add a vehicle first",
+  "noVehicleMessage": "Fill-ups, services and expenses are kept for each vehicle.",
+  "fuelTitle": "Fuel",
+  "loadingFuel": "Loading fuel records",
+  "fuelLoadErrorTitle": "Couldn't load fuel records",
+  "fuelEmptyTitle": "Log your first fill-up",
+  "fuelEmptyMessage": "Fill the tank to full and log it. After your next full fill-up, Drivon shows your km/L and fuel cost per km.",
+  "kmPerLitreUnit": "km/L",
+  "lastTankCaption": "Last tank",
+  "efficiencySemantics": "Last tank {latest} kilometres per litre. Average {average}, best {best}.",
+  "@efficiencySemantics": {
+    "description": "Screen reader summary of the fuel efficiency gauge.",
+    "placeholders": {
+      "latest": {
+        "type": "String",
+        "example": "20.00"
+      },
+      "average": {
+        "type": "String",
+        "example": "18.40"
+      },
+      "best": {
+        "type": "String",
+        "example": "21.10"
+      }
+    }
+  },
+  "averageLabel": "Average",
+  "bestTankLabel": "Best tank",
+  "efficiencyPendingTitle": "km/L comes after two full fill-ups",
+  "efficiencyPendingMessage": "Drivon measures the distance between fill-ups to full. Log your next full fill-up to see km/L and fuel cost per km.",
+  "thisMonthLabel": "This month",
+  "fuelCostLabel": "Fuel cost",
+  "perKmUnit": "/ km",
+  "notYetValue": "–",
+  "costPerKmPendingCaption": "After two full fill-ups",
+  "monthlyFuelSpendTitle": "Monthly fuel spend",
+  "allTimeFuelSummary": "All time: {amount} on {count, plural, =1{1 fill-up} other{{count} fill-ups}}, {litres} L",
+  "@allTimeFuelSummary": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "Rs. 20,075"
+      },
+      "count": {
+        "type": "int"
+      },
+      "litres": {
+        "type": "String",
+        "example": "55"
+      }
+    }
+  },
+  "fillUpsTitle": "Fill-ups",
+  "topUpTag": "Top-up",
+  "fillUpDetails": "{date} · {litres} L · {km} km",
+  "@fillUpDetails": {
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "7 Oct 2026"
+      },
+      "litres": {
+        "type": "String",
+        "example": "15"
+      },
+      "km": {
+        "type": "String",
+        "example": "46,500"
+      }
+    }
+  },
+  "fillUpSemantics": "{amount} on {date}, {litres} litres at {km} kilometres{efficiency}",
+  "@fillUpSemantics": {
+    "description": "Screen reader label of a fill-up row; efficiency is empty or a sentence like ', 20.00 km per litre'.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "litres": {
+        "type": "String"
+      },
+      "km": {
+        "type": "String"
+      },
+      "efficiency": {
+        "type": "String"
+      }
+    }
+  },
+  "fillUpEfficiencySemantics": ", {kmPerLitre} kilometres per litre",
+  "@fillUpEfficiencySemantics": {
+    "placeholders": {
+      "kmPerLitre": {
+        "type": "String"
+      }
+    }
+  },
+  "topUpSemantics": ", top-up",
+  "showMoreAction": "Show more",
+  "loadMoreFailed": "Couldn't load more fill-ups.",
+  "loadingMore": "Loading more",
+  "odometerHistoryTitle": "Odometer history",
+  "odometerHistoryExplainer": "Readings from fill-ups, services and your own entries. A reading can't be lower than one on an earlier date or higher than one on a later date.",
+  "loadingReadings": "Loading odometer readings",
+  "readingsLoadErrorTitle": "Couldn't load odometer readings",
+  "readingsLoadMoreFailed": "Couldn't load more readings.",
+  "sourceInitial": "Added with the vehicle",
+  "sourceManual": "Entered by you",
+  "sourceFuel": "From a fill-up",
+  "sourceMaintenance": "From a service",
+  "readingSemantics": "{km} kilometres on {date}, {source}",
+  "@readingSemantics": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "addReadingAction": "Add reading",
+  "addReadingTitle": "Add odometer reading",
+  "correctReadingTitle": "Correct reading",
+  "correctReadingExplainer": "Fix a mistyped reading here. The vehicle's odometer always shows the highest reading, so a correction can lower it.",
+  "saveReadingAction": "Save reading",
+  "savingReading": "Saving reading",
+  "readingAdded": "Reading added",
+  "readingCorrected": "Reading corrected",
+  "readingDeleted": "Reading deleted",
+  "deleteReadingTooltip": "Delete reading",
+  "deleteReadingTitle": "Delete this reading?",
+  "deleteReadingMessage": "The vehicle's odometer will show the highest remaining reading.",
+  "errorReadingLocked": "This reading belongs to a fill-up or service. Edit that record instead.",
+  "errorReadingNotFound": "This reading no longer exists.",
+  "linkedReadingFuelHint": "Tap to open the fill-up",
+  "linkedReadingServiceNote": "Change it from the service record"
 }

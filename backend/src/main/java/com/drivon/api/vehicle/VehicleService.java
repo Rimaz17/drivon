@@ -21,11 +21,14 @@ public class VehicleService {
   static final int MAX_VEHICLES_PER_USER = 2;
 
   private final VehicleRepository vehicles;
+  private final OdometerService odometer;
   private final UserService users;
   private final Clock clock;
 
-  VehicleService(VehicleRepository vehicles, UserService users, Clock clock) {
+  VehicleService(
+      VehicleRepository vehicles, OdometerService odometer, UserService users, Clock clock) {
     this.vehicles = vehicles;
+    this.odometer = odometer;
     this.users = users;
     this.clock = clock;
   }
@@ -40,6 +43,15 @@ public class VehicleService {
   @Transactional(readOnly = true)
   public VehicleResponse get(UUID userId, UUID vehicleId) {
     return VehicleMapper.toResponse(findOwned(userId, vehicleId));
+  }
+
+  /**
+   * The user's vehicle, for features that read records under it. Throws {@code VEHICLE_NOT_FOUND}
+   * for a missing vehicle or someone else's.
+   */
+  @Transactional(readOnly = true)
+  public Vehicle requireOwned(UUID userId, UUID vehicleId) {
+    return findOwned(userId, vehicleId);
   }
 
   /** Adds a vehicle, enforcing the per-user limit even under concurrent requests. */
@@ -65,16 +77,22 @@ public class VehicleService {
             registration,
             request.fuelType(),
             request.currentOdometerKm());
-    return VehicleMapper.toResponse(vehicles.saveAndFlush(vehicle));
+    Vehicle saved = vehicles.saveAndFlush(vehicle);
+    odometer.recordInitial(saved);
+    return VehicleMapper.toResponse(saved);
   }
 
   /**
-   * Replaces a vehicle's details. The odometer may stay the same or increase, never decrease;
-   * correcting a mistyped reading will get an explicit flow with odometer history (Phase 2).
+   * Replaces a vehicle's details. The odometer may stay the same or increase, never decrease; a
+   * higher value is saved as a manual reading for today. A mistyped reading is fixed by correcting
+   * it in the odometer history instead (see {@link OdometerService#correct}).
    */
   @Transactional
   public VehicleResponse update(UUID userId, UUID vehicleId, VehicleRequest request) {
-    Vehicle vehicle = findOwned(userId, vehicleId);
+    Vehicle vehicle =
+        vehicles
+            .findByIdAndUserIdForUpdate(vehicleId, userId)
+            .orElseThrow(() -> new DrivonException(ErrorCode.VEHICLE_NOT_FOUND));
     checkModelYear(request.year());
     if (request.currentOdometerKm() < vehicle.getCurrentOdometerKm()) {
       throw new DrivonException(
@@ -92,8 +110,10 @@ public class VehicleService {
         request.model().strip(),
         request.year(),
         registration,
-        request.fuelType(),
-        request.currentOdometerKm());
+        request.fuelType());
+    if (request.currentOdometerKm() > vehicle.getCurrentOdometerKm()) {
+      odometer.recordRaised(vehicle, request.currentOdometerKm());
+    }
     // Flush so the response carries the new updatedAt timestamp.
     return VehicleMapper.toResponse(vehicles.saveAndFlush(vehicle));
   }

@@ -28,8 +28,9 @@ class VehicleServiceTest {
       Clock.fixed(Instant.parse("2026-10-07T10:00:00Z"), ZoneOffset.UTC);
 
   private final VehicleRepository repository = mock(VehicleRepository.class);
+  private final OdometerService odometer = mock(OdometerService.class);
   private final UserService users = mock(UserService.class);
-  private final VehicleService service = new VehicleService(repository, users, CLOCK);
+  private final VehicleService service = new VehicleService(repository, odometer, users, CLOCK);
 
   private static VehicleRequest request(String registration, int year, int odometer) {
     return new VehicleRequest(" Toyota ", "Aqua", year, registration, FuelType.HYBRID, odometer);
@@ -44,6 +45,17 @@ class VehicleServiceTest {
     assertThat(response.make()).isEqualTo("Toyota");
     assertThat(response.registrationNumber()).isEqualTo("CAB-1234");
     assertThat(response.currentOdometerKm()).isEqualTo(45_000);
+  }
+
+  @Test
+  void startsTheOdometerTimelineOfANewVehicle() {
+    when(repository.saveAndFlush(any())).thenAnswer(i -> i.getArgument(0));
+
+    service.create(USER, request("CAB-1234", 2018, 45_000));
+
+    ArgumentCaptor<Vehicle> saved = ArgumentCaptor.forClass(Vehicle.class);
+    verify(odometer).recordInitial(saved.capture());
+    assertThat(saved.getValue().getCurrentOdometerKm()).isEqualTo(45_000);
   }
 
   @Test
@@ -108,23 +120,36 @@ class VehicleServiceTest {
   }
 
   @Test
-  void updatesDetailsWhenOdometerIncreasesOrStaysTheSame() {
+  void keepsTheOdometerTimelineWhenTheOdometerStaysTheSame() {
     Vehicle existing = existing(50_000);
     UUID id = UUID.randomUUID();
-    when(repository.findByIdAndUserId(id, USER)).thenReturn(Optional.of(existing));
+    when(repository.findByIdAndUserIdForUpdate(id, USER)).thenReturn(Optional.of(existing));
     when(repository.saveAndFlush(existing)).thenReturn(existing);
 
-    assertThat(service.update(USER, id, request("CAB-1234", 2018, 50_000)).currentOdometerKm())
-        .isEqualTo(50_000);
-    assertThat(service.update(USER, id, request("CAB-1234", 2018, 51_200)).currentOdometerKm())
-        .isEqualTo(51_200);
+    VehicleResponse response = service.update(USER, id, request("CAB-1234", 2019, 50_000));
+
+    assertThat(response.year()).isEqualTo(2019);
+    assertThat(response.currentOdometerKm()).isEqualTo(50_000);
+    verify(odometer, never()).recordRaised(any(), org.mockito.ArgumentMatchers.anyInt());
+  }
+
+  @Test
+  void recordsAHigherOdometerAsAReadingForToday() {
+    Vehicle existing = existing(50_000);
+    UUID id = UUID.randomUUID();
+    when(repository.findByIdAndUserIdForUpdate(id, USER)).thenReturn(Optional.of(existing));
+    when(repository.saveAndFlush(existing)).thenReturn(existing);
+
+    service.update(USER, id, request("CAB-1234", 2018, 51_200));
+
+    verify(odometer).recordRaised(existing, 51_200);
   }
 
   @Test
   void refusesToMoveTheOdometerBackwards() {
     Vehicle existing = existing(50_000);
     UUID id = UUID.randomUUID();
-    when(repository.findByIdAndUserId(id, USER)).thenReturn(Optional.of(existing));
+    when(repository.findByIdAndUserIdForUpdate(id, USER)).thenReturn(Optional.of(existing));
 
     assertThatThrownBy(() -> service.update(USER, id, request("CAB-1234", 2018, 49_999)))
         .isInstanceOfSatisfying(
@@ -140,7 +165,7 @@ class VehicleServiceTest {
   void keepingTheSameRegistrationOnUpdateIsNotAConflict() {
     Vehicle existing = existing(10);
     UUID id = UUID.randomUUID();
-    when(repository.findByIdAndUserId(id, USER)).thenReturn(Optional.of(existing));
+    when(repository.findByIdAndUserIdForUpdate(id, USER)).thenReturn(Optional.of(existing));
     when(repository.saveAndFlush(existing)).thenReturn(existing);
 
     service.update(USER, id, request("CAB-1234", 2018, 10));
