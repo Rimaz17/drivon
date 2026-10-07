@@ -43,7 +43,7 @@ void main() {
   /// Scrolls the tab to its end, where the list's bottom padding keeps the
   /// last row clear of the floating button.
   Future<void> scrollToEnd(WidgetTester tester) async {
-    await tester.drag(find.byType(ListView), const Offset(0, -2000));
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -2000));
     await tester.pumpAndSettle();
   }
 

@@ -61,7 +61,6 @@ class _ExpensesBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final textTheme = Theme.of(context).textTheme;
     final period = ref.watch(spendingPeriodProvider);
     final summaryKey = (vehicleId: vehicle.id, period: period);
     final summary = ref.watch(spendingSummaryProvider(summaryKey));
@@ -96,49 +95,41 @@ class _ExpensesBody extends ConsumerWidget {
         await ref.read(spendingSummaryProvider(summaryKey).future);
       },
       child: ContentWidth(
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(
-            DrivonSpacing.screenGutter,
-            DrivonSpacing.sm,
-            DrivonSpacing.screenGutter,
-            _fabClearance,
-          ),
-          children: [
+        child: SheetScrollView(
+          bottomPadding: _fabClearance,
+          header: [
             if (switcher != null) ...[
               switcher!,
-              const SizedBox(height: DrivonSpacing.lg),
+              const SizedBox(height: DrivonSpacing.md),
             ],
             _PeriodSelector(selected: period),
             const SizedBox(height: DrivonSpacing.lg),
-            if (summary.value case final data?) ...[
-              _TotalCard(summary: data, period: period),
-              const SizedBox(height: DrivonSpacing.md),
-              _CategoryCard(summary: data),
-            ] else
+            if (summary.value case final data?)
+              _TotalCard(summary: data, period: period)
+            else
               SizedBox(
-                height: _CategoryCard.placeholderHeight,
+                height: _TotalCard.placeholderHeight,
                 child: LoadingState(semanticsLabel: l10n.loadingSpending),
               ),
-            if (vehicleTotals != null && vehicleTotals.length > 1) ...[
+          ],
+          sheet: [
+            if (summary.value case final data?) ...[
+              _CategoryCard(summary: data),
               const SizedBox(height: DrivonSpacing.md),
+            ],
+            if (vehicleTotals != null && vehicleTotals.length > 1) ...[
               _VehicleCard(totals: vehicleTotals, selectedId: vehicle.id),
+              const SizedBox(height: DrivonSpacing.md),
             ],
             if (monthly.value case final months?) ...[
-              const SizedBox(height: DrivonSpacing.md),
               MonthlySpendCard(
                 title: l10n.monthlySpendingTitle,
                 months: months,
               ),
+              const SizedBox(height: DrivonSpacing.md),
             ],
-            const SizedBox(height: DrivonSpacing.xxl),
-            Semantics(
-              header: true,
-              child: Text(
-                l10n.loggedExpensesTitle,
-                style: textTheme.titleLarge,
-              ),
-            ),
+            const SizedBox(height: DrivonSpacing.md),
+            SectionTitle(l10n.loggedExpensesTitle),
             const SizedBox(height: DrivonSpacing.xs),
             ...history.when(
               loading: () => [
@@ -164,9 +155,12 @@ class _ExpensesBody extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(
                       vertical: DrivonSpacing.md,
                     ),
-                    child: Text(
-                      l10n.expensesEmptyMessage,
-                      style: textTheme.bodyMedium,
+                    child: Builder(
+                      // Reads the sheet's paper theme, not the screen's.
+                      builder: (context) => Text(
+                        l10n.expensesEmptyMessage,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ),
                   ),
                 for (final (index, expense) in list.items.indexed) ...[
@@ -209,29 +203,15 @@ class _PeriodSelector extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    return Semantics(
-      label: l10n.periodLabel,
-      container: true,
-      child: SizedBox(
-        width: double.infinity,
-        child: SegmentedButton<SpendingPeriod>(
-          showSelectedIcon: false,
-          segments: [
-            for (final period in SpendingPeriod.values)
-              ButtonSegment(
-                value: period,
-                label: Text(
-                  _periodLabel(l10n, period),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-          ],
-          selected: {selected},
-          onSelectionChanged: (selection) =>
-              ref.read(spendingPeriodProvider.notifier).select(selection.first),
-        ),
-      ),
+    return PillSegmentedControl<SpendingPeriod>(
+      semanticsLabel: l10n.periodLabel,
+      segments: [
+        for (final period in SpendingPeriod.values)
+          PillSegment(value: period, label: _periodLabel(l10n, period)),
+      ],
+      selected: selected,
+      onSelected: (period) =>
+          ref.read(spendingPeriodProvider.notifier).select(period),
     );
   }
 }
@@ -242,6 +222,9 @@ class _TotalCard extends StatelessWidget {
 
   final SpendingSummary summary;
   final SpendingPeriod period;
+
+  /// Height reserved while the total loads, so the screen doesn't jump.
+  static const double placeholderHeight = 120;
 
   @override
   Widget build(BuildContext context) {
@@ -278,11 +261,13 @@ class _CategoryCard extends StatelessWidget {
 
   final SpendingSummary summary;
 
-  /// Height reserved while the summary loads, so the list doesn't jump.
-  static const double placeholderHeight = 240;
-
   @override
   Widget build(BuildContext context) {
+    // Read the theme below the card, which may re-theme its content.
+    return DrivonCard(child: Builder(builder: _content));
+  }
+
+  Widget _content(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final textTheme = Theme.of(context).textTheme;
     final series = context.drivonColors.chartSeries;
@@ -292,32 +277,30 @@ class _CategoryCard extends StatelessWidget {
     ];
     final largest = spent.isEmpty ? 0 : spent.first.total.units;
 
-    return DrivonCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Semantics(
-            header: true,
-            child: Text(l10n.byCategoryTitle, style: textTheme.titleMedium),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          header: true,
+          child: Text(l10n.byCategoryTitle, style: textTheme.titleMedium),
+        ),
+        const SizedBox(height: DrivonSpacing.lg),
+        if (spent.isEmpty)
+          Text(l10n.noSpendingInPeriod, style: textTheme.bodyMedium)
+        else
+          BarList(
+            items: [
+              for (final category in spent)
+                BarListItem(
+                  label: category.category.label(l10n),
+                  value: formatRupees(context, category.total),
+                  fraction: category.total.units / largest,
+                  color: series[category.category.index % series.length],
+                  emphasized: true,
+                ),
+            ],
           ),
-          const SizedBox(height: DrivonSpacing.lg),
-          if (spent.isEmpty)
-            Text(l10n.noSpendingInPeriod, style: textTheme.bodyMedium)
-          else
-            BarList(
-              items: [
-                for (final category in spent)
-                  BarListItem(
-                    label: category.category.label(l10n),
-                    value: formatRupees(context, category.total),
-                    fraction: category.total.units / largest,
-                    color: series[category.category.index % series.length],
-                    emphasized: true,
-                  ),
-              ],
-            ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -331,34 +314,37 @@ class _VehicleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Read the theme below the card, which may re-theme its content.
+    return DrivonCard(child: Builder(builder: _content));
+  }
+
+  Widget _content(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final textTheme = Theme.of(context).textTheme;
     final largest = totals.fold<int>(
       0,
       (max, vehicle) => vehicle.total.units > max ? vehicle.total.units : max,
     );
-    return DrivonCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Semantics(
-            header: true,
-            child: Text(l10n.yourVehiclesTitle, style: textTheme.titleMedium),
-          ),
-          const SizedBox(height: DrivonSpacing.lg),
-          BarList(
-            items: [
-              for (final vehicle in totals)
-                BarListItem(
-                  label: '${vehicle.make} ${vehicle.model}',
-                  value: formatRupees(context, vehicle.total),
-                  fraction: largest == 0 ? 0 : vehicle.total.units / largest,
-                  emphasized: vehicle.vehicleId == selectedId,
-                ),
-            ],
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          header: true,
+          child: Text(l10n.yourVehiclesTitle, style: textTheme.titleMedium),
+        ),
+        const SizedBox(height: DrivonSpacing.lg),
+        BarList(
+          items: [
+            for (final vehicle in totals)
+              BarListItem(
+                label: '${vehicle.make} ${vehicle.model}',
+                value: formatRupees(context, vehicle.total),
+                fraction: largest == 0 ? 0 : vehicle.total.units / largest,
+                emphasized: vehicle.vehicleId == selectedId,
+              ),
+          ],
+        ),
+      ],
     );
   }
 }
