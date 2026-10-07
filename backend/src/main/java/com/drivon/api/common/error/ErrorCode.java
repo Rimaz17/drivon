@@ -11,6 +11,7 @@ public enum ErrorCode {
   VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "Validation failed"),
   MALFORMED_REQUEST(HttpStatus.BAD_REQUEST, "Malformed request"),
   INVALID_SORT(HttpStatus.BAD_REQUEST, "Invalid sort"),
+  INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "Invalid date range"),
 
   // 401 / 403
   UNAUTHENTICATED(HttpStatus.UNAUTHORIZED, "Authentication required"),
@@ -33,6 +34,7 @@ public enum ErrorCode {
   VEHICLE_LIMIT_REACHED(HttpStatus.UNPROCESSABLE_CONTENT, "Vehicle limit reached"),
   ODOMETER_DECREASE(HttpStatus.UNPROCESSABLE_CONTENT, "Odometer cannot go backwards"),
   INVALID_MODEL_YEAR(HttpStatus.UNPROCESSABLE_CONTENT, "Invalid model year"),
+  DATE_IN_FUTURE(HttpStatus.UNPROCESSABLE_CONTENT, "Date in the future"),
 
   // 429 / 5xx
   RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "Too many requests"),
