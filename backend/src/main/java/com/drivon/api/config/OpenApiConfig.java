@@ -5,8 +5,10 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import java.math.BigDecimal;
 import org.springdoc.core.utils.SpringDocUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +23,10 @@ public class OpenApiConfig {
   static {
     // Filled from the access token, so it is not a client-facing parameter.
     SpringDocUtils.getConfig().addAnnotationsToIgnore(CurrentUserId.class);
+    // Decimals travel as strings (see JacksonConfig).
+    SpringDocUtils.getConfig()
+        .replaceWithSchema(
+            BigDecimal.class, new StringSchema().format("decimal").example("18500.00"));
   }
 
   @Bean
