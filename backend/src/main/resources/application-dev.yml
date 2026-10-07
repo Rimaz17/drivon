@@ -9,3 +9,9 @@ spring:
 logging:
   level:
     com.drivon: DEBUG
+
+drivon:
+  security:
+    jwt:
+      # DEV ONLY and publicly known. Never use it outside local development.
+      secret: ${JWT_SECRET:ZGV2LW9ubHktZHJpdm9uLWp3dC1zZWNyZXQtbm90LWZvci1wcm9kdWN0aW9uLXVzZQ==}

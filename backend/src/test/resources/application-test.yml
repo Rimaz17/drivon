@@ -3,3 +3,8 @@ logging:
   level:
     root: WARN
     com.drivon: INFO
+
+drivon:
+  security:
+    jwt:
+      secret: dGVzdC1vbmx5LWRyaXZvbi1qd3Qtc2VjcmV0LWZvci1hdXRvbWF0ZWQtdGVzdHM=
