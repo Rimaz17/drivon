@@ -2,14 +2,62 @@
   "@@locale": "en",
   "appTitle": "Drivon",
   "@appTitle": {
-    "description": "Application name shown in the OS task switcher."
+    "description": "Application name, used as the wordmark and in the OS task switcher."
   },
   "homeTagline": "Every fill-up, service and renewal for your vehicles, in one place.",
   "@homeTagline": {
-    "description": "One-line description of the app on the home screen."
+    "description": "One-line description of the app."
   },
   "homeComingSoon": "Sign-in and your vehicles are coming next.",
   "@homeComingSoon": {
     "description": "Temporary status line shown until accounts and vehicles are available."
-  }
+  },
+
+  "loadingSession": "Opening Drivon",
+  "@loadingSession": {
+    "description": "Screen reader label while the saved session is checked at launch."
+  },
+  "signInTitle": "Welcome back",
+  "signInSubtitle": "Sign in to see your vehicles.",
+  "signInAction": "Sign in",
+  "signingIn": "Signing in",
+  "@signingIn": {
+    "description": "Screen reader label for the sign-in button while it is busy."
+  },
+  "noAccountPrompt": "New to Drivon?",
+  "goToCreateAccount": "Create an account",
+  "createAccountTitle": "Create your account",
+  "createAccountSubtitle": "Track fuel, services and costs for up to two vehicles.",
+  "createAccountAction": "Create account",
+  "creatingAccount": "Creating your account",
+  "haveAccountPrompt": "Already have an account?",
+  "goToSignIn": "Sign in",
+
+  "nameLabel": "Your name",
+  "emailLabel": "Email",
+  "passwordLabel": "Password",
+  "newPasswordHelper": "At least 8 characters",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+
+  "nameRequired": "Enter your name.",
+  "emailRequired": "Enter your email.",
+  "emailInvalid": "Enter a valid email, like name@example.com.",
+  "passwordRequired": "Enter your password.",
+  "passwordTooShort": "Use at least 8 characters.",
+  "passwordTooLong": "Use 72 characters or fewer.",
+
+  "slowServerNotice": "Waking up the server. The first request can take up to a minute.",
+  "@slowServerNotice": {
+    "description": "Shown when a request takes long, because the free server sleeps when idle."
+  },
+  "sessionExpiredNotice": "Your session ended. Please sign in again.",
+
+  "errorNoConnection": "Can't reach Drivon. Check your connection and try again.",
+  "errorServerTimeout": "The server is taking too long. It may be waking up, so try again in a moment.",
+  "errorInvalidCredentials": "That email and password don't match. Try again.",
+  "errorEmailTaken": "An account with this email already exists. Sign in instead.",
+  "errorRateLimited": "Too many attempts. Wait a minute and try again.",
+  "errorValidation": "Some details need fixing.",
+  "errorGeneric": "Something went wrong. Try again."
 }
