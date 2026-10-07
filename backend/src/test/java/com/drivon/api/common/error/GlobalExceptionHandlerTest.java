@@ -39,6 +39,19 @@ class GlobalExceptionHandlerTest {
   }
 
   @Test
+  void addsTheExceptionsPropertiesToTheProblem() {
+    assertThat(mvc.get().uri("/out-of-order"))
+        .hasStatus(HttpStatus.UNPROCESSABLE_CONTENT)
+        .bodyJson()
+        .satisfies(
+            json -> {
+              json.assertThat().extractingPath("$.code").isEqualTo("ODOMETER_OUT_OF_ORDER");
+              json.assertThat().extractingPath("$.minKm").isEqualTo(45000);
+              json.assertThat().doesNotHavePath("$.maxKm");
+            });
+  }
+
+  @Test
   void listsEveryInvalidFieldOnValidationFailure() {
     assertThat(mvc.post().uri("/validate").contentType(MediaType.APPLICATION_JSON).content("{}"))
         .hasStatus(HttpStatus.BAD_REQUEST)
@@ -93,6 +106,13 @@ class GlobalExceptionHandlerTest {
     @GetMapping("/limit")
     void limit() {
       throw new DrivonException(ErrorCode.VEHICLE_LIMIT_REACHED, "Only two vehicles.");
+    }
+
+    @GetMapping("/out-of-order")
+    void outOfOrder() {
+      throw new DrivonException(ErrorCode.ODOMETER_OUT_OF_ORDER, "Too low.")
+          .with("minKm", 45_000)
+          .with("maxKm", null);
     }
 
     @PostMapping("/validate")
