@@ -24,6 +24,8 @@ public enum ErrorCode {
   VEHICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "Vehicle not found"),
   ODOMETER_READING_NOT_FOUND(HttpStatus.NOT_FOUND, "Odometer reading not found"),
   FUEL_RECORD_NOT_FOUND(HttpStatus.NOT_FOUND, "Fuel record not found"),
+  MAINTENANCE_RECORD_NOT_FOUND(HttpStatus.NOT_FOUND, "Service record not found"),
+  EXPENSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Expense not found"),
   METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "Method not allowed"),
   UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported media type"),
 
@@ -41,6 +43,10 @@ public enum ErrorCode {
   ODOMETER_READING_LOCKED(HttpStatus.UNPROCESSABLE_CONTENT, "Odometer reading can't be changed"),
   INVALID_MODEL_YEAR(HttpStatus.UNPROCESSABLE_CONTENT, "Invalid model year"),
   DATE_IN_FUTURE(HttpStatus.UNPROCESSABLE_CONTENT, "Date in the future"),
+  NEXT_SERVICE_DATE_INVALID(
+      HttpStatus.UNPROCESSABLE_CONTENT, "Next service date must be after the service"),
+  NEXT_SERVICE_KM_INVALID(
+      HttpStatus.UNPROCESSABLE_CONTENT, "Next service mileage must be above the odometer"),
   FUEL_PRICE_MISMATCH(
       HttpStatus.UNPROCESSABLE_CONTENT, "Price per litre doesn't match the amount and litres"),
 
