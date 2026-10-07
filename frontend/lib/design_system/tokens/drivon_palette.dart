@@ -7,8 +7,8 @@ import 'package:flutter/painting.dart';
 /// light theme can be added later without touching screens.
 abstract final class DrivonPalette {
   // Neutrals: cool near-blacks, never pure black.
-  static const Color ink950 = Color(0xFF0F1011);
-  static const Color ink900 = Color(0xFF151718); // canvas
+  static const Color ink950 = Color(0xFF060607);
+  static const Color ink900 = Color(0xFF0B0B0D); // canvas
   static const Color ink850 = Color(0xFF1C1D1F);
   static const Color ink800 = Color(0xFF242427); // cards / tiles
   static const Color ink750 = Color(0xFF2E2F32);

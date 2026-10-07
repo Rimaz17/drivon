@@ -15,7 +15,7 @@ Tokens live in `frontend/lib/design_system/` and are the single source of truth.
 
 | Role | Value | Notes |
 |---|---|---|
-| Canvas | `#151718` | Cool near-black sampled from the mockups (never pure black) |
+| Canvas | `#0B0B0D` | Deep near-black, darker than the mockups at the user's request (never pure black) |
 | Card / raised / high | `#242427` / `#2E2F32` / `#393A3E` | Tonal surfaces instead of shadows |
 | Primary | `#7D56EE` | Filled buttons, active states; white text on it passes AA |
 | Primary text on dark | `#B9A3FF` | Links, focused input borders, cursor |
