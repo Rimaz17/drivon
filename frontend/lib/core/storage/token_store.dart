@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import 'secure_storage.dart';
+
 /// The signed-in session's tokens.
 class AuthTokens {
   const AuthTokens({required this.accessToken, required this.refreshToken});
@@ -32,15 +34,7 @@ abstract interface class TokenStore {
 /// an in-memory copy so each request doesn't hit the platform store.
 class SecureTokenStore implements TokenStore {
   SecureTokenStore([FlutterSecureStorage? storage])
-    : _storage =
-          storage ??
-          const FlutterSecureStorage(
-            // Readable after the first unlock (for future background refresh),
-            // never synced to other devices or included in backups.
-            iOptions: IOSOptions(
-              accessibility: KeychainAccessibility.first_unlock_this_device,
-            ),
-          );
+    : _storage = storage ?? drivonSecureStorage;
 
   static const String _key = 'drivon.auth.tokens';
 
