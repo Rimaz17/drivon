@@ -202,4 +202,30 @@ void main() {
     });
     expect(valueSpan?.style?.color, DrivonColors.dark.onHighlight);
   });
+
+  testWidgets('InlineNotice is announced and shows its message', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(
+      _host(
+        const InlineNotice(
+          message:
+              'That email and password don'
+              't match.',
+        ),
+      ),
+    );
+
+    expect(
+      find.textContaining(
+        'don'
+        't match',
+      ),
+      findsOneWidget,
+    );
+    final node = tester.getSemantics(find.byType(InlineNotice));
+    expect(node.flagsCollection.isLiveRegion, isTrue);
+    handle.dispose();
+  });
 }
