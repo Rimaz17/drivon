@@ -3,6 +3,7 @@ import 'package:drivon/design_system/design_system.dart';
 import 'package:drivon/features/auth/data/auth_api.dart';
 import 'package:drivon/features/auth/data/user_cache.dart';
 import 'package:drivon/features/fuel/data/fuel_api.dart';
+import 'package:drivon/features/vehicles/data/odometer_api.dart';
 import 'package:drivon/features/vehicles/data/selected_vehicle_store.dart';
 import 'package:drivon/features/vehicles/data/vehicle_api.dart';
 import 'package:drivon/l10n/app_localizations.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 
 import '../features/auth/auth_test_doubles.dart';
 import '../features/fuel/fuel_test_doubles.dart';
+import '../features/vehicles/odometer_test_doubles.dart';
 import '../features/vehicles/vehicle_test_doubles.dart';
 import 'fakes.dart';
 
@@ -21,6 +23,7 @@ List<Override> testOverrides({
   FakeVehicleApi? vehicleApi,
   InMemorySelectedVehicleStore? selections,
   FakeFuelApi? fuelApi,
+  FakeOdometerApi? odometerApi,
   List<Override> extra = const [],
 }) => [
   authApiProvider.overrideWithValue(authApi ?? FakeAuthApi()),
@@ -31,6 +34,7 @@ List<Override> testOverrides({
     selections ?? InMemorySelectedVehicleStore(),
   ),
   fuelApiProvider.overrideWithValue(fuelApi ?? FakeFuelApi()),
+  odometerApiProvider.overrideWithValue(odometerApi ?? FakeOdometerApi()),
   ...extra,
 ];
 

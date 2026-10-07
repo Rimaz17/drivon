@@ -9,6 +9,8 @@ import '../features/auth/presentation/splash_screen.dart';
 import '../features/fuel/presentation/fuel_record_form_screen.dart';
 import '../features/fuel/presentation/fuel_screen.dart';
 import '../features/vehicles/presentation/garage_screen.dart';
+import '../features/vehicles/presentation/odometer_history_screen.dart';
+import '../features/vehicles/presentation/odometer_reading_form_screen.dart';
 import '../features/vehicles/presentation/vehicle_form_screen.dart';
 import 'app_shell.dart';
 
@@ -23,6 +25,10 @@ abstract final class AppRoutes {
   static const String editVehicle = '/vehicles/:vehicleId/edit';
   static const String addFuelRecord = '/vehicles/:vehicleId/fuel/new';
   static const String editFuelRecord = '/vehicles/:vehicleId/fuel/:recordId';
+  static const String odometerHistory = '/vehicles/:vehicleId/odometer';
+  static const String addOdometerReading = '/vehicles/:vehicleId/odometer/new';
+  static const String editOdometerReading =
+      '/vehicles/:vehicleId/odometer/:readingId';
 
   static String editVehiclePath(String vehicleId) =>
       '/vehicles/$vehicleId/edit';
@@ -32,6 +38,15 @@ abstract final class AppRoutes {
 
   static String editFuelRecordPath(String vehicleId, String recordId) =>
       '/vehicles/$vehicleId/fuel/$recordId';
+
+  static String odometerHistoryPath(String vehicleId) =>
+      '/vehicles/$vehicleId/odometer';
+
+  static String addOdometerReadingPath(String vehicleId) =>
+      '/vehicles/$vehicleId/odometer/new';
+
+  static String editOdometerReadingPath(String vehicleId, String readingId) =>
+      '/vehicles/$vehicleId/odometer/$readingId';
 
   static const Set<String> signedOutOnly = {signIn, createAccount};
 }
@@ -119,6 +134,25 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => FuelRecordFormScreen(
           vehicleId: state.pathParameters['vehicleId']!,
           recordId: state.pathParameters['recordId'],
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.odometerHistory,
+        builder: (context, state) => OdometerHistoryScreen(
+          vehicleId: state.pathParameters['vehicleId']!,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.addOdometerReading,
+        builder: (context, state) => OdometerReadingFormScreen(
+          vehicleId: state.pathParameters['vehicleId']!,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.editOdometerReading,
+        builder: (context, state) => OdometerReadingFormScreen(
+          vehicleId: state.pathParameters['vehicleId']!,
+          readingId: state.pathParameters['readingId'],
         ),
       ),
     ],

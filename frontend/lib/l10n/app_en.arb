@@ -62,7 +62,7 @@
   "fuelHybrid": "Hybrid",
   "odometerFieldLabel": "Current odometer",
   "kmUnit": "km",
-  "odometerHelperMin": "At least {km} km, the last saved reading",
+  "odometerHelperMin": "At least {km} km. To fix a mistyped reading, use Odometer history.",
   "@odometerHelperMin": {
     "description": "Helper under the odometer field when editing.",
     "placeholders": {
@@ -345,5 +345,44 @@
   "topUpSemantics": ", top-up",
   "showMoreAction": "Show more",
   "loadMoreFailed": "Couldn't load more fill-ups.",
-  "loadingMore": "Loading more"
+  "loadingMore": "Loading more",
+  "odometerHistoryTitle": "Odometer history",
+  "odometerHistoryExplainer": "Readings from fill-ups, services and your own entries. A reading can't be lower than one on an earlier date or higher than one on a later date.",
+  "loadingReadings": "Loading odometer readings",
+  "readingsLoadErrorTitle": "Couldn't load odometer readings",
+  "readingsLoadMoreFailed": "Couldn't load more readings.",
+  "sourceInitial": "Added with the vehicle",
+  "sourceManual": "Entered by you",
+  "sourceFuel": "From a fill-up",
+  "sourceMaintenance": "From a service",
+  "readingSemantics": "{km} kilometres on {date}, {source}",
+  "@readingSemantics": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "addReadingAction": "Add reading",
+  "addReadingTitle": "Add odometer reading",
+  "correctReadingTitle": "Correct reading",
+  "correctReadingExplainer": "Fix a mistyped reading here. The vehicle's odometer always shows the highest reading, so a correction can lower it.",
+  "saveReadingAction": "Save reading",
+  "savingReading": "Saving reading",
+  "readingAdded": "Reading added",
+  "readingCorrected": "Reading corrected",
+  "readingDeleted": "Reading deleted",
+  "deleteReadingTooltip": "Delete reading",
+  "deleteReadingTitle": "Delete this reading?",
+  "deleteReadingMessage": "The vehicle's odometer will show the highest remaining reading.",
+  "errorReadingLocked": "This reading belongs to a fill-up or service. Edit that record instead.",
+  "errorReadingNotFound": "This reading no longer exists.",
+  "linkedReadingFuelHint": "Tap to open the fill-up",
+  "linkedReadingServiceNote": "Change it from the service record"
 }

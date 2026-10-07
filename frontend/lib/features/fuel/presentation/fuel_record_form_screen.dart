@@ -15,6 +15,7 @@ import '../../../core/utils/fixed_decimal.dart';
 import '../../../core/utils/number_format.dart';
 import '../../../design_system/design_system.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../vehicles/presentation/odometer_error_text.dart';
 import '../../vehicles/presentation/vehicles_controller.dart';
 import '../domain/fuel_record.dart';
 import 'fill_up_calculator.dart';
@@ -181,6 +182,8 @@ class _FuelFormState extends ConsumerState<_FuelForm> with SubmissionStatus {
 
   Future<void> _save() async {
     setState(() => _serverErrors = const {});
+    await settleFields();
+    if (!mounted) return;
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -237,7 +240,7 @@ class _FuelFormState extends ConsumerState<_FuelForm> with SubmissionStatus {
     if (error is ApiProblemException) {
       final fieldError = switch (error.code) {
         ApiErrorCodes.odometerOutOfOrder => {
-          _Fields.odometer: _odometerRangeText(l10n, error),
+          _Fields.odometer: odometerRangeText(context, l10n, error),
         },
         ApiErrorCodes.dateInFuture => {_Fields.date: l10n.errorDateInFuture},
         ApiErrorCodes.validationFailed when error.fieldErrors.isNotEmpty =>
@@ -258,18 +261,6 @@ class _FuelFormState extends ConsumerState<_FuelForm> with SubmissionStatus {
       }
     }
     return errorText(l10n, error);
-  }
-
-  String _odometerRangeText(AppLocalizations l10n, ApiProblemException error) {
-    final min = error.intProperty('minKm');
-    final max = error.intProperty('maxKm');
-    String km(int value) => formatInteger(context, value);
-    if (min != null && max != null) {
-      return l10n.errorOdometerBetween(km(min), km(max));
-    }
-    if (min != null) return l10n.errorOdometerAtLeast(km(min));
-    if (max != null) return l10n.errorOdometerAtMost(km(max));
-    return l10n.errorOdometerDecrease;
   }
 
   @override

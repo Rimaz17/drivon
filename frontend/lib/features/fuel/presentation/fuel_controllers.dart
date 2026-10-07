@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/paged.dart';
 import '../../../core/ui/paged_list_controller.dart';
 import '../../auth/presentation/session_controller.dart';
+import '../../vehicles/presentation/odometer_controllers.dart';
 import '../../vehicles/presentation/vehicles_controller.dart';
 import '../data/fuel_repository.dart';
 import '../domain/fuel_record.dart';
@@ -47,7 +48,7 @@ final fuelRecordProvider = FutureProvider.autoDispose
 
 /// Logs, edits and deletes fill-ups, then refreshes everything they affect:
 /// the history (km/L of neighbouring fill-ups can change), the figures and
-/// the vehicle's odometer. Throws AppExceptions for forms to explain.
+/// the vehicle's odometer and its history. Throws AppExceptions for forms to explain.
 class FuelMutations {
   FuelMutations(this._ref);
 
@@ -75,7 +76,8 @@ class FuelMutations {
   void _refresh(String vehicleId) {
     _ref
       ..invalidate(fuelHistoryProvider(vehicleId))
-      ..invalidate(fuelSummaryProvider(vehicleId));
+      ..invalidate(fuelSummaryProvider(vehicleId))
+      ..invalidate(odometerHistoryProvider(vehicleId));
     unawaited(_ref.read(vehiclesControllerProvider.notifier).reload());
   }
 }
