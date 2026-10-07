@@ -1,12 +1,12 @@
 package com.drivon.api.fuel;
 
 import com.drivon.api.common.security.CurrentUserId;
+import com.drivon.api.common.web.CreateResult;
 import com.drivon.api.common.web.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.net.URI;
 import java.util.UUID;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/v1/vehicles/{vehicleId}/fuel-records")
@@ -76,16 +75,8 @@ class FuelRecordController {
       @CurrentUserId UUID userId,
       @PathVariable UUID vehicleId,
       @Valid @RequestBody FuelRecordRequest request) {
-    FuelService.Saved saved = fuel.create(userId, vehicleId, request);
-    if (!saved.created()) {
-      return ResponseEntity.ok(saved.record());
-    }
-    URI location =
-        ServletUriComponentsBuilder.fromCurrentRequest()
-            .path("/{id}")
-            .buildAndExpand(saved.record().id())
-            .toUri();
-    return ResponseEntity.created(location).body(saved.record());
+    CreateResult<FuelRecordResponse> result = fuel.create(userId, vehicleId, request);
+    return result.toResponse(result.record().id());
   }
 
   @PutMapping("/{recordId}")

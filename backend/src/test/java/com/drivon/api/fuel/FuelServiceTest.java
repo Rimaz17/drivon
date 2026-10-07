@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import com.drivon.api.common.error.DrivonException;
 import com.drivon.api.common.error.ErrorCode;
 import com.drivon.api.common.time.BusinessCalendar;
+import com.drivon.api.common.web.CreateResult;
 import com.drivon.api.fuel.FuelRecord.FuelDetails;
 import com.drivon.api.vehicle.OdometerService;
 import com.drivon.api.vehicle.OdometerSource;
@@ -187,7 +188,7 @@ class FuelServiceTest {
   void keepsTheClientGeneratedId() {
     UUID clientId = UUID.randomUUID();
 
-    FuelService.Saved saved =
+    CreateResult<FuelRecordResponse> saved =
         service.create(USER, VEHICLE, request(clientId, "30", "10950", null, TODAY));
 
     assertThat(saved.created()).isTrue();
@@ -199,7 +200,7 @@ class FuelServiceTest {
     FuelRecord existing = stored(VEHICLE);
     when(records.findById(existing.getId())).thenReturn(Optional.of(existing));
 
-    FuelService.Saved retry =
+    CreateResult<FuelRecordResponse> retry =
         service.create(USER, VEHICLE, request(existing.getId(), "99", "1", null, TODAY));
 
     assertThat(retry.created()).isFalse();
