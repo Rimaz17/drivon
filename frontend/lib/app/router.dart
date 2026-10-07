@@ -6,8 +6,11 @@ import '../features/auth/presentation/create_account_screen.dart';
 import '../features/auth/presentation/session_controller.dart';
 import '../features/auth/presentation/sign_in_screen.dart';
 import '../features/auth/presentation/splash_screen.dart';
+import '../features/fuel/presentation/fuel_record_form_screen.dart';
+import '../features/fuel/presentation/fuel_screen.dart';
 import '../features/vehicles/presentation/garage_screen.dart';
 import '../features/vehicles/presentation/vehicle_form_screen.dart';
+import 'app_shell.dart';
 
 /// Route paths, kept in one place so screens never hardcode strings.
 abstract final class AppRoutes {
@@ -15,11 +18,20 @@ abstract final class AppRoutes {
   static const String signIn = '/sign-in';
   static const String createAccount = '/create-account';
   static const String home = '/';
+  static const String fuel = '/fuel';
   static const String addVehicle = '/vehicles/new';
   static const String editVehicle = '/vehicles/:vehicleId/edit';
+  static const String addFuelRecord = '/vehicles/:vehicleId/fuel/new';
+  static const String editFuelRecord = '/vehicles/:vehicleId/fuel/:recordId';
 
   static String editVehiclePath(String vehicleId) =>
       '/vehicles/$vehicleId/edit';
+
+  static String addFuelRecordPath(String vehicleId) =>
+      '/vehicles/$vehicleId/fuel/new';
+
+  static String editFuelRecordPath(String vehicleId, String recordId) =>
+      '/vehicles/$vehicleId/fuel/$recordId';
 
   static const Set<String> signedOutOnly = {signIn, createAccount};
 }
@@ -63,9 +75,29 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.createAccount,
         builder: (context, state) => const CreateAccountScreen(),
       ),
-      GoRoute(
-        path: AppRoutes.home,
-        builder: (context, state) => const GarageScreen(),
+      // Tabs. Screens pushed from them (the forms below) are top-level
+      // routes, so they cover the navigation bar.
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            AppShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.home,
+                builder: (context, state) => const GarageScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.fuel,
+                builder: (context, state) => const FuelScreen(),
+              ),
+            ],
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.addVehicle,
@@ -75,6 +107,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.editVehicle,
         builder: (context, state) =>
             VehicleFormScreen(vehicleId: state.pathParameters['vehicleId']),
+      ),
+      // Listed before the edit route so "new" is not read as a record ID.
+      GoRoute(
+        path: AppRoutes.addFuelRecord,
+        builder: (context, state) =>
+            FuelRecordFormScreen(vehicleId: state.pathParameters['vehicleId']!),
+      ),
+      GoRoute(
+        path: AppRoutes.editFuelRecord,
+        builder: (context, state) => FuelRecordFormScreen(
+          vehicleId: state.pathParameters['vehicleId']!,
+          recordId: state.pathParameters['recordId'],
+        ),
       ),
     ],
   );

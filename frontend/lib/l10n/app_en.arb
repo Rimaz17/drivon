@@ -238,5 +238,112 @@
   "errorFuelRecordNotFound": "This fill-up no longer exists.",
   "recordMissingMessage": "It may have been deleted on another device.",
   "loadingRecord": "Loading",
-  "recordLoadErrorTitle": "Couldn't open this record"
+  "recordLoadErrorTitle": "Couldn't open this record",
+  "navGarage": "Garage",
+  "navFuel": "Fuel",
+  "noVehicleTitle": "Add a vehicle first",
+  "noVehicleMessage": "Fill-ups, services and expenses are kept for each vehicle.",
+  "fuelTitle": "Fuel",
+  "loadingFuel": "Loading fuel records",
+  "fuelLoadErrorTitle": "Couldn't load fuel records",
+  "fuelEmptyTitle": "Log your first fill-up",
+  "fuelEmptyMessage": "Fill the tank to full and log it. After your next full fill-up, Drivon shows your km/L and fuel cost per km.",
+  "kmPerLitreUnit": "km/L",
+  "lastTankCaption": "Last tank",
+  "efficiencySemantics": "Last tank {latest} kilometres per litre. Average {average}, best {best}.",
+  "@efficiencySemantics": {
+    "description": "Screen reader summary of the fuel efficiency gauge.",
+    "placeholders": {
+      "latest": {
+        "type": "String",
+        "example": "20.00"
+      },
+      "average": {
+        "type": "String",
+        "example": "18.40"
+      },
+      "best": {
+        "type": "String",
+        "example": "21.10"
+      }
+    }
+  },
+  "averageLabel": "Average",
+  "bestTankLabel": "Best tank",
+  "efficiencyPendingTitle": "km/L comes after two full fill-ups",
+  "efficiencyPendingMessage": "Drivon measures the distance between fill-ups to full. Log your next full fill-up to see km/L and fuel cost per km.",
+  "thisMonthLabel": "This month",
+  "fuelCostLabel": "Fuel cost",
+  "perKmUnit": "/ km",
+  "notYetValue": "–",
+  "costPerKmPendingCaption": "After two full fill-ups",
+  "monthlyFuelSpendTitle": "Monthly fuel spend",
+  "allTimeFuelSummary": "All time: {amount} on {count, plural, =1{1 fill-up} other{{count} fill-ups}}, {litres} L",
+  "@allTimeFuelSummary": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "Rs. 20,075"
+      },
+      "count": {
+        "type": "int"
+      },
+      "litres": {
+        "type": "String",
+        "example": "55"
+      }
+    }
+  },
+  "fillUpsTitle": "Fill-ups",
+  "topUpTag": "Top-up",
+  "fillUpDetails": "{date} · {litres} L · {km} km",
+  "@fillUpDetails": {
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "7 Oct 2026"
+      },
+      "litres": {
+        "type": "String",
+        "example": "15"
+      },
+      "km": {
+        "type": "String",
+        "example": "46,500"
+      }
+    }
+  },
+  "fillUpSemantics": "{amount} on {date}, {litres} litres at {km} kilometres{efficiency}",
+  "@fillUpSemantics": {
+    "description": "Screen reader label of a fill-up row; efficiency is empty or a sentence like ', 20.00 km per litre'.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "litres": {
+        "type": "String"
+      },
+      "km": {
+        "type": "String"
+      },
+      "efficiency": {
+        "type": "String"
+      }
+    }
+  },
+  "fillUpEfficiencySemantics": ", {kmPerLitre} kilometres per litre",
+  "@fillUpEfficiencySemantics": {
+    "placeholders": {
+      "kmPerLitre": {
+        "type": "String"
+      }
+    }
+  },
+  "topUpSemantics": ", top-up",
+  "showMoreAction": "Show more",
+  "loadMoreFailed": "Couldn't load more fill-ups.",
+  "loadingMore": "Loading more"
 }
