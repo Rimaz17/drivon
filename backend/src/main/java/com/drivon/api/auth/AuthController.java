@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.net.URI;
 import org.springframework.http.HttpStatus;
@@ -21,9 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 class AuthController {
 
   private final AuthService auth;
+  private final AuthRateLimiter rateLimiter;
 
-  AuthController(AuthService auth) {
+  AuthController(AuthService auth, AuthRateLimiter rateLimiter) {
     this.auth = auth;
+    this.rateLimiter = rateLimiter;
   }
 
   @PostMapping("/register")
@@ -32,7 +35,9 @@ class AuthController {
   @ApiResponse(responseCode = "400", description = "VALIDATION_FAILED")
   @ApiResponse(responseCode = "409", description = "EMAIL_ALREADY_REGISTERED")
   @ApiResponse(responseCode = "429", description = "RATE_LIMITED")
-  ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+  ResponseEntity<AuthResponse> register(
+      @Valid @RequestBody RegisterRequest request, HttpServletRequest http) {
+    rateLimiter.consume(http.getRemoteAddr());
     return ResponseEntity.created(URI.create("/api/v1/users/me")).body(auth.register(request));
   }
 
@@ -41,7 +46,8 @@ class AuthController {
   @ApiResponse(responseCode = "200", description = "Signed in; tokens returned")
   @ApiResponse(responseCode = "401", description = "INVALID_CREDENTIALS")
   @ApiResponse(responseCode = "429", description = "RATE_LIMITED")
-  AuthResponse login(@Valid @RequestBody LoginRequest request) {
+  AuthResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest http) {
+    rateLimiter.consume(http.getRemoteAddr());
     return auth.login(request);
   }
 

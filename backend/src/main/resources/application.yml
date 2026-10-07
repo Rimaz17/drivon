@@ -64,3 +64,7 @@ drivon:
       secret: ${JWT_SECRET}
       access-token-ttl: 15m
       refresh-token-ttl: 30d
+    # Per client IP: 10 register/login attempts, refilled over a minute.
+    auth-rate-limit:
+      capacity: 10
+      refill-period: 1m

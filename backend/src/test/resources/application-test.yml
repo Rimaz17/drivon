@@ -8,3 +8,7 @@ drivon:
   security:
     jwt:
       secret: dGVzdC1vbmx5LWRyaXZvbi1qd3Qtc2VjcmV0LWZvci1hdXRvbWF0ZWQtdGVzdHM=
+    # Integration tests sign up many users from one address.
+    auth-rate-limit:
+      capacity: 10000
+      refill-period: 1m
