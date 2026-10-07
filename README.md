@@ -6,14 +6,14 @@
 [![Frontend CI](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-violet.svg)](LICENSE)
 
-> **Status:** Phase 1 (accounts and vehicles) is complete: sign up, sign in, and manage up to two vehicles. Features land phase by phase; see the [roadmap](#roadmap).
+> **Status:** Phases 1 and 2 are complete: accounts, up to two vehicles with an odometer history, and fuel tracking with km/L, fuel cost per km and monthly spend. Features land phase by phase; see the [roadmap](#roadmap).
 
 ## Features (MVP)
 
 | Module | What it does |
 |---|---|
 | Vehicles | Up to 2 vehicles per user (make, model, year, registration, fuel type, odometer) with a switcher |
-| Fuel tracking | Litres, amount, price/L, odometer, station, full or partial fill; km/L by the full-tank method |
+| Fuel tracking | Litres, amount, price/L, odometer, station, full or partial fill; km/L by the full-tank method, fuel cost per km, monthly and total fuel spend |
 | Maintenance | Service history with next service date and mileage |
 | Expenses | Fuel, maintenance, repairs, insurance, parking, tolls, washing and other; monthly/yearly/category totals |
 | Analytics | Efficiency trends, monthly costs, category split and cost per km, with vehicle comparison |
@@ -128,8 +128,8 @@ drivon/
 |---|---|---|
 | 0 | Setup: repo, Spring Boot, Docker Compose, Flutter (Android + iOS), CI, design system | ✅ Done |
 | 1 | Auth & vehicles | ✅ Done |
-| 2 | Fuel tracking | Next |
-| 3 | Maintenance & expenses | |
+| 2 | Fuel tracking | ✅ Done |
+| 3 | Maintenance & expenses | Next |
 | 4 | Documents (Cloudflare R2) | |
 | 5 | Analytics & cost per km | |
 | 6 | Reminders & notifications | |

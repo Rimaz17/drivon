@@ -55,18 +55,32 @@ Never put secrets in the app; everything in the binary is public. Debug builds m
 ```
 lib/
 ├── main.dart
-├── app/             App widget, router (session-aware redirects), environment config
+├── app/             App widget, router (session-aware redirects, tab shell), environment config
 ├── core/            errors/ (AppException, user-facing text) · network/ (Dio client, auth interceptor)
-│                    storage/ (secure token storage) · ui/ (form submission, dialogs) · utils/
+│                    storage/ (secure token storage) · models/ (pages, monthly totals)
+│                    ui/ (form submission, date field, decimal input, paged lists, dialogs)
+│                    utils/ (exact decimals, money/date formatting, UUIDs)
 ├── design_system/   Tokens, theme and reusable widgets (import design_system.dart)
 ├── features/
 │   ├── auth/        Sign in, create account, session state
-│   └── vehicles/    Garage home, vehicle switcher, add/edit/delete form
+│   ├── vehicles/    Garage home, vehicle switcher, add/edit/delete form, odometer history and corrections
+│   └── fuel/        Fuel tab (km/L gauge, spend, history), fill-up form
 │       └── data/ (DTOs, API, repositories) · domain/ (models) · presentation/ (screens, controllers)
 └── l10n/            ARB strings (English)
 ```
 
 Data flows one way: screen → Riverpod controller → repository → API client. Repositories throw only typed `AppException`s; screens turn them into messages with `errorText`.
+
+### Navigation
+
+Signed-in screens sit in a tab shell (`app/app_shell.dart`, go_router `StatefulShellRoute`): a bottom navigation bar on phones and a navigation rail from 600 dp wide. Each tab keeps its own stack and scroll position. Tabs work on the selected vehicle (`SelectedVehicleView` shows the switcher when there are two vehicles). Forms are top-level routes, so they cover the navigation bar, and system Back closes them.
+
+### Numbers and dates
+
+- The API sends decimals as strings. The app keeps them as `FixedDecimal`, whole numbers of cents or millilitres, and never as `double`. `FuelMath` converts between litres, price and amount with the backend's half-up rounding.
+- The server calculates every figure (km/L, cost per km, totals). The app only formats them: `formatRupees` gives `Rs. 18,500` (cents only when present), and `formatDate` gives `7 Oct 2026`.
+- In the fill-up form, any two of litres, price per litre and amount calculate the third, and the least recently edited field is the calculated one (`FillUpCalculator`).
+- New fill-ups carry an app-generated UUID, so a retried request can't log the same fill-up twice.
 
 ### Sessions
 
@@ -82,7 +96,7 @@ Dark theme first, built from the inspiration boards' palette and shapes. Feature
 - **Colors:** `Theme.of(context).colorScheme` for Material roles, `context.drivonColors` for text levels, status, highlight, hero and chart colors.
 - **Type:** Hanken Grotesk (OFL) through `Theme.of(context).textTheme`; numeric styles use tabular figures.
 - **Spacing / radii / motion / widths:** `DrivonSpacing` (including `formMaxWidth` and `contentMaxWidth`), `DrivonRadii`, `DrivonMotion`.
-- **Components:** `DrivonCard` (surface, highlight, hero), `TagChip`, `StatTile`, `ArcGauge`, `InlineNotice`, `PrimaryButton`, `ContentWidth`, `EmptyState`, `ErrorState`, `LoadingState`.
+- **Components:** `DrivonCard` (surface, highlight, hero), `TagChip`, `StatTile`, `ArcGauge`, `BarList`, `InlineNotice`, `PrimaryButton`, `ContentWidth`, `EmptyState`, `ErrorState`, `LoadingState`. Form helpers live in `core/ui/` (`DateFormField` opens the Material calendar on Android and a Cupertino wheel on iOS).
 
 A test checks every text/surface pairing, including the hero gradient, for WCAG AA contrast.
 
