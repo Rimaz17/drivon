@@ -1,0 +1,191 @@
+package com.drivon.api.fuel;
+
+import com.drivon.api.common.error.DrivonException;
+import com.drivon.api.common.error.ErrorCode;
+import com.drivon.api.common.time.BusinessCalendar;
+import com.drivon.api.common.web.PageResponse;
+import com.drivon.api.common.web.SortOptions;
+import com.drivon.api.fuel.FuelRecord.FuelDetails;
+import com.drivon.api.vehicle.OdometerService;
+import com.drivon.api.vehicle.OdometerSource;
+import com.drivon.api.vehicle.Vehicle;
+import com.drivon.api.vehicle.VehicleService;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import org.jspecify.annotations.Nullable;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * Fill-ups for the signed-in user's vehicles. Every method checks that the vehicle belongs to the
+ * user; a fill-up under someone else's vehicle is reported as not found.
+ */
+@Service
+public class FuelService {
+
+  static final SortOptions SORT =
+      new SortOptions(
+          Map.of(
+              "date", "date",
+              "odometerKm", "odometerKm",
+              "amount", "amount",
+              "litres", "litres"),
+          Sort.by(Direction.DESC, "date").and(Sort.by(Direction.DESC, "odometerKm")),
+          Sort.by(Direction.DESC, "createdAt"));
+
+  /** Pumps round the amount, so litres × price may differ from it by up to 1% (at least Rs. 1). */
+  private static final BigDecimal PRICE_TOLERANCE_RATE = new BigDecimal("0.01");
+
+  private final FuelRecordRepository records;
+  private final VehicleService vehicles;
+  private final OdometerService odometer;
+  private final BusinessCalendar calendar;
+
+  FuelService(
+      FuelRecordRepository records,
+      VehicleService vehicles,
+      OdometerService odometer,
+      BusinessCalendar calendar) {
+    this.records = records;
+    this.vehicles = vehicles;
+    this.odometer = odometer;
+    this.calendar = calendar;
+  }
+
+  /** The result of a create: the record and whether it was new or an earlier save (a retry). */
+  public record Saved(FuelRecordResponse record, boolean created) {}
+
+  @Transactional(readOnly = true)
+  public PageResponse<FuelRecordResponse> list(UUID userId, UUID vehicleId, Pageable pageable) {
+    vehicles.requireOwned(userId, vehicleId);
+    Map<UUID, BigDecimal> efficiency = efficiencyByRecord(vehicleId);
+    return PageResponse.of(
+        records.findByVehicleId(vehicleId, SORT.apply(pageable)),
+        record -> FuelRecordMapper.toResponse(record, efficiency.get(record.getId())));
+  }
+
+  @Transactional(readOnly = true)
+  public FuelRecordResponse get(UUID userId, UUID vehicleId, UUID recordId) {
+    vehicles.requireOwned(userId, vehicleId);
+    return withEfficiency(find(vehicleId, recordId));
+  }
+
+  /**
+   * Logs a fill-up and puts its odometer on the vehicle's timeline. If the request carries an ID
+   * that was already saved for this vehicle, that record is returned unchanged (an offline retry).
+   */
+  @Transactional
+  public Saved create(UUID userId, UUID vehicleId, FuelRecordRequest request) {
+    Vehicle vehicle = odometer.lockVehicle(userId, vehicleId);
+    Optional<FuelRecord> earlier =
+        request.id() == null ? Optional.empty() : records.findById(request.id());
+    if (earlier.isPresent()) {
+      if (!earlier.get().getVehicleId().equals(vehicleId)) {
+        throw new DrivonException(
+            ErrorCode.RECORD_ID_CONFLICT, "This ID is already used by another record.");
+      }
+      return new Saved(withEfficiency(earlier.get()), false);
+    }
+    FuelDetails details = validate(request);
+    FuelRecord record = new FuelRecord(request.id(), vehicleId, details);
+    odometer.recordLinked(
+        vehicle, OdometerSource.FUEL, record.getId(), details.date(), details.odometerKm());
+    records.saveAndFlush(record);
+    return new Saved(withEfficiency(record), true);
+  }
+
+  /** Replaces a fill-up's details; its odometer reading moves with it. */
+  @Transactional
+  public FuelRecordResponse update(
+      UUID userId, UUID vehicleId, UUID recordId, FuelRecordRequest request) {
+    Vehicle vehicle = odometer.lockVehicle(userId, vehicleId);
+    FuelRecord record = find(vehicleId, recordId);
+    FuelDetails details = validate(request);
+    odometer.recordLinked(
+        vehicle, OdometerSource.FUEL, record.getId(), details.date(), details.odometerKm());
+    record.update(details);
+    records.saveAndFlush(record);
+    return withEfficiency(record);
+  }
+
+  /** Deletes a fill-up and its odometer reading. */
+  @Transactional
+  public void delete(UUID userId, UUID vehicleId, UUID recordId) {
+    Vehicle vehicle = odometer.lockVehicle(userId, vehicleId);
+    FuelRecord record = find(vehicleId, recordId);
+    records.delete(record);
+    odometer.removeLinked(vehicle, record.getId());
+  }
+
+  private FuelDetails validate(FuelRecordRequest request) {
+    calendar.requireNotFuture(request.date());
+    BigDecimal litres = request.litres().setScale(3, RoundingMode.HALF_UP);
+    BigDecimal amount = request.amount().setScale(2, RoundingMode.HALF_UP);
+    return new FuelDetails(
+        request.date(),
+        litres,
+        amount,
+        resolvePricePerLitre(litres, amount, request.pricePerLitre()),
+        request.odometerKm(),
+        request.fullTank(),
+        blankToNull(request.station()));
+  }
+
+  /** The price per litre sent by the client if it agrees with amount and litres, else derived. */
+  static BigDecimal resolvePricePerLitre(
+      BigDecimal litres, BigDecimal amount, @Nullable BigDecimal pricePerLitre) {
+    if (pricePerLitre == null) {
+      BigDecimal derived = amount.divide(litres, 2, RoundingMode.HALF_UP);
+      if (derived.signum() <= 0) {
+        throw new DrivonException(
+            ErrorCode.FUEL_PRICE_MISMATCH,
+            "The amount is too small for that many litres. Check both values.");
+      }
+      return derived;
+    }
+    BigDecimal price = pricePerLitre.setScale(2, RoundingMode.HALF_UP);
+    BigDecimal expectedAmount = litres.multiply(price).setScale(2, RoundingMode.HALF_UP);
+    BigDecimal tolerance = amount.multiply(PRICE_TOLERANCE_RATE).max(BigDecimal.ONE);
+    if (expectedAmount.subtract(amount).abs().compareTo(tolerance) > 0) {
+      throw new DrivonException(
+              ErrorCode.FUEL_PRICE_MISMATCH,
+              "Litres × price per litre comes to Rs. "
+                  + expectedAmount.toPlainString()
+                  + ", which doesn't match the amount. Check the three values.")
+          .with("expectedAmount", expectedAmount.toPlainString());
+    }
+    return price;
+  }
+
+  private FuelRecord find(UUID vehicleId, UUID recordId) {
+    return records
+        .findByIdAndVehicleId(recordId, vehicleId)
+        .orElseThrow(() -> new DrivonException(ErrorCode.FUEL_RECORD_NOT_FOUND));
+  }
+
+  private FuelRecordResponse withEfficiency(FuelRecord record) {
+    return FuelRecordMapper.toResponse(
+        record, efficiencyByRecord(record.getVehicleId()).get(record.getId()));
+  }
+
+  /** km/L of every full fill that closes a stretch, keyed by record ID. */
+  private Map<UUID, BigDecimal> efficiencyByRecord(UUID vehicleId) {
+    return FuelEfficiencyCalculator.intervals(records.findFillsInOdometerOrder(vehicleId)).stream()
+        .collect(
+            Collectors.toMap(FuelInterval::closingFillId, FuelInterval::kmPerLitre, (a, b) -> a));
+  }
+
+  private static @Nullable String blankToNull(@Nullable String value) {
+    if (value == null || value.isBlank()) {
+      return null;
+    }
+    return value.strip();
+  }
+}

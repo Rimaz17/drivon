@@ -45,6 +45,15 @@ public class VehicleService {
     return VehicleMapper.toResponse(findOwned(userId, vehicleId));
   }
 
+  /**
+   * The user's vehicle, for features that read records under it. Throws {@code VEHICLE_NOT_FOUND}
+   * for a missing vehicle or someone else's.
+   */
+  @Transactional(readOnly = true)
+  public Vehicle requireOwned(UUID userId, UUID vehicleId) {
+    return findOwned(userId, vehicleId);
+  }
+
   /** Adds a vehicle, enforcing the per-user limit even under concurrent requests. */
   @Transactional
   public VehicleResponse create(UUID userId, VehicleRequest request) {

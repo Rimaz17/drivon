@@ -1,0 +1,308 @@
+package com.drivon.api.fuel;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.drivon.api.common.error.DrivonException;
+import com.drivon.api.common.error.ErrorCode;
+import com.drivon.api.common.time.BusinessCalendar;
+import com.drivon.api.fuel.FuelRecord.FuelDetails;
+import com.drivon.api.vehicle.OdometerService;
+import com.drivon.api.vehicle.OdometerSource;
+import com.drivon.api.vehicle.Vehicle;
+import com.drivon.api.vehicle.VehicleService;
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+
+class FuelServiceTest {
+
+  private static final UUID USER = UUID.randomUUID();
+  private static final UUID VEHICLE = UUID.randomUUID();
+  private static final LocalDate TODAY = LocalDate.of(2026, 10, 7);
+
+  private final FuelRecordRepository records = mock(FuelRecordRepository.class);
+  private final VehicleService vehicles = mock(VehicleService.class);
+  private final OdometerService odometer = mock(OdometerService.class);
+  private final Vehicle vehicle = mock(Vehicle.class);
+  private final FuelService service =
+      new FuelService(
+          records,
+          vehicles,
+          odometer,
+          new BusinessCalendar(Clock.fixed(Instant.parse("2026-10-07T04:30:00Z"), ZoneOffset.UTC)));
+
+  @BeforeEach
+  void setUp() {
+    when(odometer.lockVehicle(USER, VEHICLE)).thenReturn(vehicle);
+    when(records.saveAndFlush(any())).thenAnswer(i -> i.getArgument(0));
+    when(records.findById(any())).thenReturn(Optional.empty());
+  }
+
+  private static FuelRecordRequest request(
+      UUID id, String litres, String amount, String price, LocalDate date) {
+    return new FuelRecordRequest(
+        id,
+        date,
+        new BigDecimal(litres),
+        new BigDecimal(amount),
+        price == null ? null : new BigDecimal(price),
+        10_450,
+        true,
+        "  Ceypetco Kollupitiya  ");
+  }
+
+  private static FuelRecordRequest request(String litres, String amount, String price) {
+    return request(null, litres, amount, price, TODAY);
+  }
+
+  private static FuelRecord stored(UUID vehicleId) {
+    return new FuelRecord(
+        null,
+        vehicleId,
+        new FuelDetails(
+            TODAY,
+            new BigDecimal("30.000"),
+            new BigDecimal("10950.00"),
+            new BigDecimal("365.00"),
+            10_450,
+            true,
+            null));
+  }
+
+  private static ErrorCode codeOf(Throwable error) {
+    return ((DrivonException) error).code();
+  }
+
+  @Test
+  void derivesThePricePerLitreWhenItIsLeftOut() {
+    FuelRecordResponse saved = service.create(USER, VEHICLE, request("30", "10950", null)).record();
+
+    assertThat(saved.pricePerLitre()).isEqualByComparingTo("365.00");
+    assertThat(saved.litres()).isEqualByComparingTo("30.000");
+    assertThat(saved.station()).isEqualTo("Ceypetco Kollupitiya");
+  }
+
+  @Test
+  void acceptsAPriceThatMatchesTheRoundedPumpAmount() {
+    // 30.123 L × Rs. 365.00 = Rs. 10,994.90, rounded at the pump to Rs. 10,995.
+    FuelRecordResponse saved =
+        service.create(USER, VEHICLE, request("30.123", "10995", "365")).record();
+
+    assertThat(saved.pricePerLitre()).isEqualByComparingTo("365.00");
+    assertThat(saved.amount()).isEqualByComparingTo("10995.00");
+  }
+
+  @Test
+  void rejectsAPriceThatDoesNotMatchTheAmountAndLitres() {
+    assertThatThrownBy(() -> service.create(USER, VEHICLE, request("30", "12000", "365")))
+        .isInstanceOfSatisfying(
+            DrivonException.class,
+            e -> {
+              assertThat(e.code()).isEqualTo(ErrorCode.FUEL_PRICE_MISMATCH);
+              assertThat(e.properties()).containsEntry("expectedAmount", "10950.00");
+            });
+    verify(records, never()).saveAndFlush(any());
+  }
+
+  @Test
+  void theToleranceIsAtLeastOneRupeeForSmallAmounts() {
+    // 0.2 L × Rs. 365.00 = Rs. 73.00; 1% of the amount is under a rupee, so Rs. 1 applies.
+    assertThat(
+            FuelService.resolvePricePerLitre(
+                new BigDecimal("0.200"), new BigDecimal("74.00"), new BigDecimal("365.00")))
+        .isEqualByComparingTo("365.00");
+    assertThatThrownBy(
+            () ->
+                FuelService.resolvePricePerLitre(
+                    new BigDecimal("0.200"), new BigDecimal("74.01"), new BigDecimal("365.00")))
+        .extracting(FuelServiceTest::codeOf)
+        .isEqualTo(ErrorCode.FUEL_PRICE_MISMATCH);
+  }
+
+  @Test
+  void theToleranceIsOnePercentForLargerAmounts() {
+    // 30 L × Rs. 365.00 = Rs. 10,950.00; 1% of Rs. 11,059 is Rs. 110.59.
+    assertThat(
+            FuelService.resolvePricePerLitre(
+                new BigDecimal("30.000"), new BigDecimal("11059.00"), new BigDecimal("365.00")))
+        .isEqualByComparingTo("365.00");
+    assertThatThrownBy(
+            () ->
+                FuelService.resolvePricePerLitre(
+                    new BigDecimal("30.000"), new BigDecimal("11062.00"), new BigDecimal("365.00")))
+        .extracting(FuelServiceTest::codeOf)
+        .isEqualTo(ErrorCode.FUEL_PRICE_MISMATCH);
+  }
+
+  @Test
+  void rejectsAnAmountTooSmallToGiveAPrice() {
+    assertThatThrownBy(() -> service.create(USER, VEHICLE, request("999", "0.01", null)))
+        .extracting(FuelServiceTest::codeOf)
+        .isEqualTo(ErrorCode.FUEL_PRICE_MISMATCH);
+  }
+
+  @Test
+  void putsTheOdometerOnTheTimelineBeforeSaving() {
+    FuelRecordResponse saved = service.create(USER, VEHICLE, request("30", "10950", null)).record();
+
+    InOrder order = inOrder(odometer, records);
+    order.verify(odometer).lockVehicle(USER, VEHICLE);
+    order.verify(odometer).recordLinked(vehicle, OdometerSource.FUEL, saved.id(), TODAY, 10_450);
+    order.verify(records).saveAndFlush(any());
+  }
+
+  @Test
+  void rejectsFutureFillUpsBeforeTouchingTheOdometer() {
+    assertThatThrownBy(
+            () ->
+                service.create(
+                    USER, VEHICLE, request(null, "30", "10950", null, TODAY.plusDays(1))))
+        .extracting(FuelServiceTest::codeOf)
+        .isEqualTo(ErrorCode.DATE_IN_FUTURE);
+    verify(odometer, never()).recordLinked(any(), any(), any(), any(), anyInt());
+  }
+
+  @Test
+  void keepsTheClientGeneratedId() {
+    UUID clientId = UUID.randomUUID();
+
+    FuelService.Saved saved =
+        service.create(USER, VEHICLE, request(clientId, "30", "10950", null, TODAY));
+
+    assertThat(saved.created()).isTrue();
+    assertThat(saved.record().id()).isEqualTo(clientId);
+  }
+
+  @Test
+  void aRetriedCreateReturnsTheRecordAlreadySaved() {
+    FuelRecord existing = stored(VEHICLE);
+    when(records.findById(existing.getId())).thenReturn(Optional.of(existing));
+
+    FuelService.Saved retry =
+        service.create(USER, VEHICLE, request(existing.getId(), "99", "1", null, TODAY));
+
+    assertThat(retry.created()).isFalse();
+    assertThat(retry.record().amount()).isEqualByComparingTo("10950.00");
+    verify(records, never()).saveAndFlush(any());
+    verify(odometer, never()).recordLinked(any(), any(), any(), any(), anyInt());
+  }
+
+  @Test
+  void anIdUsedUnderAnotherVehicleIsAConflict() {
+    FuelRecord elsewhere = stored(UUID.randomUUID());
+    when(records.findById(elsewhere.getId())).thenReturn(Optional.of(elsewhere));
+
+    assertThatThrownBy(
+            () ->
+                service.create(
+                    USER, VEHICLE, request(elsewhere.getId(), "30", "10950", null, TODAY)))
+        .extracting(FuelServiceTest::codeOf)
+        .isEqualTo(ErrorCode.RECORD_ID_CONFLICT);
+  }
+
+  @Test
+  void updateMovesTheOdometerReadingWithTheRecord() {
+    FuelRecord existing = stored(VEHICLE);
+    when(records.findByIdAndVehicleId(existing.getId(), VEHICLE)).thenReturn(Optional.of(existing));
+
+    FuelRecordResponse updated =
+        service.update(
+            USER,
+            VEHICLE,
+            existing.getId(),
+            new FuelRecordRequest(
+                null,
+                TODAY.minusDays(2),
+                new BigDecimal("20"),
+                new BigDecimal("7300"),
+                null,
+                10_300,
+                false,
+                ""));
+
+    verify(odometer)
+        .recordLinked(vehicle, OdometerSource.FUEL, existing.getId(), TODAY.minusDays(2), 10_300);
+    assertThat(updated.fullTank()).isFalse();
+    assertThat(updated.station()).isNull();
+    assertThat(updated.odometerKm()).isEqualTo(10_300);
+  }
+
+  @Test
+  void deleteRemovesTheRecordAndItsReading() {
+    FuelRecord existing = stored(VEHICLE);
+    when(records.findByIdAndVehicleId(existing.getId(), VEHICLE)).thenReturn(Optional.of(existing));
+
+    service.delete(USER, VEHICLE, existing.getId());
+
+    verify(records).delete(existing);
+    verify(odometer).removeLinked(vehicle, existing.getId());
+  }
+
+  @Test
+  void aFillUpUnderAnotherVehicleIsNotFound() {
+    UUID recordId = UUID.randomUUID();
+    when(records.findByIdAndVehicleId(recordId, VEHICLE)).thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> service.get(USER, VEHICLE, recordId))
+        .extracting(FuelServiceTest::codeOf)
+        .isEqualTo(ErrorCode.FUEL_RECORD_NOT_FOUND);
+    assertThatThrownBy(() -> service.delete(USER, VEHICLE, recordId))
+        .extracting(FuelServiceTest::codeOf)
+        .isEqualTo(ErrorCode.FUEL_RECORD_NOT_FOUND);
+  }
+
+  @Test
+  void listingChecksOwnershipAndShowsKmPerLitreOnClosingFullFills() {
+    FuelRecord first = stored(VEHICLE);
+    FuelRecord second = stored(VEHICLE);
+    when(records.findByVehicleId(eq(VEHICLE), any()))
+        .thenReturn(new PageImpl<>(List.of(second, first), PageRequest.of(0, 20), 2));
+    when(records.findFillsInOdometerOrder(VEHICLE))
+        .thenReturn(
+            List.of(
+                new FuelFill(
+                    first.getId(),
+                    TODAY.minusDays(9),
+                    10_000,
+                    new BigDecimal("30"),
+                    new BigDecimal("10950"),
+                    true),
+                new FuelFill(
+                    second.getId(),
+                    TODAY,
+                    10_450,
+                    new BigDecimal("30"),
+                    new BigDecimal("10950"),
+                    true)));
+
+    var page = service.list(USER, VEHICLE, PageRequest.of(0, 20));
+
+    verify(vehicles).requireOwned(USER, VEHICLE);
+    assertThat(page.content().get(0).kmPerLitre()).isEqualByComparingTo("15.00");
+    assertThat(page.content().get(1).kmPerLitre()).isNull();
+    ArgumentCaptor<org.springframework.data.domain.Pageable> pageable =
+        ArgumentCaptor.forClass(org.springframework.data.domain.Pageable.class);
+    verify(records).findByVehicleId(eq(VEHICLE), pageable.capture());
+    assertThat(pageable.getValue().getSort().getOrderFor("date")).isNotNull();
+  }
+}
