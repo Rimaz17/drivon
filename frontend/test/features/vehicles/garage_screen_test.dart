@@ -2,6 +2,7 @@ import 'package:drivon/app/app.dart';
 import 'package:drivon/core/errors/app_exception.dart';
 import 'package:drivon/core/storage/token_store.dart';
 import 'package:drivon/features/auth/presentation/session_controller.dart';
+import 'package:drivon/features/vehicles/presentation/widgets/vehicle_switcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -62,7 +63,7 @@ void main() {
     expect(find.textContaining('45,000'), findsOneWidget);
     expect(find.text('Hybrid'), findsOneWidget);
     expect(find.text('Add another vehicle'), findsOneWidget);
-    expect(find.byType(SegmentedButton<String>), findsNothing);
+    expect(find.byType(VehicleSwitcher), findsNothing);
   });
 
   testWidgets('switches between two vehicles and remembers the choice', (
@@ -87,7 +88,7 @@ void main() {
       findsOneWidget,
     );
 
-    await tester.tap(find.text('Dio'));
+    await tester.tap(find.textContaining('Dio'));
     await tester.pumpAndSettle();
 
     expect(find.text('BGH-4521'), findsOneWidget);
