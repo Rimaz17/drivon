@@ -53,6 +53,7 @@
 - 2026-10-07: Auth uses 15-minute HS256 JWTs plus 30-day opaque refresh tokens, stored hashed, rotated in families with reuse detection (see docs/adr/0005-authentication-tokens.md).
 - 2026-10-07: Fuel types are PETROL / DIESEL / HYBRID; EVs wait for kWh tracking. Odometer history and corrections arrive with Phase 2. The vehicle list is not paginated (capped at 2). The selected vehicle is kept on the device (see docs/adr/0006-vehicle-model.md).
 - 2026-10-07: freezed is held at 3.2.5 (4.x needs Dart 3.13), which caps build_runner at 2.15.1.
+- 2026-10-07: Local Docker Postgres is published on host port 5433 so it can run next to a PostgreSQL installed on the machine (which takes 5432).
 - 2026-10-07: Phone testing uses `adb reverse tcp:8080 tcp:8080` so debug builds keep cleartext limited to localhost.
 
 ## Pinned Versions

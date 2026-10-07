@@ -31,7 +31,7 @@ Swagger UI: <http://localhost:8080/swagger-ui.html>. Click *Authorize* and paste
 
 | Profile | Used for | Database | JWT secret |
 |---|---|---|---|
-| `dev` (default) | Local development | `jdbc:postgresql://localhost:5432/drivon` unless `DB_URL`/`DB_USERNAME`/`DB_PASSWORD` are set | Built-in, publicly known dev key unless `JWT_SECRET` is set |
+| `dev` (default) | Local development | `jdbc:postgresql://localhost:5433/drivon` unless `DB_URL`/`DB_USERNAME`/`DB_PASSWORD` are set | Built-in, publicly known dev key unless `JWT_SECRET` is set |
 | `test` | Automated tests | Testcontainers (`@IntegrationTest`) | Fixed test key |
 | `prod` | Render + Neon | `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` required | `JWT_SECRET` required |
 

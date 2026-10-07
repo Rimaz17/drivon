@@ -1,4 +1,6 @@
 # Local development stack: Postgres + the Spring Boot API.
+# Postgres is published on host port 5433 (not 5432) so it can run next to a
+# PostgreSQL installed directly on the machine.
 #   docker compose up -d postgres   # database only (run the API from your IDE)
 #   docker compose up --build       # database + API on http://localhost:8080
 # Values come from .env at the repo root (cp backend/.env.example .env first).
@@ -13,7 +15,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-drivon}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:

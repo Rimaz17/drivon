@@ -65,7 +65,7 @@ The app only talks to the API. Every secret (database, AI, storage, Firebase) li
 
 ```bash
 cp backend/.env.example .env       # local-only values; never commit .env
-docker compose up -d postgres      # Postgres 17 on localhost:5432
+docker compose up -d postgres      # Postgres 17 on localhost:5433
 cd backend && ./mvnw spring-boot:run
 ```
 
