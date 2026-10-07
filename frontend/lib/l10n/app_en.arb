@@ -158,5 +158,85 @@
         "type": "String"
       }
     }
-  }
+  },
+  "logFillUpTitle": "Log fill-up",
+  "editFillUpTitle": "Edit fill-up",
+  "fillUpDateLabel": "Date",
+  "doneAction": "Done",
+  "odometerReadingLabel": "Odometer reading",
+  "odometerCurrentHelper": "Currently {km} km",
+  "@odometerCurrentHelper": {
+    "description": "Helper under an odometer field showing the vehicle's current reading.",
+    "placeholders": {
+      "km": {
+        "type": "String",
+        "example": "46,000"
+      }
+    }
+  },
+  "litresLabel": "Litres",
+  "litresUnit": "L",
+  "pricePerLitreLabel": "Price per litre",
+  "amountPaidLabel": "Amount paid",
+  "rupeePrefix": "Rs. ",
+  "@rupeePrefix": {
+    "description": "Prefix inside money fields, followed directly by the number."
+  },
+  "calculatedHelper": "Calculated from the other two",
+  "fillUpNumbersHint": "Enter any two of litres, price and amount.",
+  "fullTankLabel": "Filled to full",
+  "fullTankHelper": "km/L is measured between fill-ups to full. Turn off for a top-up.",
+  "stationLabel": "Station (optional)",
+  "stationHint": "e.g. Ceypetco Kollupitiya",
+  "savingFillUp": "Saving fill-up",
+  "fillUpLogged": "Fill-up logged",
+  "changesSaved": "Changes saved",
+  "fillUpDeleted": "Fill-up deleted",
+  "deleteFillUpTooltip": "Delete fill-up",
+  "deleteFillUpTitle": "Delete this fill-up?",
+  "deleteFillUpMessage": "km/L and fuel totals will be recalculated without it. This can't be undone.",
+  "litresRequired": "Enter the litres.",
+  "litresInvalid": "Enter litres above 0, up to 999.999.",
+  "pricePerLitreRequired": "Enter the price per litre.",
+  "pricePerLitreInvalid": "Enter a price above 0, up to Rs. 99,999.99.",
+  "amountRequired": "Enter the amount paid.",
+  "amountInvalid": "Enter an amount above 0, up to Rs. 9,999,999.99.",
+  "dateRequired": "Choose a date.",
+  "errorOdometerBetween": "For this date, enter a reading from {min} to {max} km.",
+  "@errorOdometerBetween": {
+    "placeholders": {
+      "min": {
+        "type": "String",
+        "example": "45,000"
+      },
+      "max": {
+        "type": "String",
+        "example": "47,000"
+      }
+    }
+  },
+  "errorOdometerAtLeast": "For this date, enter at least {km} km, the reading on an earlier date.",
+  "@errorOdometerAtLeast": {
+    "placeholders": {
+      "km": {
+        "type": "String",
+        "example": "45,000"
+      }
+    }
+  },
+  "errorOdometerAtMost": "For this date, enter at most {km} km, the reading on a later date.",
+  "@errorOdometerAtMost": {
+    "placeholders": {
+      "km": {
+        "type": "String",
+        "example": "45,000"
+      }
+    }
+  },
+  "errorDateInFuture": "The date can't be in the future.",
+  "errorFuelPriceMismatch": "Litres × price per litre doesn't match the amount. Check the three numbers.",
+  "errorFuelRecordNotFound": "This fill-up no longer exists.",
+  "recordMissingMessage": "It may have been deleted on another device.",
+  "loadingRecord": "Loading",
+  "recordLoadErrorTitle": "Couldn't open this record"
 }
