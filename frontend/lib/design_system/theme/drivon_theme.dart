@@ -152,6 +152,17 @@ abstract final class DrivonTheme {
         shape: stadium,
         padding: const EdgeInsets.symmetric(horizontal: DrivonSpacing.sm),
       ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: SegmentedButton.styleFrom(
+          backgroundColor: scheme.surfaceContainer,
+          foregroundColor: colors.textSecondary,
+          selectedBackgroundColor: scheme.primaryContainer,
+          selectedForegroundColor: scheme.onPrimaryContainer,
+          side: BorderSide(color: scheme.outline),
+          minimumSize: const Size(0, DrivonSpacing.minTouchTarget),
+          textStyle: textTheme.labelLarge,
+        ),
+      ),
       listTileTheme: ListTileThemeData(
         iconColor: colors.textSecondary,
         textColor: colors.textPrimary,

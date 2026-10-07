@@ -6,7 +6,7 @@
 [![Frontend CI](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-violet.svg)](LICENSE)
 
-> **Status:** Phase 0 (project setup) is complete. Features land phase by phase; see the [roadmap](#roadmap) and [`docs/PROGRESS.md`](docs/PROGRESS.md).
+> **Status:** Phase 1 (accounts and vehicles) is complete: sign up, sign in, and manage up to two vehicles. Features land phase by phase; see the [roadmap](#roadmap) and [`docs/PROGRESS.md`](docs/PROGRESS.md).
 
 ## Features (MVP)
 
@@ -65,7 +65,7 @@ The app only talks to the API. Every secret (database, AI, storage, Firebase) li
 
 ```bash
 cp backend/.env.example .env       # local-only values; never commit .env
-docker compose up -d postgres      # Postgres 17 on localhost:5432
+docker compose up -d postgres      # Postgres 17 on localhost:5433
 cd backend && ./mvnw spring-boot:run
 ```
 
@@ -79,8 +79,11 @@ Or run everything in containers with `docker compose up --build`. The API listen
 ```bash
 cd frontend
 flutter pub get
+dart run build_runner build --delete-conflicting-outputs       # generated models are not committed
 flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080   # Android emulator → host machine
 ```
+
+On a USB-connected phone, run `adb reverse tcp:8080 tcp:8080` first and use `API_BASE_URL=http://localhost:8080`. The [frontend README](frontend/README.md#running-on-an-android-phone-from-android-studio) has step-by-step Android Studio instructions.
 
 See [`backend/README.md`](backend/README.md) and [`frontend/README.md`](frontend/README.md) for details.
 
@@ -94,6 +97,7 @@ All variables are listed with placeholders in [`backend/.env.example`](backend/.
 | `API_PORT` | Docker Compose | Host port for the containerised API |
 | `SPRING_PROFILES_ACTIVE` | Backend | `dev` locally, `prod` on Render |
 | `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | Backend | Database connection (Neon needs `sslmode=require`) |
+| `JWT_SECRET` | Backend | Base64 HS256 signing key (≥ 256 bits, `openssl rand -base64 48`); required in prod |
 | `PORT` | Backend | HTTP port, injected by Render |
 
 The Flutter app takes only non-secret build settings via `--dart-define` (`API_BASE_URL`).
@@ -123,8 +127,8 @@ drivon/
 | Phase | Focus | Status |
 |---|---|---|
 | 0 | Setup: repo, Spring Boot, Docker Compose, Flutter (Android + iOS), CI, design system | ✅ Done |
-| 1 | Auth & vehicles | Next |
-| 2 | Fuel tracking | |
+| 1 | Auth & vehicles | ✅ Done |
+| 2 | Fuel tracking | Next |
 | 3 | Maintenance & expenses | |
 | 4 | Documents (Cloudflare R2) | |
 | 5 | Analytics & cost per km | |

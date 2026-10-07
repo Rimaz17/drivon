@@ -2,14 +2,161 @@
   "@@locale": "en",
   "appTitle": "Drivon",
   "@appTitle": {
-    "description": "Application name shown in the OS task switcher."
+    "description": "Application name, used as the wordmark and in the OS task switcher."
   },
-  "homeTagline": "Every fill-up, service and renewal for your vehicles, in one place.",
-  "@homeTagline": {
-    "description": "One-line description of the app on the home screen."
+  "loadingSession": "Opening Drivon",
+  "@loadingSession": {
+    "description": "Screen reader label while the saved session is checked at launch."
   },
-  "homeComingSoon": "Sign-in and your vehicles are coming next.",
-  "@homeComingSoon": {
-    "description": "Temporary status line shown until accounts and vehicles are available."
+  "signInTitle": "Welcome back",
+  "signInSubtitle": "Sign in to see your vehicles.",
+  "signInAction": "Sign in",
+  "signingIn": "Signing in",
+  "@signingIn": {
+    "description": "Screen reader label for the sign-in button while it is busy."
+  },
+  "noAccountPrompt": "New to Drivon?",
+  "goToCreateAccount": "Create an account",
+  "createAccountTitle": "Create your account",
+  "createAccountSubtitle": "Track fuel, services and costs for up to two vehicles.",
+  "createAccountAction": "Create account",
+  "creatingAccount": "Creating your account",
+  "haveAccountPrompt": "Already have an account?",
+  "goToSignIn": "Sign in",
+  "nameLabel": "Your name",
+  "emailLabel": "Email",
+  "passwordLabel": "Password",
+  "newPasswordHelper": "At least 8 characters",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "nameRequired": "Enter your name.",
+  "emailRequired": "Enter your email.",
+  "emailInvalid": "Enter a valid email, like name@example.com.",
+  "passwordRequired": "Enter your password.",
+  "passwordTooShort": "Use at least 8 characters.",
+  "passwordTooLong": "Use 72 characters or fewer.",
+  "slowServerNotice": "Waking up the server. The first request can take up to a minute.",
+  "@slowServerNotice": {
+    "description": "Shown when a request takes long, because the free server sleeps when idle."
+  },
+  "sessionExpiredNotice": "Your session ended. Please sign in again.",
+  "errorNoConnection": "Can't reach Drivon. Check your connection and try again.",
+  "errorServerTimeout": "The server is taking too long. It may be waking up, so try again in a moment.",
+  "errorInvalidCredentials": "That email and password don't match. Try again.",
+  "errorEmailTaken": "An account with this email already exists. Sign in instead.",
+  "errorRateLimited": "Too many attempts. Wait a minute and try again.",
+  "errorValidation": "Some details need fixing.",
+  "errorGeneric": "Something went wrong. Try again.",
+  "addVehicleTitle": "Add vehicle",
+  "editVehicleTitle": "Edit vehicle",
+  "makeLabel": "Make",
+  "makeHint": "e.g. Toyota",
+  "modelLabel": "Model",
+  "modelHint": "e.g. Aqua",
+  "yearLabel": "Model year",
+  "registrationLabel": "Registration number",
+  "registrationHelper": "As on the number plate, e.g. CAB-1234",
+  "fuelTypeLabel": "Fuel type",
+  "fuelPetrol": "Petrol",
+  "fuelDiesel": "Diesel",
+  "fuelHybrid": "Hybrid",
+  "odometerFieldLabel": "Current odometer",
+  "kmUnit": "km",
+  "odometerHelperMin": "At least {km} km, the last saved reading",
+  "@odometerHelperMin": {
+    "description": "Helper under the odometer field when editing.",
+    "placeholders": {
+      "km": {
+        "type": "String",
+        "example": "45,000"
+      }
+    }
+  },
+  "addVehicleAction": "Add vehicle",
+  "saveChangesAction": "Save changes",
+  "savingVehicle": "Saving vehicle",
+  "makeRequired": "Enter the make.",
+  "modelRequired": "Enter the model.",
+  "yearRequired": "Enter the model year.",
+  "yearRange": "Enter a year from 1900 to {maxYear}.",
+  "@yearRange": {
+    "placeholders": {
+      "maxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "registrationRequired": "Enter the registration number.",
+  "registrationInvalid": "Use up to 20 letters, numbers, spaces and hyphens.",
+  "fuelTypeRequired": "Choose a fuel type.",
+  "odometerRequired": "Enter the odometer reading.",
+  "odometerTooHigh": "Enter a reading up to 2,000,000 km.",
+  "odometerBelowSaved": "Can't be lower than {km} km, the last saved reading.",
+  "@odometerBelowSaved": {
+    "placeholders": {
+      "km": {
+        "type": "String",
+        "example": "45,000"
+      }
+    }
+  },
+  "errorRegistrationInUse": "You already have a vehicle with this registration number.",
+  "errorOdometerDecrease": "The odometer can't go below the last saved reading.",
+  "errorVehicleLimit": "You can add up to two vehicles.",
+  "errorVehicleNotFound": "This vehicle no longer exists.",
+  "deleteVehicleTooltip": "Delete vehicle",
+  "deleteVehicleTitle": "Delete {vehicle}?",
+  "@deleteVehicleTitle": {
+    "placeholders": {
+      "vehicle": {
+        "type": "String",
+        "example": "Toyota Aqua"
+      }
+    }
+  },
+  "deleteVehicleMessage": "This removes the vehicle and its details from Drivon. It can't be undone.",
+  "deleteAction": "Delete",
+  "cancelAction": "Cancel",
+  "deletingVehicle": "Deleting vehicle",
+  "vehicleAdded": "Vehicle added",
+  "vehicleSaved": "Changes saved",
+  "vehicleDeleted": "Vehicle deleted",
+  "backAction": "Go back",
+  "vehicleMissingMessage": "It may have been deleted on another device.",
+  "greeting": "Hello, {name}",
+  "@greeting": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Rimaz"
+      }
+    }
+  },
+  "accountTooltip": "Account",
+  "signOutAction": "Sign out",
+  "loadingVehicles": "Loading your vehicles",
+  "vehiclesLoadErrorTitle": "Couldn't load your vehicles",
+  "retryAction": "Try again",
+  "emptyGarageTitle": "Add your first vehicle",
+  "emptyGarageMessage": "Log fill-ups, services and costs for each vehicle. You can add up to two.",
+  "addAnotherVehicleAction": "Add another vehicle",
+  "vehicleLimitNote": "You've added the maximum of two vehicles.",
+  "vehicleSwitcherLabel": "Choose a vehicle",
+  "odometerLabel": "Odometer",
+  "editVehicleTooltip": "Edit vehicle",
+  "vehicleSummary": "{vehicle}, registration {plate}, odometer {km} kilometres",
+  "@vehicleSummary": {
+    "description": "Screen reader summary of the selected vehicle card.",
+    "placeholders": {
+      "vehicle": {
+        "type": "String"
+      },
+      "plate": {
+        "type": "String"
+      },
+      "km": {
+        "type": "String"
+      }
+    }
   }
 }

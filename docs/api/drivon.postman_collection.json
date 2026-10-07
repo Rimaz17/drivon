@@ -1,11 +1,33 @@
 {
   "info": {
     "name": "Drivon API",
-    "description": "Requests for the Drivon REST API. Set the baseUrl collection variable (local: http://localhost:8080). Authenticated folders are added as each phase ships.",
+    "description": "Requests for the Drivon REST API. Set baseUrl (local: http://localhost:8080). Run 'Register' (or 'Login'), then the Vehicles requests: tokens and the vehicle ID are stored in collection variables by the test scripts.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:8080" }
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "email", "value": "" },
+    { "key": "password", "value": "correct-horse-battery" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "vehicleId", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.collectionVariables.get('email')) {",
+          "  pm.collectionVariables.set('email', `driver-${Date.now()}@example.com`);",
+          "}"
+        ]
+      }
+    }
   ],
   "item": [
     {
@@ -13,7 +35,7 @@
       "item": [
         {
           "name": "Health",
-          "request": { "method": "GET", "url": "{{baseUrl}}/actuator/health" },
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/actuator/health" },
           "event": [
             {
               "listen": "test",
@@ -29,8 +51,184 @@
           ]
         },
         {
-          "name": "Info",
-          "request": { "method": "GET", "url": "{{baseUrl}}/actuator/info" },
+          "name": "OpenAPI document",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/v3/api-docs" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('status is 200', () => pm.response.to.have.status(200));"]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Driver\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('accessToken', body.accessToken);",
+                  "pm.collectionVariables.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('accessToken', body.accessToken);",
+                  "pm.collectionVariables.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login with wrong password",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"wrong-password\"\n}" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 401', () => pm.response.to.have.status(401));",
+                  "pm.test('code is INVALID_CREDENTIALS', () => pm.expect(pm.response.json().code).to.eql('INVALID_CREDENTIALS'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/auth/refresh",
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('accessToken', body.accessToken);",
+                  "pm.collectionVariables.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/users/me" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('no password hash', () => pm.expect(pm.response.json()).to.not.have.property('passwordHash'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me without token",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/api/v1/users/me" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 401', () => pm.response.to.have.status(401));",
+                  "pm.test('code is UNAUTHENTICATED', () => pm.expect(pm.response.json().code).to.eql('UNAUTHENTICATED'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Vehicles",
+      "item": [
+        {
+          "name": "Create vehicle",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/vehicles",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"make\": \"Toyota\",\n  \"model\": \"Aqua\",\n  \"year\": 2018,\n  \"registrationNumber\": \"CAB-{{$randomInt}}\",\n  \"fuelType\": \"HYBRID\",\n  \"currentOdometerKm\": 45000\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201 (or 422 once two vehicles exist)', () => pm.expect(pm.response.code).to.be.oneOf([201, 422]));",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('vehicleId', pm.response.json().id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List vehicles",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles" },
           "event": [
             {
               "listen": "test",
@@ -42,33 +240,70 @@
           ]
         },
         {
-          "name": "OpenAPI document",
-          "request": { "method": "GET", "url": "{{baseUrl}}/v3/api-docs" },
+          "name": "Get vehicle",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}" },
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
-                "exec": [
-                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
-                  "pm.test('is the Drivon API', () => pm.expect(pm.response.json().info.title).to.eql('Drivon API'));"
-                ]
+                "exec": ["pm.test('status is 200', () => pm.response.to.have.status(200));"]
               }
             }
           ]
         },
         {
-          "name": "Protected endpoint without token",
-          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles" },
+          "name": "Update vehicle",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"make\": \"Toyota\",\n  \"model\": \"Aqua G\",\n  \"year\": 2018,\n  \"registrationNumber\": \"CAB-0001\",\n  \"fuelType\": \"HYBRID\",\n  \"currentOdometerKm\": 46000\n}"
+            }
+          },
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
-                "exec": ["pm.test('status is 401', () => pm.response.to.have.status(401));"]
+                "exec": ["pm.test('status is 200', () => pm.response.to.have.status(200));"]
               }
             }
           ]
+        },
+        {
+          "name": "Delete vehicle",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('status is 204', () => pm.response.to.have.status(204));"]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Logout",
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/v1/auth/logout",
+        "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('status is 204', () => pm.response.to.have.status(204));"]
+          }
         }
       ]
     }

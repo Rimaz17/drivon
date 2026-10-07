@@ -12,6 +12,10 @@ enum DrivonCardTone {
   /// Light lavender fill reserved for the one item that needs attention
   /// (for example the next reminder). Use at most once per screen.
   highlight,
+
+  /// Light gradient for the screen's main subject (for example the selected
+  /// vehicle). Use at most once per screen.
+  hero,
 }
 
 /// Rounded container used for every grouped block of content.
@@ -35,15 +39,24 @@ class DrivonCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.drivonColors;
     final theme = Theme.of(context);
-    final isHighlight = tone == DrivonCardTone.highlight;
-    final background = isHighlight
-        ? colors.highlight
-        : theme.colorScheme.surfaceContainer;
-    final foreground = isHighlight ? colors.onHighlight : colors.textPrimary;
+    final isLight = tone != DrivonCardTone.surface;
+    final foreground = isLight ? colors.onHighlight : colors.textPrimary;
+    final decoration = BoxDecoration(
+      borderRadius: DrivonRadii.lgAll,
+      color: switch (tone) {
+        DrivonCardTone.surface => theme.colorScheme.surfaceContainer,
+        DrivonCardTone.highlight => colors.highlight,
+        DrivonCardTone.hero => null,
+      },
+      gradient: tone == DrivonCardTone.hero
+          ? LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: colors.heroGradient,
+            )
+          : null,
+    );
 
-    // Text theme styles carry explicit colors, so on the light highlight fill
-    // the subtree gets a re-colored theme. Descendants must read
-    // Theme.of(context) below the card (e.g. via a Builder) to pick it up.
     Widget content = Padding(
       padding: padding,
       child: DefaultTextStyle.merge(
@@ -54,12 +67,21 @@ class DrivonCard extends StatelessWidget {
         ),
       ),
     );
-    if (isHighlight) {
+    // Theme text and icon-button styles carry explicit light colors, so on a
+    // light fill the subtree gets a re-colored theme. Descendants must read
+    // Theme.of(context) below the card (e.g. via a Builder) to pick it up.
+    if (isLight) {
       content = Theme(
         data: theme.copyWith(
           textTheme: theme.textTheme.apply(
             bodyColor: foreground,
             displayColor: foreground,
+          ),
+          iconButtonTheme: IconButtonThemeData(
+            style: IconButton.styleFrom(
+              foregroundColor: foreground,
+              minimumSize: const Size.square(DrivonSpacing.minTouchTarget),
+            ),
           ),
         ),
         child: content,
@@ -67,10 +89,17 @@ class DrivonCard extends StatelessWidget {
     }
 
     return Material(
-      color: background,
-      borderRadius: DrivonRadii.lgAll,
-      clipBehavior: Clip.antiAlias,
-      child: onTap == null ? content : InkWell(onTap: onTap, child: content),
+      type: MaterialType.transparency,
+      child: Ink(
+        decoration: decoration,
+        child: onTap == null
+            ? content
+            : InkWell(
+                onTap: onTap,
+                borderRadius: DrivonRadii.lgAll,
+                child: content,
+              ),
+      ),
     );
   }
 }

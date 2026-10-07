@@ -72,6 +72,12 @@ void main() {
       );
     });
 
+    test('dark text stays readable across the hero gradient', () {
+      for (final color in colors.heroGradient) {
+        expect(contrast(colors.onHighlight, color), greaterThanOrEqualTo(4.5));
+      }
+    });
+
     test('input borders meet the 3:1 non-text contrast minimum', () {
       expect(
         contrast(scheme.outline, scheme.surfaceContainer),
