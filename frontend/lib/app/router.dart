@@ -7,6 +7,7 @@ import '../features/auth/presentation/session_controller.dart';
 import '../features/auth/presentation/sign_in_screen.dart';
 import '../features/auth/presentation/splash_screen.dart';
 import '../features/home/presentation/home_screen.dart';
+import '../features/vehicles/presentation/vehicle_form_screen.dart';
 
 /// Route paths, kept in one place so screens never hardcode strings.
 abstract final class AppRoutes {
@@ -14,6 +15,11 @@ abstract final class AppRoutes {
   static const String signIn = '/sign-in';
   static const String createAccount = '/create-account';
   static const String home = '/';
+  static const String addVehicle = '/vehicles/new';
+  static const String editVehicle = '/vehicles/:vehicleId/edit';
+
+  static String editVehiclePath(String vehicleId) =>
+      '/vehicles/$vehicleId/edit';
 
   static const Set<String> signedOutOnly = {signIn, createAccount};
 }
@@ -60,6 +66,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.home,
         builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.addVehicle,
+        builder: (context, state) => const VehicleFormScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.editVehicle,
+        builder: (context, state) =>
+            VehicleFormScreen(vehicleId: state.pathParameters['vehicleId']),
       ),
     ],
   );

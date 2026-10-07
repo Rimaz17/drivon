@@ -12,10 +12,11 @@ mixin SubmissionStatus<T extends StatefulWidget> on State<T> {
   String? error;
   Timer? _slowTimer;
 
-  /// Runs [action]; on failure shows the text from [describe].
+  /// Runs [action]; on failure shows the text from [describe] (null shows
+  /// no message, e.g. when the error was attached to a field instead).
   Future<void> submit(
     Future<void> Function() action, {
-    required String Function(Object error) describe,
+    required String? Function(Object error) describe,
   }) async {
     if (busy) return;
     setState(() {
