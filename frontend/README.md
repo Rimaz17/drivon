@@ -85,6 +85,16 @@ Signed-in screens sit in a tab shell (`app/app_shell.dart`, go_router `StatefulS
 - New fill-ups, services and expenses carry an app-generated UUID, so a retried request can't save the same record twice.
 - Spending totals on the Expenses tab come from the server and include fill-ups (as fuel) and services (as maintenance), so a cost is entered once. Logging, editing or deleting any of the three refreshes them.
 
+### Documents and device access
+
+- Documents are opened from the Garage (the Documents tile) and live on their own screens. Files never pass through the API: the app asks it for a short-lived signed URL, uploads straight to Cloudflare R2 with `StorageClient` (its own Dio, so the access token never leaves for the storage service), then asks the API to confirm. The form keeps one document ID per attempt, so saving again after a failure resumes the same document. See `docs/adr/0011-documents-on-r2.md`.
+- `FilePickerService` (`core/services/`) wraps the platform pickers: `image_picker` for the camera and photo library, `file_selector` for PDFs. Photos are re-encoded by `PhotoCompressor` (`flutter_image_compress`) as JPEG with a 1,600 px short side, stepping quality down only if needed to stay under 5 MB; EXIF (location) is dropped. PDFs over 5 MB, or files that aren't really PDFs, are refused before upload.
+- Permissions:
+  - **iOS:** `NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription` in `ios/Runner/Info.plist`; iOS asks on first use. The photo picker runs without full metadata, so choosing a photo doesn't need library access on iOS 14+.
+  - **Android:** the system camera app and photo picker are used, so no runtime permission is declared. `<queries>` entries let the app find a camera app and a viewer for PDF links.
+  - A denied permission shows how to allow it in Settings or use the other source.
+- PDFs open in the phone's viewer (`url_launcher`) with a fresh link each time; photos are shown in the app with pinch-to-zoom.
+
 ### Sessions
 
 - Access and refresh tokens, and the cached profile, live in `flutter_secure_storage` (iOS Keychain, this device only; Android Keystore-backed). Nothing session-related goes into SharedPreferences.
