@@ -6,7 +6,7 @@
 [![Frontend CI](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-violet.svg)](LICENSE)
 
-> **Status:** Phases 1–4 are complete: accounts, up to two vehicles with an odometer history, fuel tracking with km/L and fuel cost per km, service records with upcoming services, expenses with spending totals by period, category, month and vehicle, and vehicle documents (photos and PDFs) stored privately on Cloudflare R2 with expiry tracking. Features land phase by phase; see the [roadmap](#roadmap).
+> **Status:** Phases 1–5 are complete: accounts, up to two vehicles with an odometer history, fuel tracking with km/L and fuel cost per km, service records with upcoming services, expenses with spending totals by period, category, month and vehicle, vehicle documents (photos and PDFs) stored privately on Cloudflare R2 with expiry tracking, and an Insights tab with running cost per km (fuel, maintenance, other), monthly cost and efficiency charts, and a two-vehicle comparison. Features land phase by phase; see the [roadmap](#roadmap).
 
 ## Features (MVP)
 
@@ -132,8 +132,8 @@ drivon/
 | 2 | Fuel tracking | ✅ Done |
 | 3 | Maintenance & expenses | ✅ Done |
 | 4 | Documents (Cloudflare R2) | ✅ Done |
-| 5 | Analytics & cost per km | Next |
-| 6 | Reminders & notifications | |
+| 5 | Analytics & cost per km | ✅ Done |
+| 6 | Reminders & notifications | Next |
 | 7 | Ask My Vehicle | |
 | 8 | Offline support | |
 | 9 | Deploy & polish | |
