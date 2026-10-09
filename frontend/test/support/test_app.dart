@@ -2,6 +2,7 @@ import 'package:drivon/core/network/storage_client.dart';
 import 'package:drivon/core/services/file_picker_service.dart';
 import 'package:drivon/core/storage/token_store.dart';
 import 'package:drivon/design_system/design_system.dart';
+import 'package:drivon/features/analytics/data/analytics_api.dart';
 import 'package:drivon/features/auth/data/auth_api.dart';
 import 'package:drivon/features/auth/data/user_cache.dart';
 import 'package:drivon/features/documents/data/document_api.dart';
@@ -15,6 +16,7 @@ import 'package:drivon/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
+import '../features/analytics/analytics_test_doubles.dart';
 import '../features/auth/auth_test_doubles.dart';
 import '../features/documents/document_test_doubles.dart';
 import '../features/expenses/expense_test_doubles.dart';
@@ -37,6 +39,7 @@ List<Override> testOverrides({
   FakeDocumentApi? documentApi,
   FakeStorageClient? storage,
   FakeFilePickerService? filePicker,
+  FakeAnalyticsApi? analyticsApi,
   List<Override> extra = const [],
 }) => [
   authApiProvider.overrideWithValue(authApi ?? FakeAuthApi()),
@@ -57,6 +60,7 @@ List<Override> testOverrides({
   filePickerServiceProvider.overrideWithValue(
     filePicker ?? FakeFilePickerService(),
   ),
+  analyticsApiProvider.overrideWithValue(analyticsApi ?? FakeAnalyticsApi()),
   ...extra,
 ];
 
