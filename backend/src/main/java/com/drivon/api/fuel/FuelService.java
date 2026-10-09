@@ -159,6 +159,21 @@ public class FuelService {
         efficiency.distanceKm());
   }
 
+  /**
+   * Every full-to-full stretch that ended in the range (open ends mean "from the beginning" and "up
+   * to today"), oldest first, to chart efficiency over time.
+   */
+  @Transactional(readOnly = true)
+  public List<EfficiencyPoint> efficiencyTrend(
+      UUID userId, UUID vehicleId, @Nullable LocalDate from, @Nullable LocalDate to) {
+    vehicles.requireOwned(userId, vehicleId);
+    DateRange range = calendar.range(from, to);
+    return FuelEfficiencyCalculator.intervals(records.findFillsInOdometerOrder(vehicleId)).stream()
+        .filter(interval -> range.contains(interval.endDate()))
+        .map(EfficiencyPoint::from)
+        .toList();
+  }
+
   /** Fuel spend for each of the last {@code months} months up to this one, oldest first. */
   @Transactional(readOnly = true)
   public List<MonthlyAmount> monthlySpend(UUID userId, UUID vehicleId, int months) {
