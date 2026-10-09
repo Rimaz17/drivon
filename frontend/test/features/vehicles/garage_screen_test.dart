@@ -102,6 +102,9 @@ void main() {
       200,
     );
     await tester.scrollUntilVisible(find.textContaining('Dio'), -200);
+    // Scrolling back can stop with the switcher partly under the app bar.
+    await tester.ensureVisible(find.textContaining('Dio'));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.textContaining('Dio'));
     await tester.pumpAndSettle();

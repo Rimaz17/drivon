@@ -1,7 +1,10 @@
 import 'package:drivon/core/storage/token_store.dart';
 import 'package:drivon/design_system/design_system.dart';
 import 'package:drivon/features/auth/data/auth_api.dart';
+import 'package:drivon/core/network/storage_client.dart';
+import 'package:drivon/core/services/file_picker_service.dart';
 import 'package:drivon/features/auth/data/user_cache.dart';
+import 'package:drivon/features/documents/data/document_api.dart';
 import 'package:drivon/features/expenses/data/expense_api.dart';
 import 'package:drivon/features/fuel/data/fuel_api.dart';
 import 'package:drivon/features/maintenance/data/maintenance_api.dart';
@@ -13,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
 import '../features/auth/auth_test_doubles.dart';
+import '../features/documents/document_test_doubles.dart';
 import '../features/expenses/expense_test_doubles.dart';
 import '../features/fuel/fuel_test_doubles.dart';
 import '../features/maintenance/maintenance_test_doubles.dart';
@@ -30,6 +34,9 @@ List<Override> testOverrides({
   FakeOdometerApi? odometerApi,
   FakeMaintenanceApi? maintenanceApi,
   FakeExpenseApi? expenseApi,
+  FakeDocumentApi? documentApi,
+  FakeStorageClient? storage,
+  FakeFilePickerService? filePicker,
   List<Override> extra = const [],
 }) => [
   authApiProvider.overrideWithValue(authApi ?? FakeAuthApi()),
@@ -45,6 +52,11 @@ List<Override> testOverrides({
     maintenanceApi ?? FakeMaintenanceApi(),
   ),
   expenseApiProvider.overrideWithValue(expenseApi ?? FakeExpenseApi()),
+  documentApiProvider.overrideWithValue(documentApi ?? FakeDocumentApi()),
+  storageClientProvider.overrideWithValue(storage ?? FakeStorageClient()),
+  filePickerServiceProvider.overrideWithValue(
+    filePicker ?? FakeFilePickerService(),
+  ),
   ...extra,
 ];
 
