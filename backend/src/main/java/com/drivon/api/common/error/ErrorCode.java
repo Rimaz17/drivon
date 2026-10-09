@@ -26,6 +26,7 @@ public enum ErrorCode {
   FUEL_RECORD_NOT_FOUND(HttpStatus.NOT_FOUND, "Fuel record not found"),
   MAINTENANCE_RECORD_NOT_FOUND(HttpStatus.NOT_FOUND, "Service record not found"),
   EXPENSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Expense not found"),
+  DOCUMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Document not found"),
   METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "Method not allowed"),
   UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported media type"),
 
@@ -49,6 +50,13 @@ public enum ErrorCode {
       HttpStatus.UNPROCESSABLE_CONTENT, "Next service mileage must be above the odometer"),
   FUEL_PRICE_MISMATCH(
       HttpStatus.UNPROCESSABLE_CONTENT, "Price per litre doesn't match the amount and litres"),
+  DOCUMENT_DATES_INVALID(
+      HttpStatus.UNPROCESSABLE_CONTENT, "Expiry date must be after the issue date"),
+  UNSUPPORTED_FILE_TYPE(HttpStatus.UNPROCESSABLE_CONTENT, "File type not supported"),
+  FILE_TOO_LARGE(HttpStatus.UNPROCESSABLE_CONTENT, "File too large"),
+  DOCUMENT_LIMIT_REACHED(HttpStatus.UNPROCESSABLE_CONTENT, "Document limit reached"),
+  UPLOAD_NOT_FOUND(HttpStatus.UNPROCESSABLE_CONTENT, "File not uploaded yet"),
+  UPLOAD_MISMATCH(HttpStatus.UNPROCESSABLE_CONTENT, "Uploaded file doesn't match the request"),
 
   // 429 / 5xx
   RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "Too many requests"),
