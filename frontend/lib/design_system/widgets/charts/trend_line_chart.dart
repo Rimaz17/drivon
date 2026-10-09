@@ -71,6 +71,8 @@ class TrendLineChart extends StatelessWidget {
     final referenceValue = reference;
 
     return Semantics(
+      // Its own node, so the summary is announced on its own.
+      container: true,
       label: semanticsLabel,
       excludeSemantics: true,
       child: SizedBox(

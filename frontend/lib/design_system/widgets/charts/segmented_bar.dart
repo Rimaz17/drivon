@@ -38,6 +38,8 @@ class SegmentedBar extends StatelessWidget {
     ];
     final total = visible.fold<double>(0, (sum, s) => sum + s.value);
     return Semantics(
+      // Its own node, so the summary is announced on its own.
+      container: true,
       label: semanticsLabel,
       excludeSemantics: true,
       child: ClipRRect(

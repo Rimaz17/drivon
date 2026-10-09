@@ -68,6 +68,8 @@ class StackedBarChart extends StatelessWidget {
     final maxY = interval * _gridSteps;
 
     return Semantics(
+      // Its own node, so the summary is announced on its own.
+      container: true,
       label: semanticsLabel,
       excludeSemantics: true,
       child: SizedBox(
