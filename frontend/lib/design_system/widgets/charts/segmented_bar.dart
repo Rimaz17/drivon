@@ -51,6 +51,9 @@ class SegmentedBar extends StatelessWidget {
                     final gaps = _gap * (visible.length - 1);
                     final width = constraints.maxWidth - gaps;
                     return Row(
+                      // Childless boxes collapse unless stretched to the
+                      // bar's height.
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         for (final (index, segment) in visible.indexed) ...[
                           if (index > 0) const SizedBox(width: _gap),
