@@ -41,7 +41,6 @@ void main() {
   );
   const draft = DocumentDraft(
     type: DocumentType.insurance,
-    expiryDate: null,
     notes: '  Comprehensive  ',
   );
 

@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:drivon/core/services/file_picker_service.dart';
 import 'package:drivon/core/services/photo_compressor.dart';
 import 'package:drivon/core/services/picked_file.dart';
