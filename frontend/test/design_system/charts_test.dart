@@ -70,19 +70,18 @@ void main() {
       ),
     );
 
-    expect(find.text('Fuel'), findsOneWidget);
-    expect(find.text('Rs. 24'), findsOneWidget);
-    expect(find.text('Maintenance'), findsOneWidget);
+    expect(find.text('Fuel Rs. 24', findRichText: true), findsOneWidget);
+    expect(find.text('Maintenance', findRichText: true), findsOneWidget);
   });
 
   testWidgets('charts are read as their summary', (tester) async {
     await tester.pumpWidget(
       _themed(
-        StackedBarChart(
-          colors: const [Colors.purple, Colors.teal],
+        const StackedBarChart(
+          colors: [Colors.purple, Colors.teal],
           formatAxisValue: compactRupees,
           semanticsLabel: 'Monthly costs: Sep 12k, Oct 8k',
-          columns: const [
+          columns: [
             StackedBarColumn(label: 'Sep', values: [10000, 2000], tooltip: ''),
             StackedBarColumn(label: 'Oct', values: [8000, 0], tooltip: ''),
           ],
