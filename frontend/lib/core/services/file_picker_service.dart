@@ -67,7 +67,7 @@ class FilePickerService {
     return PickedFile(
       bytes: bytes,
       contentType: 'application/pdf',
-      name: file.name,
+      name: file.name.isEmpty ? 'document.pdf' : file.name,
     );
   }
 
@@ -80,6 +80,7 @@ class FilePickerService {
       bytes[3] == 0x46;
 
   static String _withExtension(String name, String extension) {
+    if (name.isEmpty) return 'photo.$extension';
     final dot = name.lastIndexOf('.');
     return '${dot > 0 ? name.substring(0, dot) : name}.$extension';
   }
