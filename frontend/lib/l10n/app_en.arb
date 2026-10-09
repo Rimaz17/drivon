@@ -775,5 +775,222 @@
   "documentsTilePrompt": "Add your insurance and licence",
   "issuedLabel": "Issued",
   "expiresLabel": "Expires",
-  "notesTitle": "Notes"
+  "notesTitle": "Notes",
+  "navInsights": "Insights",
+  "insightsTitle": "Insights",
+  "loadingInsights": "Loading insights",
+  "insightsLoadErrorTitle": "Couldn't load insights",
+  "runningCostLabel": "Running cost",
+  "costGroupFuel": "Fuel",
+  "costGroupMaintenance": "Maintenance",
+  "costGroupOther": "Other",
+  "costOverDistance": "{amount} over {km} km",
+  "@costOverDistance": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "costNoDistanceCaption": "{amount} spent. Log odometer readings, fill-ups or services to see the cost per km.",
+  "@costNoDistanceCaption": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "costNothingYetCaption": "Log fill-ups, services and expenses to see what this vehicle costs per km.",
+  "runningCostSemantics": "Running cost {cost} per km, {detail}",
+  "@runningCostSemantics": {
+    "placeholders": {
+      "cost": {
+        "type": "String"
+      },
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "runningCostUnknownSemantics": "Running cost per km not known yet. {detail}",
+  "@runningCostUnknownSemantics": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "breakdownSemantics": "Per km: fuel {fuel}, maintenance {maintenance}, other {other}",
+  "@breakdownSemantics": {
+    "placeholders": {
+      "fuel": {
+        "type": "String"
+      },
+      "maintenance": {
+        "type": "String"
+      },
+      "other": {
+        "type": "String"
+      }
+    }
+  },
+  "monthlyCostsTitle": "Monthly costs",
+  "lastSixMonthsCaption": "Last 6 months, by part of the running cost. Tap a bar for details.",
+  "monthlyCostTooltip": "{month}\nTotal {total}\nFuel {fuel}\nMaintenance {maintenance}\nOther {other}",
+  "@monthlyCostTooltip": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "fuel": {
+        "type": "String"
+      },
+      "maintenance": {
+        "type": "String"
+      },
+      "other": {
+        "type": "String"
+      }
+    }
+  },
+  "monthlyCostsSemantics": "Monthly costs for the last 6 months: {months}",
+  "@monthlyCostsSemantics": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "monthCostEntry": "{month} {total}",
+  "@monthCostEntry": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "noCostsInWindow": "Nothing logged in the last 6 months yet.",
+  "costPerKmTrendTitle": "Cost per km by month",
+  "costPerKmTrendCaption": "Months without distance are left out.",
+  "costPerKmTooltip": "{month}\n{cost} per km\n{km} km driven",
+  "@costPerKmTooltip": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "cost": {
+        "type": "String"
+      },
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "costPerKmTrendSemantics": "Cost per km by month: {months}",
+  "@costPerKmTrendSemantics": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "trendNeedsTwoMonths": "Shown once two months have both costs and distance.",
+  "efficiencyTrendTitle": "Fuel efficiency by tank",
+  "efficiencyTrendCaption": "Each point is one full tank in the last 12 months.",
+  "efficiencyTooltip": "{date}\n{kmPerLitre} km/L\n{km} km on {litres} L",
+  "@efficiencyTooltip": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "kmPerLitre": {
+        "type": "String"
+      },
+      "km": {
+        "type": "String"
+      },
+      "litres": {
+        "type": "String"
+      }
+    }
+  },
+  "efficiencyTrendSemantics": "Fuel efficiency of the last {count} tanks: {values}",
+  "@efficiencyTrendSemantics": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "values": {
+        "type": "String"
+      }
+    }
+  },
+  "allTimeAverageLabel": "Avg {value}",
+  "@allTimeAverageLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "efficiencyNeedsTanks": "Shown after two full-tank fill-ups.",
+  "categorySplitTitle": "Where the money goes",
+  "categoryShareValue": "{amount} · {percent}%",
+  "@categoryShareValue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "compareVehiclesTitle": "Vehicles compared",
+  "compareVehiclesCaption": "Running cost per km over the same period.",
+  "vehicleCostDetail": "{km} km · {efficiency}",
+  "@vehicleCostDetail": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      },
+      "efficiency": {
+        "type": "String"
+      }
+    }
+  },
+  "vehicleCostDetailNoFuel": "{km} km",
+  "@vehicleCostDetailNoFuel": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "kmPerLitreValue": "{value} km/L",
+  "@kmPerLitreValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "perKmValue": "{amount} / km",
+  "@perKmValue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "sectionLoadFailed": "Couldn't load this part."
 }
