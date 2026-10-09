@@ -7,6 +7,7 @@ import java.time.Clock;
 import java.time.Year;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,13 +24,19 @@ public class VehicleService {
   private final VehicleRepository vehicles;
   private final OdometerService odometer;
   private final UserService users;
+  private final ApplicationEventPublisher events;
   private final Clock clock;
 
   VehicleService(
-      VehicleRepository vehicles, OdometerService odometer, UserService users, Clock clock) {
+      VehicleRepository vehicles,
+      OdometerService odometer,
+      UserService users,
+      ApplicationEventPublisher events,
+      Clock clock) {
     this.vehicles = vehicles;
     this.odometer = odometer;
     this.users = users;
+    this.events = events;
     this.clock = clock;
   }
 
@@ -118,9 +125,15 @@ public class VehicleService {
     return VehicleMapper.toResponse(vehicles.saveAndFlush(vehicle));
   }
 
+  /**
+   * Deletes a vehicle and, through database cascades, all of its records. Listeners of {@link
+   * VehicleDeletingEvent} remove what is stored outside the database.
+   */
   @Transactional
   public void delete(UUID userId, UUID vehicleId) {
-    vehicles.delete(findOwned(userId, vehicleId));
+    Vehicle vehicle = findOwned(userId, vehicleId);
+    events.publishEvent(new VehicleDeletingEvent(vehicleId));
+    vehicles.delete(vehicle);
   }
 
   private Vehicle findOwned(UUID userId, UUID vehicleId) {
