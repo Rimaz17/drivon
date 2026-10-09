@@ -475,6 +475,8 @@ class _ChosenFile extends StatelessWidget {
                           fit: BoxFit.cover,
                           cacheWidth: _thumbnail.toInt() * 3,
                           excludeFromSemantics: true,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.image_outlined),
                         )
                       : ColoredBox(
                           color: Theme.of(
