@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/analytics/presentation/insights_screen.dart';
 import '../features/auth/presentation/create_account_screen.dart';
 import '../features/auth/presentation/session_controller.dart';
 import '../features/auth/presentation/sign_in_screen.dart';
@@ -30,6 +31,7 @@ abstract final class AppRoutes {
   static const String fuel = '/fuel';
   static const String service = '/service';
   static const String expenses = '/expenses';
+  static const String insights = '/insights';
   static const String addVehicle = '/vehicles/new';
   static const String editVehicle = '/vehicles/:vehicleId/edit';
   static const String addFuelRecord = '/vehicles/:vehicleId/fuel/new';
@@ -167,6 +169,14 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.expenses,
                 builder: (context, state) => const ExpensesScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.insights,
+                builder: (context, state) => const InsightsScreen(),
               ),
             ],
           ),
