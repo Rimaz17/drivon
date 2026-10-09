@@ -31,7 +31,7 @@ interface DocumentRepository extends JpaRepository<Document, UUID> {
 
   Optional<Document> findByIdAndVehicleId(UUID id, UUID vehicleId);
 
-  long countByVehicleIdAndStatus(UUID vehicleId, DocumentStatus status);
+  long countByVehicleId(UUID vehicleId);
 
   /** Uploads that were started before {@code cutoff} and never confirmed. */
   List<Document> findByVehicleIdAndStatusAndCreatedAtBefore(
