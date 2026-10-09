@@ -46,16 +46,23 @@ class ChartLegend extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: DrivonSpacing.xs),
-              Text(entry.label, style: textTheme.labelMedium),
-              if (entry.value case final value?) ...[
-                const SizedBox(width: DrivonSpacing.xs),
-                Text(
-                  value,
-                  style: textTheme.labelMedium?.copyWith(
-                    color: colors.textSecondary,
+              // One wrapping text, so long values and large text sizes
+              // never overflow a narrow screen.
+              Flexible(
+                child: Text.rich(
+                  TextSpan(
+                    text: entry.label,
+                    children: [
+                      if (entry.value case final value?)
+                        TextSpan(
+                          text: ' $value',
+                          style: TextStyle(color: colors.textSecondary),
+                        ),
+                    ],
                   ),
+                  style: textTheme.labelMedium,
                 ),
-              ],
+              ),
             ],
           ),
       ],
