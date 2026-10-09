@@ -45,6 +45,9 @@ class FakeDocumentApi implements DocumentApi {
   /// When set, the next call throws it once.
   AppException? nextError;
 
+  /// While set, every list call fails with it.
+  AppException? listError;
+
   /// When set, the next confirm throws it once (the upload step failed).
   AppException? nextConfirmError;
   final List<String> startedIds = [];
@@ -58,6 +61,8 @@ class FakeDocumentApi implements DocumentApi {
     int size = 20,
   }) async {
     _throwIfScripted();
+    final failure = listError;
+    if (failure != null) throw failure;
     return Paged(
       items: [
         for (final document in documents)
