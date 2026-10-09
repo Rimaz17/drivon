@@ -586,5 +586,194 @@
   "deleteExpenseTooltip": "Delete expense",
   "deleteExpenseTitle": "Delete this expense?",
   "deleteExpenseMessage": "It's removed from your totals. This can't be undone.",
-  "errorExpenseNotFound": "This expense no longer exists."
+  "errorExpenseNotFound": "This expense no longer exists.",
+  "documentsTitle": "Documents",
+  "documentTypeInsurance": "Insurance",
+  "documentTypeRevenueLicence": "Revenue licence",
+  "documentTypeRegistration": "Registration",
+  "documentTypeInvoice": "Invoice",
+  "documentTypeReceipt": "Receipt",
+  "documentTypeOther": "Other document",
+  "addDocumentAction": "Add document",
+  "addDocumentTitle": "Add document",
+  "editDocumentTitle": "Edit document",
+  "loadingDocuments": "Loading documents",
+  "documentsLoadErrorTitle": "Couldn't load documents",
+  "documentsLoadMoreFailed": "Couldn't load more documents.",
+  "documentsEmptyTitle": "Keep your papers here",
+  "documentsEmptyMessage": "Add your insurance, revenue licence and registration so they're with you when you need them, and see when they expire.",
+  "documentsAllCurrent": "Nothing expires in the next 30 days.",
+  "documentsAllCurrentSemantics": "No documents expire in the next 30 days",
+  "storedDocumentsTitle": "Stored documents",
+  "expiresInDays": "Expires in {days, plural, =0{less than a day} =1{1 day} other{{days} days}}",
+  "@expiresInDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "expiresToday": "Expires today",
+  "expiredDaysAgo": "Expired {days, plural, =1{yesterday} other{{days} days ago}}",
+  "@expiredDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "documentExpiresInHeadline": "{document} expires in {days, plural, =1{1 day} other{{days} days}}",
+  "@documentExpiresInHeadline": {
+    "placeholders": {
+      "document": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "documentExpiresTodayHeadline": "{document} expires today",
+  "@documentExpiresTodayHeadline": {
+    "placeholders": {
+      "document": {
+        "type": "String"
+      }
+    }
+  },
+  "documentExpiredHeadline": "{document} has expired",
+  "@documentExpiredHeadline": {
+    "placeholders": {
+      "document": {
+        "type": "String"
+      }
+    }
+  },
+  "expiresOnDetail": "Expires {date}",
+  "@expiresOnDetail": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "expiredOnDetail": "Expired {date}",
+  "@expiredOnDetail": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "issuedOnDetail": "Issued {date}",
+  "@issuedOnDetail": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "noExpiryDetail": "No expiry date",
+  "statusExpired": "Expired",
+  "statusExpiringSoon": "Expires soon",
+  "statusValid": "Valid",
+  "moreExpiringNotice": "{count, plural, =1{1 more document needs attention} other{{count} more documents need attention}}",
+  "@moreExpiringNotice": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "fileKindPhoto": "Photo",
+  "fileKindPdf": "PDF",
+  "fileSizeKb": "{size} KB",
+  "@fileSizeKb": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "fileSizeMb": "{size} MB",
+  "@fileSizeMb": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "documentRowSemantics": "{document}, {status}, {details}",
+  "@documentRowSemantics": {
+    "placeholders": {
+      "document": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      },
+      "details": {
+        "type": "String"
+      }
+    }
+  },
+  "fileSectionTitle": "File",
+  "fileSectionHint": "Take a clear photo of the paper or choose a PDF. Photos are compressed; files can be up to 5 MB.",
+  "takePhotoAction": "Take photo",
+  "choosePhotoAction": "Choose photo",
+  "choosePdfAction": "Choose PDF",
+  "changeFileAction": "Change file",
+  "preparingFile": "Preparing the file",
+  "fileRequired": "Add a photo or PDF of the document.",
+  "documentTypeLabel": "Document type",
+  "documentTypeRequired": "Choose a document type.",
+  "issueDateLabel": "Issue date (optional)",
+  "expiryDateLabel": "Expiry date (optional)",
+  "expiryDateHelper": "Set it for insurance and licences to see when they expire.",
+  "documentNotesHint": "e.g. policy number, insurer",
+  "saveDocumentAction": "Save document",
+  "uploadingDocument": "Uploading",
+  "uploadingProgress": "Uploading {percent}%",
+  "@uploadingProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "documentAdded": "Document saved",
+  "documentDeleted": "Document deleted",
+  "deleteDocumentTooltip": "Delete document",
+  "deleteDocumentTitle": "Delete this document?",
+  "deleteDocumentMessage": "The details and the file are removed. This can't be undone.",
+  "editDocumentTooltip": "Edit details",
+  "errorDocumentNotFound": "This document no longer exists.",
+  "errorExpiryBeforeIssue": "Choose an expiry date after the issue date.",
+  "errorCameraDenied": "Drivon can't use the camera. Allow camera access for Drivon in your phone's settings, or choose a photo instead.",
+  "errorPhotosDenied": "Drivon can't open your photos. Allow photo access for Drivon in your phone's settings, or take a photo instead.",
+  "errorFileTooLarge": "This file is over 5 MB. Choose a smaller PDF or take a photo of the paper instead.",
+  "errorFileUnreadable": "This file couldn't be read. Try another photo or PDF.",
+  "errorUnsupportedFile": "Only JPEG and PNG photos and PDFs can be stored.",
+  "errorDocumentLimit": "This vehicle already has 100 documents. Delete some before adding more.",
+  "errorUploadIncomplete": "The file didn't finish uploading. Save again to retry.",
+  "errorStorageUnavailable": "Document storage isn't available right now. Try again later.",
+  "openPdfAction": "Open PDF",
+  "openPdfFailed": "No app on this phone could open the PDF.",
+  "loadingFile": "Loading the file",
+  "fileLoadFailed": "Couldn't load the file.",
+  "documentImageSemantics": "Photo of the {document}",
+  "@documentImageSemantics": {
+    "placeholders": {
+      "document": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfCardCaption": "Opens in your PDF viewer. The link works for 5 minutes.",
+  "documentDetailsTitle": "Details",
+  "documentsTileLabel": "Documents",
+  "documentsTilePrompt": "Add your insurance and licence",
+  "issuedLabel": "Issued",
+  "expiresLabel": "Expires",
+  "notesTitle": "Notes"
 }
