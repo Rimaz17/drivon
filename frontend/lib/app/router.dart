@@ -6,6 +6,9 @@ import '../features/auth/presentation/create_account_screen.dart';
 import '../features/auth/presentation/session_controller.dart';
 import '../features/auth/presentation/sign_in_screen.dart';
 import '../features/auth/presentation/splash_screen.dart';
+import '../features/documents/presentation/document_detail_screen.dart';
+import '../features/documents/presentation/document_form_screen.dart';
+import '../features/documents/presentation/documents_screen.dart';
 import '../features/expenses/presentation/expense_form_screen.dart';
 import '../features/expenses/presentation/expenses_screen.dart';
 import '../features/fuel/presentation/fuel_record_form_screen.dart';
@@ -39,6 +42,11 @@ abstract final class AppRoutes {
   static const String addOdometerReading = '/vehicles/:vehicleId/odometer/new';
   static const String editOdometerReading =
       '/vehicles/:vehicleId/odometer/:readingId';
+  static const String documents = '/vehicles/:vehicleId/documents';
+  static const String addDocument = '/vehicles/:vehicleId/documents/new';
+  static const String document = '/vehicles/:vehicleId/documents/:documentId';
+  static const String editDocument =
+      '/vehicles/:vehicleId/documents/:documentId/edit';
 
   static String editVehiclePath(String vehicleId) =>
       '/vehicles/$vehicleId/edit';
@@ -69,6 +77,18 @@ abstract final class AppRoutes {
 
   static String editOdometerReadingPath(String vehicleId, String readingId) =>
       '/vehicles/$vehicleId/odometer/$readingId';
+
+  static String documentsPath(String vehicleId) =>
+      '/vehicles/$vehicleId/documents';
+
+  static String addDocumentPath(String vehicleId) =>
+      '/vehicles/$vehicleId/documents/new';
+
+  static String documentPath(String vehicleId, String documentId) =>
+      '/vehicles/$vehicleId/documents/$documentId';
+
+  static String editDocumentPath(String vehicleId, String documentId) =>
+      '/vehicles/$vehicleId/documents/$documentId/edit';
 
   static const Set<String> signedOutOnly = {signIn, createAccount};
 }
@@ -216,6 +236,31 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => OdometerReadingFormScreen(
           vehicleId: state.pathParameters['vehicleId']!,
           readingId: state.pathParameters['readingId'],
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.documents,
+        builder: (context, state) =>
+            DocumentsScreen(vehicleId: state.pathParameters['vehicleId']!),
+      ),
+      // Listed before the document route so "new" is not read as an ID.
+      GoRoute(
+        path: AppRoutes.addDocument,
+        builder: (context, state) =>
+            DocumentFormScreen(vehicleId: state.pathParameters['vehicleId']!),
+      ),
+      GoRoute(
+        path: AppRoutes.document,
+        builder: (context, state) => DocumentDetailScreen(
+          vehicleId: state.pathParameters['vehicleId']!,
+          documentId: state.pathParameters['documentId']!,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.editDocument,
+        builder: (context, state) => DocumentFormScreen(
+          vehicleId: state.pathParameters['vehicleId']!,
+          documentId: state.pathParameters['documentId'],
         ),
       ),
     ],
