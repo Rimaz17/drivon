@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../../design_system/design_system.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/vehicle.dart';
 
-/// Switches between the user's vehicles (at most two, so a segmented
-/// control fits). Labels use the model name, or the plate when both
+/// Switches between the user's vehicles (at most two, so pills fit). Each
+/// shows the model with the plate beside it, or the plate first when both
 /// vehicles share a model.
 class VehicleSwitcher extends StatelessWidget {
   const VehicleSwitcher({
@@ -24,29 +25,19 @@ class VehicleSwitcher extends StatelessWidget {
     final models = vehicles.map((v) => v.model.toLowerCase()).toSet();
     final useModel = models.length == vehicles.length;
 
-    return Semantics(
-      label: l10n.vehicleSwitcherLabel,
-      container: true,
-      child: SizedBox(
-        width: double.infinity,
-        child: SegmentedButton<String>(
-          showSelectedIcon: false,
-          segments: [
-            for (final vehicle in vehicles)
-              ButtonSegment(
-                value: vehicle.id,
-                tooltip: vehicle.displayName,
-                label: Text(
-                  useModel ? vehicle.model : vehicle.registrationNumber,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-          ],
-          selected: {selectedId},
-          onSelectionChanged: (selection) => onSelected(selection.first),
-        ),
-      ),
+    return PillSegmentedControl<String>(
+      semanticsLabel: l10n.vehicleSwitcherLabel,
+      segments: [
+        for (final vehicle in vehicles)
+          PillSegment(
+            value: vehicle.id,
+            label: useModel ? vehicle.model : vehicle.registrationNumber,
+            detail: useModel ? vehicle.registrationNumber : vehicle.model,
+            tooltip: vehicle.displayName,
+          ),
+      ],
+      selected: selectedId,
+      onSelected: onSelected,
     );
   }
 }

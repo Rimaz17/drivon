@@ -112,7 +112,6 @@ class _FuelBody extends ConsumerWidget {
 
     final data = history.value!;
     final summary = ref.watch(fuelSummaryProvider(vehicle.id));
-    final textTheme = Theme.of(context).textTheme;
 
     return RefreshIndicator.adaptive(
       onRefresh: () async {
@@ -120,15 +119,9 @@ class _FuelBody extends ConsumerWidget {
         await ref.read(fuelHistoryProvider(vehicle.id).future);
       },
       child: ContentWidth(
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(
-            DrivonSpacing.screenGutter,
-            DrivonSpacing.sm,
-            DrivonSpacing.screenGutter,
-            _fabClearance,
-          ),
-          children: [
+        child: SheetScrollView(
+          bottomPadding: _fabClearance,
+          header: [
             if (switcher != null) ...[
               switcher!,
               const SizedBox(height: DrivonSpacing.lg),
@@ -143,7 +136,7 @@ class _FuelBody extends ConsumerWidget {
               error: (error, _) => [
                 InlineNotice(message: errorText(l10n, error)),
                 Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: TextButton(
                     onPressed: () =>
                         ref.invalidate(fuelSummaryProvider(vehicle.id)),
@@ -151,13 +144,15 @@ class _FuelBody extends ConsumerWidget {
                   ),
                 ),
               ],
-              data: (summary) => _summary(context, summary),
+              data: (summary) => [FuelEfficiencyCard(stats: summary.stats)],
             ),
-            const SizedBox(height: DrivonSpacing.xxl),
-            Semantics(
-              header: true,
-              child: Text(l10n.fillUpsTitle, style: textTheme.titleLarge),
-            ),
+          ],
+          sheet: [
+            if (summary.value case final summary?) ...[
+              ..._summary(context, summary),
+              const SizedBox(height: DrivonSpacing.xxl),
+            ],
+            SectionTitle(l10n.fillUpsTitle),
             const SizedBox(height: DrivonSpacing.xs),
             for (final (index, record) in data.items.indexed) ...[
               if (index > 0) const Divider(),
@@ -188,8 +183,6 @@ class _FuelBody extends ConsumerWidget {
         : summary.monthlySpend.last.total;
     final costPerKm = stats.costPerKm;
     return [
-      FuelEfficiencyCard(stats: stats),
-      const SizedBox(height: DrivonSpacing.md),
       Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

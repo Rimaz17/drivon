@@ -99,9 +99,10 @@ Dark theme first, built from the inspiration boards' palette and shapes. Feature
 - **Colors:** `Theme.of(context).colorScheme` for Material roles, `context.drivonColors` for text levels, status, highlight, hero and chart colors.
 - **Type:** Hanken Grotesk (OFL) through `Theme.of(context).textTheme`; numeric styles use tabular figures.
 - **Spacing / radii / motion / widths:** `DrivonSpacing` (including `formMaxWidth` and `contentMaxWidth`), `DrivonRadii`, `DrivonMotion`.
-- **Components:** `DrivonCard` (surface, highlight, hero), `TagChip`, `StatTile`, `ArcGauge`, `BarList`, `InlineNotice`, `PrimaryButton`, `ContentWidth`, `EmptyState`, `ErrorState`, `LoadingState`. Form and list helpers live in `core/ui/`: `DateFormField` opens the Material calendar on Android and a Cupertino wheel on iOS (optional dates can be cleared), `RecordTile` is a history row, and `PagedListController` with `LoadMoreFooter` pages any list.
+- **Layout:** tab bodies use `SheetScrollView`: headline content on the dark canvas, details on a light paper sheet that gets `DrivonTheme.paper()`. Cards on the sheet stay dark; widgets on it read the theme in their own build (see ADR 0010).
+- **Components:** `DrivonCard` (surface, highlight, hero), `PillSegmentedControl`, `SectionTitle`, `TagChip`, `StatTile`, `ArcGauge`, `BarList`, `InlineNotice`, `PrimaryButton`, `ContentWidth`, `EmptyState`, `ErrorState`, `LoadingState`. Form and list helpers live in `core/ui/`: `DateFormField` opens the Material calendar on Android and a Cupertino wheel on iOS (optional dates can be cleared), `RecordTile` is a history row, and `PagedListController` with `LoadMoreFooter` pages any list.
 
-A test checks every text/surface pairing, including the hero gradient, for WCAG AA contrast.
+A test checks every text/surface pairing in both the dark and paper themes, including the hero gradient, for WCAG AA contrast.
 
 ## iOS without a Mac
 

@@ -290,4 +290,125 @@ void main() {
       handle.dispose();
     });
   });
+
+  group('SheetScrollView', () {
+    Widget sheetHost(List<Widget> sheet) => MaterialApp(
+      theme: DrivonTheme.dark(),
+      home: Scaffold(
+        body: SheetScrollView(header: const [Text('Header')], sheet: sheet),
+      ),
+    );
+
+    testWidgets('gives content on the paper the paper theme', (tester) async {
+      late ThemeData onPaper;
+      await tester.pumpWidget(
+        sheetHost([
+          Builder(
+            builder: (context) {
+              onPaper = Theme.of(context);
+              return const Text('Row');
+            },
+          ),
+        ]),
+      );
+
+      expect(find.text('Header'), findsOneWidget);
+      expect(onPaper.brightness, Brightness.light);
+      expect(
+        onPaper.extension<DrivonColors>()!.textPrimary,
+        DrivonColors.paper.textPrimary,
+      );
+    });
+
+    testWidgets('keeps cards on the paper dark', (tester) async {
+      late ThemeData inCard;
+      await tester.pumpWidget(
+        sheetHost([
+          DrivonCard(
+            child: Builder(
+              builder: (context) {
+                inCard = Theme.of(context);
+                return const Text('Card');
+              },
+            ),
+          ),
+        ]),
+      );
+
+      expect(inCard.brightness, Brightness.dark);
+      expect(
+        inCard.extension<DrivonColors>()!.textPrimary,
+        DrivonColors.dark.textPrimary,
+      );
+    });
+
+    testWidgets('stat tiles on the paper keep light figures', (tester) async {
+      await tester.pumpWidget(
+        sheetHost([const StatTile(label: 'Average', value: '14.2')]),
+      );
+
+      final figure = tester.widget<Text>(find.textContaining('14.2'));
+      final span = (figure.textSpan! as TextSpan).children!.first as TextSpan;
+      expect(span.style?.color, DrivonColors.dark.textPrimary);
+    });
+  });
+
+  group('PillSegmentedControl', () {
+    Widget control(String selected, ValueChanged<String> onSelected) => _host(
+      SizedBox(
+        width: 360,
+        child: PillSegmentedControl<String>(
+          semanticsLabel: 'Choose a vehicle',
+          segments: const [
+            PillSegment(value: 'a', label: 'Aqua', detail: 'CAB-1234'),
+            PillSegment(value: 'b', label: 'Dio', detail: 'BGH-4521'),
+          ],
+          selected: selected,
+          onSelected: onSelected,
+        ),
+      ),
+    );
+
+    testWidgets('reports a newly picked option only', (tester) async {
+      final picked = <String>[];
+      await tester.pumpWidget(control('a', picked.add));
+
+      await tester.tap(find.textContaining('Dio'));
+      await tester.tap(find.textContaining('Aqua'));
+      await tester.pumpAndSettle();
+
+      expect(picked, ['b']);
+    });
+
+    testWidgets('tells screen readers which option is selected', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(control('b', (_) {}));
+
+      expect(
+        tester.getSemantics(find.textContaining('Dio')),
+        matchesSemantics(
+          label: 'Dio  BGH-4521',
+          isButton: true,
+          isSelected: true,
+          hasSelectedState: true,
+          isInMutuallyExclusiveGroup: true,
+          hasTapAction: true,
+          hasFocusAction: true,
+          isFocusable: true,
+        ),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('gives every option a 48 dp touch target', (tester) async {
+      await tester.pumpWidget(control('a', (_) {}));
+
+      for (final option in tester.widgetList(find.byType(InkWell))) {
+        final size = tester.getSize(find.byWidget(option));
+        expect(size.height, greaterThanOrEqualTo(48));
+      }
+    });
+  });
 }

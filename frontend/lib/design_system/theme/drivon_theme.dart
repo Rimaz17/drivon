@@ -44,9 +44,50 @@ abstract final class DrivonTheme {
     surfaceTint: Colors.transparent,
   );
 
-  static ThemeData dark() {
-    const scheme = darkColorScheme;
-    const colors = DrivonColors.dark;
+  /// Material roles for content placed directly on the light paper sheet.
+  static const ColorScheme paperColorScheme = ColorScheme(
+    brightness: Brightness.light,
+    primary: DrivonPalette.violet,
+    onPrimary: Colors.white,
+    primaryContainer: DrivonPalette.violetPale,
+    onPrimaryContainer: DrivonPalette.violetDeep,
+    secondary: DrivonPalette.mint,
+    onSecondary: DrivonPalette.onLight,
+    secondaryContainer: DrivonPalette.mintPale,
+    onSecondaryContainer: DrivonPalette.onLight,
+    tertiary: DrivonPalette.lavender,
+    onTertiary: DrivonPalette.onLight,
+    error: DrivonPalette.coralInk,
+    onError: Colors.white,
+    errorContainer: DrivonPalette.lavender,
+    onErrorContainer: DrivonPalette.onLight,
+    surface: DrivonPalette.paper,
+    onSurface: DrivonPalette.onLight,
+    onSurfaceVariant: DrivonPalette.paperText2,
+    surfaceContainerLowest: Colors.white,
+    surfaceContainerLow: DrivonPalette.paper,
+    surfaceContainer: DrivonPalette.paper200,
+    surfaceContainerHigh: DrivonPalette.paper200,
+    surfaceContainerHighest: DrivonPalette.paper300,
+    outline: DrivonPalette.paper600,
+    outlineVariant: DrivonPalette.paper300,
+    inverseSurface: DrivonPalette.ink850,
+    onInverseSurface: DrivonPalette.ink50,
+    inversePrimary: DrivonPalette.violetLight,
+    shadow: Colors.black,
+    scrim: Colors.black,
+    surfaceTint: Colors.transparent,
+  );
+
+  /// The app theme: dark, Drivon's primary theme.
+  static ThemeData dark() => _build(darkColorScheme, DrivonColors.dark);
+
+  /// Theme for content placed directly on the light paper sheet. Built once,
+  /// because every sheet applies it to its subtree.
+  static ThemeData paper() => _paper;
+  static final ThemeData _paper = _build(paperColorScheme, DrivonColors.paper);
+
+  static ThemeData _build(ColorScheme scheme, DrivonColors colors) {
     final textTheme = DrivonTypography.textTheme(
       primary: colors.textPrimary,
       secondary: colors.textSecondary,
@@ -57,20 +98,20 @@ abstract final class DrivonTheme {
 
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
+      brightness: scheme.brightness,
       colorScheme: scheme,
       fontFamily: DrivonTypography.fontFamily,
       textTheme: textTheme,
       scaffoldBackgroundColor: scheme.surface,
       canvasColor: scheme.surface,
       materialTapTargetSize: MaterialTapTargetSize.padded,
-      extensions: const [colors],
+      extensions: [colors],
       focusColor: scheme.primary.withValues(alpha: 0.24),
       splashFactory: InkSparkle.splashFactory,
       textSelectionTheme: TextSelectionThemeData(
-        cursorColor: DrivonPalette.violetLight,
+        cursorColor: colors.accentText,
         selectionColor: scheme.primary.withValues(alpha: 0.4),
-        selectionHandleColor: DrivonPalette.violetLight,
+        selectionHandleColor: colors.accentText,
       ),
       appBarTheme: AppBarThemeData(
         backgroundColor: scheme.surface,
@@ -111,7 +152,7 @@ abstract final class DrivonTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: DrivonPalette.violetLight,
+          foregroundColor: colors.accentText,
           minimumSize: const Size(
             DrivonSpacing.minTouchTarget,
             DrivonSpacing.minTouchTarget,
@@ -139,15 +180,22 @@ abstract final class DrivonTheme {
         errorStyle: textTheme.bodySmall?.copyWith(color: colors.danger),
         border: _inputBorder(scheme.outline),
         enabledBorder: _inputBorder(scheme.outline),
-        focusedBorder: _inputBorder(DrivonPalette.violetLight, width: 2),
+        focusedBorder: _inputBorder(colors.accentText, width: 2),
         errorBorder: _inputBorder(colors.danger),
         focusedErrorBorder: _inputBorder(colors.danger, width: 2),
         disabledBorder: _inputBorder(scheme.outlineVariant),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: scheme.surfaceContainerHigh,
-        selectedColor: scheme.primaryContainer,
-        labelStyle: textTheme.labelMedium,
+        selectedColor: colors.selectedFill,
+        checkmarkColor: colors.onSelectedFill,
+        labelStyle: textTheme.labelMedium?.copyWith(
+          color: WidgetStateColor.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? colors.onSelectedFill
+                : colors.textPrimary,
+          ),
+        ),
         side: BorderSide.none,
         shape: stadium,
         padding: const EdgeInsets.symmetric(horizontal: DrivonSpacing.sm),
@@ -183,11 +231,11 @@ abstract final class DrivonTheme {
         contentTextStyle: textTheme.bodyMedium?.copyWith(
           color: colors.textPrimary,
         ),
-        actionTextColor: DrivonPalette.violetLight,
+        actionTextColor: colors.accentText,
         shape: const RoundedRectangleBorder(borderRadius: DrivonRadii.mdAll),
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(
-        color: DrivonPalette.violetLight,
+        color: colors.accentText,
         circularTrackColor: colors.gaugeTrack,
         linearTrackColor: colors.gaugeTrack,
       ),

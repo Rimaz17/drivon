@@ -23,6 +23,11 @@ class MonthlySpendCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Read the theme below the card, which may re-theme its content.
+    return DrivonCard(child: Builder(builder: _content));
+  }
+
+  Widget _content(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final largest = months.fold<int>(
       0,
@@ -30,32 +35,30 @@ class MonthlySpendCard extends StatelessWidget {
     );
     final newestFirst = months.reversed.toList();
 
-    return DrivonCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Semantics(
-            header: true,
-            child: Text(title, style: textTheme.titleMedium),
-          ),
-          const SizedBox(height: DrivonSpacing.lg),
-          BarList(
-            items: [
-              for (final (index, month) in newestFirst.indexed)
-                BarListItem(
-                  label: formatMonthYear(context, month.month),
-                  value: formatRupees(context, month.total),
-                  fraction: largest == 0 ? 0 : month.total.units / largest,
-                  emphasized: index == 0,
-                ),
-            ],
-          ),
-          if (footnote != null) ...[
-            const SizedBox(height: DrivonSpacing.lg),
-            Text(footnote!, style: textTheme.bodySmall),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          header: true,
+          child: Text(title, style: textTheme.titleMedium),
+        ),
+        const SizedBox(height: DrivonSpacing.lg),
+        BarList(
+          items: [
+            for (final (index, month) in newestFirst.indexed)
+              BarListItem(
+                label: formatMonthYear(context, month.month),
+                value: formatRupees(context, month.total),
+                fraction: largest == 0 ? 0 : month.total.units / largest,
+                emphasized: index == 0,
+              ),
           ],
+        ),
+        if (footnote != null) ...[
+          const SizedBox(height: DrivonSpacing.lg),
+          Text(footnote!, style: textTheme.bodySmall),
         ],
-      ),
+      ],
     );
   }
 }

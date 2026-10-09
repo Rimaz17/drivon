@@ -20,6 +20,7 @@ void main() {
   Future<void> openFuelTab(
     WidgetTester tester, {
     Size size = const Size(1236, 2745),
+    void Function()? beforeOpening,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 3;
@@ -38,6 +39,8 @@ void main() {
       UncontrolledProviderScope(container: container, child: const DrivonApp()),
     );
     await tester.pumpAndSettle();
+    // The garage loads fuel figures too, so scripted errors are armed here.
+    beforeOpening?.call();
     await tester.tap(find.text('Fuel').last);
     await tester.pumpAndSettle();
   }
@@ -260,8 +263,10 @@ void main() {
   });
 
   testWidgets('offers a retry when fill-ups fail to load', (tester) async {
-    fuel.nextError = const NoConnectionException();
-    await openFuelTab(tester);
+    await openFuelTab(
+      tester,
+      beforeOpening: () => fuel.nextError = const NoConnectionException(),
+    );
 
     expect(find.text("Couldn't load fuel records"), findsOneWidget);
     await tester.tap(find.text('Try again'));

@@ -127,37 +127,27 @@ class _ServiceBody extends ConsumerWidget {
     }
 
     final list = history.value!;
-    final textTheme = Theme.of(context).textTheme;
     return RefreshIndicator.adaptive(
       onRefresh: () async {
         retry();
         await ref.read(maintenanceHistoryProvider(query).future);
       },
       child: ContentWidth(
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(
-            DrivonSpacing.screenGutter,
-            DrivonSpacing.sm,
-            DrivonSpacing.screenGutter,
-            _fabClearance,
-          ),
-          children: [
+        child: SheetScrollView(
+          bottomPadding: _fabClearance,
+          header: [
             if (switcher != null) ...[
               switcher!,
               const SizedBox(height: DrivonSpacing.lg),
             ],
-            if (upcoming != null && upcoming.isNotEmpty) ...[
+            if (upcoming != null && upcoming.isNotEmpty)
               UpcomingServicesSection(
                 upcoming: upcoming,
                 onOpen: (item) => openRecord(item.recordId),
               ),
-              const SizedBox(height: DrivonSpacing.xxl),
-            ],
-            Semantics(
-              header: true,
-              child: Text(l10n.historyTitle, style: textTheme.titleLarge),
-            ),
+          ],
+          sheet: [
+            SectionTitle(l10n.historyTitle),
             const SizedBox(height: DrivonSpacing.sm),
             _TypeFilter(selected: type),
             const SizedBox(height: DrivonSpacing.xs),
@@ -166,10 +156,13 @@ class _ServiceBody extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(
                   vertical: DrivonSpacing.xxl,
                 ),
-                child: Text(
-                  l10n.servicesFilteredEmpty(type.label(l10n).toLowerCase()),
-                  style: textTheme.bodyMedium,
-                  textAlign: TextAlign.center,
+                child: Builder(
+                  // Reads the sheet's paper theme, not the screen's.
+                  builder: (context) => Text(
+                    l10n.servicesFilteredEmpty(type.label(l10n).toLowerCase()),
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
             for (final (index, record) in list.items.indexed) ...[

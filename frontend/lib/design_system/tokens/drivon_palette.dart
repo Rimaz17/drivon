@@ -7,8 +7,8 @@ import 'package:flutter/painting.dart';
 /// light theme can be added later without touching screens.
 abstract final class DrivonPalette {
   // Neutrals: cool near-blacks, never pure black.
-  static const Color ink950 = Color(0xFF0F1011);
-  static const Color ink900 = Color(0xFF151718); // canvas
+  static const Color ink950 = Color(0xFF060607);
+  static const Color ink900 = Color(0xFF0B0B0D); // canvas
   static const Color ink850 = Color(0xFF1C1D1F);
   static const Color ink800 = Color(0xFF242427); // cards / tiles
   static const Color ink750 = Color(0xFF2E2F32);
@@ -26,16 +26,34 @@ abstract final class DrivonPalette {
   static const Color orchid = Color(0xFFD7ABD8); // gauge gradient
   static const Color lavender = Color(0xFFF3C7F8); // highlight cards
   static const Color violetMist = Color(0xFFCDB8FF); // hero card gradient end
+  static const Color lilac = Color(0xFFD9CCFF); // selected segment pill
+  static const Color violetInk = Color(0xFF5B3CC4); // violet text on paper
   static const Color mint = Color(0xFF99E7D8);
   static const Color mintDeep = Color(0xFF1F3B36);
   static const Color mintPale = Color(0xFFC9F4EB);
   static const Color sky = Color(0xFFD7EFFF);
+
+  // Paper: the warm off-white sheet that holds a screen's details, with
+  // darker tones for text and lines on it.
+  static const Color paper = Color(0xFFF3F2EF);
+  static const Color paper200 = Color(0xFFE7E5E0); // chips, raised fills
+  static const Color paper300 = Color(0xFFDDDAD4); // dividers
+  static const Color paper400 = Color(0xFFCFCCC6); // sheet handle
+  static const Color paper600 = Color(0xFF85868B); // input borders (3:1)
+  static const Color paperText2 = Color(0xFF55565C);
+  static const Color paperText3 = Color(0xFF64656B);
 
   // Status. Lightened variants keep text legible on dark surfaces.
   static const Color coral = Color(0xFFFF6E96); // danger, from brand magenta
   static const Color coralDeep = Color(0xFF4A1426);
   static const Color amber = Color(0xFFF6C177);
   static const Color skyText = Color(0xFF9CCFF0);
+
+  // Deepened status variants for text on paper.
+  static const Color coralInk = Color(0xFFB3214F);
+  static const Color amberInk = Color(0xFF835400);
+  static const Color mintInk = Color(0xFF1B6E5E);
+  static const Color skyInk = Color(0xFF235F87);
 
   // Dark text for use on the light brand fills above.
   static const Color onLight = Color(0xFF17151C);

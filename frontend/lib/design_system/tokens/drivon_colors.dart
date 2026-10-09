@@ -11,6 +11,7 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
     required this.textPrimary,
     required this.textSecondary,
     required this.textTertiary,
+    required this.accentText,
     required this.success,
     required this.warning,
     required this.danger,
@@ -20,6 +21,10 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
     required this.accentSoft,
     required this.onAccentSoft,
     required this.gaugeTrack,
+    required this.selectedFill,
+    required this.onSelectedFill,
+    required this.sheet,
+    required this.sheetHandle,
     required this.signatureGradient,
     required this.heroGradient,
     required this.chartSeries,
@@ -30,6 +35,7 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
     textPrimary: DrivonPalette.ink50,
     textSecondary: DrivonPalette.ink300,
     textTertiary: DrivonPalette.ink400,
+    accentText: DrivonPalette.violetLight,
     success: DrivonPalette.mint,
     warning: DrivonPalette.amber,
     danger: DrivonPalette.coral,
@@ -39,6 +45,10 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
     accentSoft: DrivonPalette.sky,
     onAccentSoft: DrivonPalette.onLight,
     gaugeTrack: DrivonPalette.ink750,
+    selectedFill: DrivonPalette.lilac,
+    onSelectedFill: DrivonPalette.onLight,
+    sheet: DrivonPalette.paper,
+    sheetHandle: DrivonPalette.paper400,
     signatureGradient: [
       DrivonPalette.violet,
       DrivonPalette.orchid,
@@ -56,11 +66,51 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
     ],
   );
 
+  /// Colors for content placed directly on the light paper sheet (see
+  /// `DrivonSheet`); dark cards on the sheet switch back to [dark].
+  static const DrivonColors paper = DrivonColors(
+    textPrimary: DrivonPalette.onLight,
+    textSecondary: DrivonPalette.paperText2,
+    textTertiary: DrivonPalette.paperText3,
+    accentText: DrivonPalette.violetInk,
+    success: DrivonPalette.mintInk,
+    warning: DrivonPalette.amberInk,
+    danger: DrivonPalette.coralInk,
+    info: DrivonPalette.skyInk,
+    highlight: DrivonPalette.lavender,
+    onHighlight: DrivonPalette.onLight,
+    accentSoft: DrivonPalette.sky,
+    onAccentSoft: DrivonPalette.onLight,
+    gaugeTrack: DrivonPalette.paper300,
+    selectedFill: DrivonPalette.ink850,
+    onSelectedFill: DrivonPalette.ink50,
+    sheet: DrivonPalette.paper,
+    sheetHandle: DrivonPalette.paper400,
+    signatureGradient: [
+      DrivonPalette.violet,
+      DrivonPalette.orchid,
+      DrivonPalette.lavender,
+      DrivonPalette.mint,
+    ],
+    heroGradient: [DrivonPalette.lavender, DrivonPalette.violetMist],
+    chartSeries: [
+      DrivonPalette.violet,
+      DrivonPalette.mintInk,
+      DrivonPalette.violetInk,
+      DrivonPalette.amberInk,
+      DrivonPalette.skyInk,
+      DrivonPalette.coralInk,
+    ],
+  );
+
   final Color textPrimary;
   final Color textSecondary;
 
   /// Lowest-emphasis text that still meets WCAG AA on cards (captions, units).
   final Color textTertiary;
+
+  /// Violet for text: links, text buttons, focused input borders.
+  final Color accentText;
   final Color success;
   final Color warning;
   final Color danger;
@@ -74,6 +124,15 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
   final Color accentSoft;
   final Color onAccentSoft;
   final Color gaugeTrack;
+
+  /// Fill of the selected option in a segmented control.
+  final Color selectedFill;
+  final Color onSelectedFill;
+
+  /// Light paper sheet that holds a screen's details below its headline
+  /// content, and the small handle at its top edge.
+  final Color sheet;
+  final Color sheetHandle;
 
   /// Violet-to-mint sweep for gauges and hero cards only, never for text.
   final List<Color> signatureGradient;
@@ -90,6 +149,7 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
     Color? textPrimary,
     Color? textSecondary,
     Color? textTertiary,
+    Color? accentText,
     Color? success,
     Color? warning,
     Color? danger,
@@ -99,6 +159,10 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
     Color? accentSoft,
     Color? onAccentSoft,
     Color? gaugeTrack,
+    Color? selectedFill,
+    Color? onSelectedFill,
+    Color? sheet,
+    Color? sheetHandle,
     List<Color>? signatureGradient,
     List<Color>? heroGradient,
     List<Color>? chartSeries,
@@ -107,6 +171,7 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
       textPrimary: textPrimary ?? this.textPrimary,
       textSecondary: textSecondary ?? this.textSecondary,
       textTertiary: textTertiary ?? this.textTertiary,
+      accentText: accentText ?? this.accentText,
       success: success ?? this.success,
       warning: warning ?? this.warning,
       danger: danger ?? this.danger,
@@ -116,6 +181,10 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
       accentSoft: accentSoft ?? this.accentSoft,
       onAccentSoft: onAccentSoft ?? this.onAccentSoft,
       gaugeTrack: gaugeTrack ?? this.gaugeTrack,
+      selectedFill: selectedFill ?? this.selectedFill,
+      onSelectedFill: onSelectedFill ?? this.onSelectedFill,
+      sheet: sheet ?? this.sheet,
+      sheetHandle: sheetHandle ?? this.sheetHandle,
       signatureGradient: signatureGradient ?? this.signatureGradient,
       heroGradient: heroGradient ?? this.heroGradient,
       chartSeries: chartSeries ?? this.chartSeries,
@@ -135,6 +204,7 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
       textPrimary: c(textPrimary, other.textPrimary),
       textSecondary: c(textSecondary, other.textSecondary),
       textTertiary: c(textTertiary, other.textTertiary),
+      accentText: c(accentText, other.accentText),
       success: c(success, other.success),
       warning: c(warning, other.warning),
       danger: c(danger, other.danger),
@@ -144,6 +214,10 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
       accentSoft: c(accentSoft, other.accentSoft),
       onAccentSoft: c(onAccentSoft, other.onAccentSoft),
       gaugeTrack: c(gaugeTrack, other.gaugeTrack),
+      selectedFill: c(selectedFill, other.selectedFill),
+      onSelectedFill: c(onSelectedFill, other.onSelectedFill),
+      sheet: c(sheet, other.sheet),
+      sheetHandle: c(sheetHandle, other.sheetHandle),
       signatureGradient: list(signatureGradient, other.signatureGradient),
       heroGradient: list(heroGradient, other.heroGradient),
       chartSeries: list(chartSeries, other.chartSeries),
