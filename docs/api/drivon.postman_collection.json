@@ -826,6 +826,73 @@
       ]
     },
     {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Cost per km",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/analytics/cost-per-km" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('three groups', () => pm.expect(pm.response.json().breakdown).to.have.length(3));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Monthly costs",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/analytics/monthly-costs?months=6" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('six months', () => pm.expect(pm.response.json()).to.have.length(6));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Efficiency trend",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/analytics/efficiency-trend" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Compare vehicles",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/analytics/vehicle-comparison" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "Documents",
       "description": "Needs the R2_* variables on the server (otherwise 503 STORAGE_UNAVAILABLE). The file goes straight to storage with the presigned URL, without the API token.",
       "item": [
