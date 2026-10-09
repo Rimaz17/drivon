@@ -57,4 +57,11 @@ abstract final class DrivonPalette {
 
   // Dark text for use on the light brand fills above.
   static const Color onLight = Color(0xFF17151C);
+
+  // Data series for multi-part charts on dark cards. Mid-tone steps validated
+  // for lightness, chroma, colour-blind separation and 3:1 contrast on
+  // ink850 and ink800 (pastel brand tints read as gray in thin marks).
+  static const Color seriesViolet = Color(0xFF8B67F5);
+  static const Color seriesTeal = Color(0xFF22A38C);
+  static const Color seriesOchre = Color(0xFFBC7A2E);
 }

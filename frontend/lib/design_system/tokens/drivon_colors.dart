@@ -28,6 +28,7 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
     required this.signatureGradient,
     required this.heroGradient,
     required this.chartSeries,
+    required this.costSeries,
   });
 
   /// The dark theme, Drivon's primary theme.
@@ -63,6 +64,11 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
       DrivonPalette.amber,
       DrivonPalette.skyText,
       DrivonPalette.coral,
+    ],
+    costSeries: [
+      DrivonPalette.seriesViolet,
+      DrivonPalette.seriesTeal,
+      DrivonPalette.seriesOchre,
     ],
   );
 
@@ -100,6 +106,11 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
       DrivonPalette.amberInk,
       DrivonPalette.skyInk,
       DrivonPalette.coralInk,
+    ],
+    costSeries: [
+      DrivonPalette.seriesViolet,
+      DrivonPalette.seriesTeal,
+      DrivonPalette.seriesOchre,
     ],
   );
 
@@ -144,6 +155,11 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
   /// Ordered chart series colors; each is legible on dark surfaces.
   final List<Color> chartSeries;
 
+  /// Fuel, maintenance and other, in that fixed order, for charts that split
+  /// a running cost. Charts sit on dark cards, so both themes use the same
+  /// validated mid-tones.
+  final List<Color> costSeries;
+
   @override
   DrivonColors copyWith({
     Color? textPrimary,
@@ -166,6 +182,7 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
     List<Color>? signatureGradient,
     List<Color>? heroGradient,
     List<Color>? chartSeries,
+    List<Color>? costSeries,
   }) {
     return DrivonColors(
       textPrimary: textPrimary ?? this.textPrimary,
@@ -188,6 +205,7 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
       signatureGradient: signatureGradient ?? this.signatureGradient,
       heroGradient: heroGradient ?? this.heroGradient,
       chartSeries: chartSeries ?? this.chartSeries,
+      costSeries: costSeries ?? this.costSeries,
     );
   }
 
@@ -221,6 +239,7 @@ class DrivonColors extends ThemeExtension<DrivonColors> {
       signatureGradient: list(signatureGradient, other.signatureGradient),
       heroGradient: list(heroGradient, other.heroGradient),
       chartSeries: list(chartSeries, other.chartSeries),
+      costSeries: list(costSeries, other.costSeries),
     );
   }
 }
