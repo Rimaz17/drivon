@@ -74,3 +74,13 @@ drivon:
     auth-rate-limit:
       capacity: 10
       refill-period: 1m
+  storage:
+    # Cloudflare R2 for vehicle documents. Optional outside production: without
+    # these, the API starts and document endpoints answer STORAGE_UNAVAILABLE.
+    r2:
+      account-id: ${R2_ACCOUNT_ID:}
+      access-key-id: ${R2_ACCESS_KEY_ID:}
+      secret-access-key: ${R2_SECRET_ACCESS_KEY:}
+      bucket: ${R2_BUCKET:}
+      upload-url-ttl: 10m
+      download-url-ttl: 5m

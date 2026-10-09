@@ -52,7 +52,8 @@ public enum ErrorCode {
 
   // 429 / 5xx
   RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "Too many requests"),
-  INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal error");
+  INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal error"),
+  STORAGE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "File storage unavailable");
 
   private final HttpStatus status;
   private final String title;
