@@ -25,6 +25,7 @@ Docker must be running for the integration tests (Testcontainers starts `postgre
 4. Run `DrivonApplication` (green arrow next to `main`). No profile or environment variables are needed: `dev` is the default and has a local-only database and JWT configuration.
    - To use documents, add the R2 variables to the run configuration (*Run → Edit Configurations… → Environment variables*): `R2_ACCOUNT_ID=…;R2_ACCESS_KEY_ID=…;R2_SECRET_ACCESS_KEY=…;R2_BUCKET=…`. Keep *Store as project file* unchecked so the secret never lands in the repo. Without them, document endpoints answer `503 STORAGE_UNAVAILABLE`.
    - To send push notifications, also add `FIREBASE_SERVICE_ACCOUNT_BASE64` (the Firebase service account JSON, Base64-encoded; see the root README). Without it, reminders still work and show in the app, but nothing is pushed.
+   - For Ask My Vehicle, add `GEMINI_API_KEY` and/or `GROQ_API_KEY`. Without either, the chat endpoint answers `503 ASSISTANT_UNAVAILABLE`.
    - To start a reminder run by hand, `POST http://localhost:8080/internal/reminders/run` with the header `X-Drivon-Job-Secret: dev-only-reminders-job-secret-not-for-production` (the `dev` profile's built-in secret; Postman's *Reminders* folder has the request).
 5. Alternatively run `TestDrivonApplication` (under `src/test`) to get a throwaway Testcontainers database instead of Docker Compose.
 
@@ -39,6 +40,8 @@ Swagger UI: <http://localhost:8080/swagger-ui.html>. Click *Authorize* and paste
 | `prod` | Render + Neon | `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` required | `JWT_SECRET` required |
 
 Document files go to Cloudflare R2 when `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` and `R2_BUCKET` are set (required in `prod`, optional elsewhere). Tests use S3Mock instead.
+
+Ask My Vehicle calls Google Gemini (`GEMINI_API_KEY`, model `GEMINI_MODEL`, default `gemini-3.6-flash`) and falls back to Groq (`GROQ_API_KEY`, model `GROQ_MODEL`, default `openai/gpt-oss-120b`). Both keys are required in `prod`; tests use scripted models and never call either provider.
 
 Push notifications go through Firebase Cloud Messaging when `FIREBASE_SERVICE_ACCOUNT_BASE64` is set, and the daily reminder run needs `REMINDERS_JOB_SECRET` (at least 32 characters). Both are required in `prod`; `dev` has a built-in job secret and runs without Firebase. Tests record pushes instead of sending them.
 
@@ -82,6 +85,7 @@ The Docker image defaults to `prod`, so a misconfigured deploy fails at startup 
 | `GET/PUT/DELETE /api/v1/vehicles/{id}/reminders/{reminderId}` | Bearer | Only your own reminders can be changed; service and document reminders follow their records (`422 REMINDER_READ_ONLY`) |
 | `PUT /api/v1/device-tokens` | Bearer | `{token, platform}` registers this installation for push → 204 |
 | `DELETE /api/v1/device-tokens/{token}` | Bearer | Stop push to this installation (call before signing out) → 204 |
+| `POST /api/v1/assistant/chat` | Bearer, 30 per user per day | `{message, vehicleId?, history?}` → `{reply}`; Ask My Vehicle answers from your data through read-only tools |
 | `POST /internal/reminders/run` | `X-Drivon-Job-Secret` header | Daily reminder run, called by `.github/workflows/reminders-cron.yml`; idempotent |
 | `GET/POST /api/v1/vehicles/{id}/odometer-readings` | Bearer | Odometer history (paged) / add a manual reading |
 | `GET/PUT/DELETE /api/v1/vehicles/{id}/odometer-readings/{readingId}` | Bearer | Correct an initial or manual reading; delete a manual one |
@@ -100,6 +104,7 @@ Tokens: access tokens are 15-minute JWTs sent as `Authorization: Bearer <token>`
 - **Documents** (`docs/adr/0011-documents-on-r2.md`): JPEG, PNG or PDF up to 5 MB, at most 100 per vehicle. Send the file to the presigned URL with exactly the headers returned, without the `Authorization` header, then confirm. Resending the same `id` resumes an upload.
 - **Analytics** (`docs/adr/0012-analytics-and-cost-per-km.md`): distance driven comes from the odometer timeline (the highest reading at each end of the period). Cost per km is everything spent in the period over that distance; repairs count as maintenance, and insurance, parking, tolls, washing and other as OTHER.
 - **Reminders** (`docs/adr/0013-reminders-and-notifications.md`): one reminder per service type (from the latest service that sets a next date or mileage) and per document type (latest expiry), plus your own. A reminder with a date and a mileage is due at whichever comes first; it is due soon 7 days ahead (30 for documents) or 500 km ahead. Each stage (due soon, due) is pushed once, by the daily run or right after an odometer change.
+- **Ask My Vehicle** (`docs/adr/0014-ask-my-vehicle.md`): the model picks from 20 read-only tools; the server runs them for the signed-in user only and caps a question at 5 tool rounds and 60 seconds. `503 ASSISTANT_UNAVAILABLE` when both providers fail, `422 ASSISTANT_INCOMPLETE` when the model doesn't finish.
 - **Fuel efficiency** uses the full-tank method (`docs/adr/0008-fuel-records-and-efficiency.md`). A price per litre that is sent must match amount ÷ litres to within 1% (at least Rs. 1), or it is left out and derived.
 
 ### Errors
