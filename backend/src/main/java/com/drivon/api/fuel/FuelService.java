@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -174,6 +175,69 @@ public class FuelService {
         .toList();
   }
 
+  /**
+   * Up to {@code limit} fill-ups in a date range, newest first (open ends mean "from the beginning"
+   * and "up to today").
+   */
+  @Transactional(readOnly = true)
+  public List<FuelRecordResponse> history(
+      UUID userId, UUID vehicleId, @Nullable LocalDate from, @Nullable LocalDate to, int limit) {
+    vehicles.requireOwned(userId, vehicleId);
+    DateRange range = calendar.range(from, to);
+    Map<UUID, BigDecimal> efficiency = efficiencyByRecord(vehicleId);
+    PageRequest newestFirst =
+        PageRequest.of(
+            0,
+            limit,
+            Sort.by(Direction.DESC, "date")
+                .and(Sort.by(Direction.DESC, "odometerKm"))
+                .and(Sort.by(Direction.DESC, "createdAt")));
+    return records.findBetween(vehicleId, range.from(), range.to(), newestFirst).stream()
+        .map(record -> FuelRecordMapper.toResponse(record, efficiency.get(record.getId())))
+        .toList();
+  }
+
+  /** Price paid per litre in each month of a range that has fill-ups, oldest first. */
+  @Transactional(readOnly = true)
+  public List<FuelPriceMonth> priceTrend(
+      UUID userId, UUID vehicleId, @Nullable LocalDate from, @Nullable LocalDate to) {
+    vehicles.requireOwned(userId, vehicleId);
+    DateRange range = calendar.range(from, to);
+    return records.priceByMonth(vehicleId, range.from(), range.to()).stream()
+        .map(
+            month ->
+                new FuelPriceMonth(
+                    YearMonth.of(month.getYear(), month.getMonth()),
+                    pricePerLitre(month.getAmount(), month.getLitres()),
+                    month.getLowestPrice(),
+                    month.getHighestPrice(),
+                    month.getFillUps()))
+        .toList();
+  }
+
+  /**
+   * Fill-ups per station in a range, most visited first; fill-ups without a station are left out.
+   */
+  @Transactional(readOnly = true)
+  public List<FuelStationStats> stationStats(
+      UUID userId, UUID vehicleId, @Nullable LocalDate from, @Nullable LocalDate to) {
+    vehicles.requireOwned(userId, vehicleId);
+    DateRange range = calendar.range(from, to);
+    return records.sumByStation(vehicleId, range.from(), range.to()).stream()
+        .map(
+            station ->
+                new FuelStationStats(
+                    station.getStation(),
+                    station.getFillUps(),
+                    station.getLitres().setScale(3, RoundingMode.HALF_UP),
+                    station.getAmount().setScale(2, RoundingMode.HALF_UP),
+                    pricePerLitre(station.getAmount(), station.getLitres()),
+                    station.getLowestPrice(),
+                    station.getHighestPrice(),
+                    station.getLastVisit()))
+        .toList();
+  }
+
   /** Fuel spend for each of the last {@code months} months up to this one, oldest first. */
   @Transactional(readOnly = true)
   public List<MonthlyAmount> monthlySpend(UUID userId, UUID vehicleId, int months) {
@@ -256,6 +320,11 @@ public class FuelService {
     return FuelEfficiencyCalculator.intervals(records.findFillsInOdometerOrder(vehicleId)).stream()
         .collect(
             Collectors.toMap(FuelInterval::closingFillId, FuelInterval::kmPerLitre, (a, b) -> a));
+  }
+
+  /** Amount ÷ litres in rupees; litres are always positive for saved fill-ups. */
+  private static BigDecimal pricePerLitre(BigDecimal amount, BigDecimal litres) {
+    return amount.divide(litres, 2, RoundingMode.HALF_UP);
   }
 
   private static @Nullable String blankToNull(@Nullable String value) {

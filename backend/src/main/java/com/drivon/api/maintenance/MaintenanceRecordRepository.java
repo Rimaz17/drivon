@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,6 +22,20 @@ interface MaintenanceRecordRepository extends JpaRepository<MaintenanceRecord, U
       UUID vehicleId, ServiceType serviceType, Pageable pageable);
 
   Optional<MaintenanceRecord> findByIdAndVehicleId(UUID id, UUID vehicleId);
+
+  /** Services in an inclusive date range, optionally of one type, sorted and limited by paging. */
+  @Query(
+      """
+      select m from MaintenanceRecord m
+      where m.vehicleId = :vehicleId and m.date between :from and :to
+        and (:type is null or m.serviceType = :type)
+      """)
+  List<MaintenanceRecord> findBetween(
+      @Param("vehicleId") UUID vehicleId,
+      @Param("type") @Nullable ServiceType type,
+      @Param("from") LocalDate from,
+      @Param("to") LocalDate to,
+      Pageable pageable);
 
   /** The most recent record of each service type: the one that says when it's next due. */
   @Query(

@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,6 +17,22 @@ import org.springframework.data.repository.query.Param;
 interface ExpenseRepository extends JpaRepository<Expense, UUID> {
 
   Page<Expense> findByVehicleId(UUID vehicleId, Pageable pageable);
+
+  /**
+   * Expenses in an inclusive date range, optionally of one category, sorted and limited by paging.
+   */
+  @Query(
+      """
+      select e from Expense e
+      where e.vehicleId = :vehicleId and e.date between :from and :to
+        and (:category is null or e.category = :category)
+      """)
+  List<Expense> findBetween(
+      @Param("vehicleId") UUID vehicleId,
+      @Param("category") @Nullable ExpenseCategory category,
+      @Param("from") LocalDate from,
+      @Param("to") LocalDate to,
+      Pageable pageable);
 
   Page<Expense> findByVehicleIdAndCategory(
       UUID vehicleId, ExpenseCategory category, Pageable pageable);

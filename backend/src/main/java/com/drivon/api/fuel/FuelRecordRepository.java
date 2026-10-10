@@ -19,6 +19,48 @@ interface FuelRecordRepository extends JpaRepository<FuelRecord, UUID> {
 
   Optional<FuelRecord> findByIdAndVehicleId(UUID id, UUID vehicleId);
 
+  /** Fill-ups in an inclusive date range, sorted and limited by {@code pageable}. */
+  @Query(
+      "select f from FuelRecord f where f.vehicleId = :vehicleId and f.date between :from and :to")
+  List<FuelRecord> findBetween(
+      @Param("vehicleId") UUID vehicleId,
+      @Param("from") LocalDate from,
+      @Param("to") LocalDate to,
+      Pageable pageable);
+
+  /** What was paid per litre, month by month. */
+  @Query(
+      """
+      select year(f.date) as year, month(f.date) as month,
+             sum(f.amount) as amount, sum(f.litres) as litres,
+             min(f.pricePerLitre) as lowestPrice, max(f.pricePerLitre) as highestPrice,
+             count(f) as fillUps
+      from FuelRecord f
+      where f.vehicleId = :vehicleId and f.date between :from and :to
+      group by year(f.date), month(f.date)
+      order by year(f.date), month(f.date)
+      """)
+  List<MonthlyPrice> priceByMonth(
+      @Param("vehicleId") UUID vehicleId, @Param("from") LocalDate from, @Param("to") LocalDate to);
+
+  /**
+   * Fill-ups per station, most visited first. Names are compared ignoring case and surrounding
+   * spaces, since they are typed by hand.
+   */
+  @Query(
+      """
+      select min(trim(f.station)) as station, count(f) as fillUps,
+             sum(f.litres) as litres, sum(f.amount) as amount,
+             min(f.pricePerLitre) as lowestPrice, max(f.pricePerLitre) as highestPrice,
+             max(f.date) as lastVisit
+      from FuelRecord f
+      where f.vehicleId = :vehicleId and f.date between :from and :to and f.station is not null
+      group by lower(trim(f.station))
+      order by count(f) desc, max(f.date) desc
+      """)
+  List<StationSum> sumByStation(
+      @Param("vehicleId") UUID vehicleId, @Param("from") LocalDate from, @Param("to") LocalDate to);
+
   /** The efficiency inputs of every fill-up, in the order the full-tank method needs. */
   @Query(
       """
@@ -50,6 +92,40 @@ interface FuelRecordRepository extends JpaRepository<FuelRecord, UUID> {
       """)
   List<MonthlySum> sumByMonth(
       @Param("vehicleId") UUID vehicleId, @Param("from") LocalDate from, @Param("to") LocalDate to);
+
+  /** Projection of {@link #priceByMonth}. */
+  interface MonthlyPrice {
+    Integer getYear();
+
+    Integer getMonth();
+
+    BigDecimal getAmount();
+
+    BigDecimal getLitres();
+
+    BigDecimal getLowestPrice();
+
+    BigDecimal getHighestPrice();
+
+    long getFillUps();
+  }
+
+  /** Projection of {@link #sumByStation}. */
+  interface StationSum {
+    String getStation();
+
+    long getFillUps();
+
+    BigDecimal getLitres();
+
+    BigDecimal getAmount();
+
+    BigDecimal getLowestPrice();
+
+    BigDecimal getHighestPrice();
+
+    LocalDate getLastVisit();
+  }
 
   /** Projection of {@link #sumBetween}. */
   interface Totals {

@@ -5,6 +5,7 @@ import com.drivon.api.common.error.ErrorCode;
 import com.drivon.api.common.stats.MonthlySum;
 import com.drivon.api.common.stats.SpendTotal;
 import com.drivon.api.common.time.BusinessCalendar;
+import com.drivon.api.common.time.DateRange;
 import com.drivon.api.common.web.CreateResult;
 import com.drivon.api.common.web.PageResponse;
 import com.drivon.api.common.web.SortOptions;
@@ -24,6 +25,7 @@ import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -83,6 +85,30 @@ public class MaintenanceService {
             ? records.findByVehicleId(vehicleId, page)
             : records.findByVehicleIdAndServiceType(vehicleId, serviceType, page);
     return PageResponse.of(found, MaintenanceRecordResponse::from);
+  }
+
+  /**
+   * Up to {@code limit} services in a date range, newest first, optionally of one type (open ends
+   * mean "from the beginning" and "up to today").
+   */
+  @Transactional(readOnly = true)
+  public List<MaintenanceRecordResponse> history(
+      UUID userId,
+      UUID vehicleId,
+      @Nullable ServiceType serviceType,
+      @Nullable LocalDate from,
+      @Nullable LocalDate to,
+      int limit) {
+    vehicles.requireOwned(userId, vehicleId);
+    DateRange range = calendar.range(from, to);
+    PageRequest newestFirst =
+        PageRequest.of(
+            0, limit, Sort.by(Direction.DESC, "date").and(Sort.by(Direction.DESC, "createdAt")));
+    return records
+        .findBetween(vehicleId, serviceType, range.from(), range.to(), newestFirst)
+        .stream()
+        .map(MaintenanceRecordResponse::from)
+        .toList();
   }
 
   @Transactional(readOnly = true)
