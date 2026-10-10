@@ -1,0 +1,39 @@
+name: Reminders
+
+# Render's free instance sleeps, so the API can't schedule its own daily run.
+# This calls the secured reminder endpoint once a day; it is idempotent and
+# catches up on missed days (docs/adr/0013-reminders-and-notifications.md).
+on:
+  schedule:
+    # 02:30 UTC = 08:00 in Sri Lanka.
+    - cron: "30 2 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: reminders
+  cancel-in-progress: false
+
+jobs:
+  run:
+    name: Send due reminders
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      API_URL: ${{ secrets.DRIVON_API_URL }}
+      JOB_SECRET: ${{ secrets.REMINDERS_JOB_SECRET }}
+    steps:
+      - name: Skip until the API is deployed
+        if: env.API_URL == '' || env.JOB_SECRET == ''
+        run: echo "::notice::Set the DRIVON_API_URL and REMINDERS_JOB_SECRET secrets to enable reminders."
+
+      - name: Call the reminder endpoint
+        if: env.API_URL != '' && env.JOB_SECRET != ''
+        run: |
+          # The first attempts may time out while the free instance wakes up.
+          curl --fail-with-body --silent --show-error \
+            --retry 5 --retry-delay 20 --retry-all-errors --max-time 90 \
+            -X POST \
+            -H "X-Drivon-Job-Secret: ${JOB_SECRET}" \
+            "${API_URL%/}/internal/reminders/run"
