@@ -100,4 +100,6 @@ abstract final class ApiErrorCodes {
   static const String reminderKmPast = 'REMINDER_KM_PAST';
   static const String reminderReadOnly = 'REMINDER_READ_ONLY';
   static const String reminderLimitReached = 'REMINDER_LIMIT_REACHED';
+  static const String assistantUnavailable = 'ASSISTANT_UNAVAILABLE';
+  static const String assistantIncomplete = 'ASSISTANT_INCOMPLETE';
 }
