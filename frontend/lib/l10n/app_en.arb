@@ -1170,5 +1170,34 @@
   "assistantUnavailable": "Ask My Vehicle can't answer right now. Try again in a minute.",
   "assistantIncomplete": "I couldn't work that out. Try asking in a simpler way, one thing at a time.",
   "assistantRateLimited": "You've asked a lot of questions today. Try again later.",
-  "assistantTileHint": "Ask about fuel, services and costs"
+  "assistantTileHint": "Ask about fuel, services and costs",
+  "offlineBanner": "You're offline. Showing what was saved on this phone.",
+  "fillUpSavedOffline": "No connection. The fill-up is saved on this phone and will sync when you're back online.",
+  "pendingFillUpsTitle": "Waiting to sync",
+  "pendingFillUpsExplainer": "Saved on this phone. km/L and totals update once they reach your account.",
+  "pendingFillUpWaiting": "Not synced yet",
+  "pendingFillUpRejected": "Not saved: {reason}",
+  "@pendingFillUpRejected": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "pendingRejectedOdometer": "the odometer doesn't fit the readings on other dates. Correct it in the odometer history and try again, or discard it.",
+  "pendingRejectedPrice": "the price per litre doesn't match the amount and litres.",
+  "syncNowAction": "Sync now",
+  "syncingNotice": "Syncing…",
+  "discardAction": "Discard",
+  "discardFillUpTitle": "Discard this fill-up?",
+  "discardFillUpMessage": "It was never saved to your account, so it will be gone.",
+  "signOutPendingTitle": "Sign out without syncing?",
+  "signOutPendingMessage": "{count, plural, =1{1 fill-up saved offline hasn't} other{{count} fill-ups saved offline haven't}} synced yet. Signing out deletes {count, plural, =1{it} other{them}} from this phone.",
+  "@signOutPendingMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

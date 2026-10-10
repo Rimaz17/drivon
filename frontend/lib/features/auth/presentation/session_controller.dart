@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/session_events.dart';
+import '../../../core/storage/local_store.dart';
 import '../data/auth_repository.dart';
 import '../domain/user.dart';
 
@@ -37,6 +38,12 @@ class SessionController extends Notifier<SessionState> {
         .expired
         .listen((_) => unawaited(_expire()));
     ref.onDispose(subscription.cancel);
+    // Offline copies and drafts are kept per user.
+    listenSelf(
+      (_, next) => ref
+          .read(activeUserIdProvider.notifier)
+          .set(next is SignedIn ? next.user.id : null),
+    );
     unawaited(Future.microtask(_restore));
     return const SessionRestoring();
   }
