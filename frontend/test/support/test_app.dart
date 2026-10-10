@@ -1,7 +1,9 @@
+import 'package:drivon/core/network/connection_status.dart';
 import 'package:drivon/core/network/storage_client.dart';
 import 'package:drivon/core/services/file_picker_service.dart';
 import 'package:drivon/core/services/local_notifications.dart';
 import 'package:drivon/core/services/push_messaging.dart';
+import 'package:drivon/core/storage/local_store.dart';
 import 'package:drivon/core/storage/token_store.dart';
 import 'package:drivon/design_system/design_system.dart';
 import 'package:drivon/features/analytics/data/analytics_api.dart';
@@ -32,6 +34,7 @@ import '../features/reminders/reminder_test_doubles.dart';
 import '../features/vehicles/odometer_test_doubles.dart';
 import '../features/vehicles/vehicle_test_doubles.dart';
 import 'fakes.dart';
+import 'offline_fakes.dart';
 
 /// Overrides that keep tests off the network and platform storage.
 List<Override> testOverrides({
@@ -52,6 +55,8 @@ List<Override> testOverrides({
   FakeLocalNotifications? localNotifications,
   FakePushMessaging? pushMessaging,
   FakeAssistantApi? assistantApi,
+  InMemoryLocalStore? localStore,
+  FakeNetworkMonitor? networkMonitor,
   List<Override> extra = const [],
 }) => [
   authApiProvider.overrideWithValue(authApi ?? FakeAuthApi()),
@@ -82,6 +87,10 @@ List<Override> testOverrides({
   ),
   pushMessagingProvider.overrideWithValue(pushMessaging ?? FakePushMessaging()),
   assistantApiProvider.overrideWithValue(assistantApi ?? FakeAssistantApi()),
+  localStoreProvider.overrideWithValue(localStore ?? InMemoryLocalStore()),
+  networkMonitorProvider.overrideWithValue(
+    networkMonitor ?? FakeNetworkMonitor(),
+  ),
   ...extra,
 ];
 
