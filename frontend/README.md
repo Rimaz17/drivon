@@ -148,6 +148,18 @@ iOS push needs an APNs key from the paid Apple Developer Program, so it is not s
 - `ChatController` keeps the conversation in memory only (cleared on sign-out or *Start over*) and sends the latest 10 answered turns with each question, so follow-ups work. Example questions start an empty chat; a question that fails shows why (unavailable, couldn't finish, daily limit, offline) with *Try again*.
 - The welcome text reminds users that questions go to an AI service, so they shouldn't include personal details.
 
+### Offline
+
+- Every API read is saved per user in a local SQLite database (`core/storage/local_store.dart`, `sqflite`). When the server can't be reached, `OfflineCacheInterceptor` answers from that copy, and the tabs show "You're offline. Showing what was saved on this phone." (`docs/adr/0015-offline-support.md`).
+- A fill-up logged without a connection is kept on the phone with its own ID and listed under *Waiting to sync* on the Fuel tab. `FuelSyncController` sends it when the phone gets a network (`connectivity_plus`), when the server answers again, at sign-in, or on *Sync now*.
+  - Sending twice is safe: the server recognises the ID.
+  - A fill-up the server refuses (for example an odometer out of order) shows the reason and can be retried or discarded.
+- Signing out deletes the user's saved data and waiting fill-ups, after a warning if any haven't synced.
+- To try it on a phone:
+  1. Open the tabs once online.
+  2. Turn on airplane mode, browse, and log a fill-up.
+  3. Turn airplane mode off; the fill-up syncs and the Fuel figures update.
+
 ### Insights and charts
 
 - The Insights tab shows the server's running-cost analytics (`docs/adr/0012-analytics-and-cost-per-km.md`): cost per km for the chosen period split into fuel, maintenance and other, six months of costs, cost per km by month, km/L per full tank over twelve months, the category split and, with two vehicles, a comparison. The app formats these numbers; it never calculates them.
