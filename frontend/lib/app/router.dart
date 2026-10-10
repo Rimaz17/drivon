@@ -16,6 +16,8 @@ import '../features/fuel/presentation/fuel_record_form_screen.dart';
 import '../features/fuel/presentation/fuel_screen.dart';
 import '../features/maintenance/presentation/maintenance_form_screen.dart';
 import '../features/maintenance/presentation/service_screen.dart';
+import '../features/reminders/presentation/reminder_form_screen.dart';
+import '../features/reminders/presentation/reminders_screen.dart';
 import '../features/vehicles/presentation/garage_screen.dart';
 import '../features/vehicles/presentation/odometer_history_screen.dart';
 import '../features/vehicles/presentation/odometer_reading_form_screen.dart';
@@ -49,6 +51,10 @@ abstract final class AppRoutes {
   static const String document = '/vehicles/:vehicleId/documents/:documentId';
   static const String editDocument =
       '/vehicles/:vehicleId/documents/:documentId/edit';
+  static const String reminders = '/vehicles/:vehicleId/reminders';
+  static const String addReminder = '/vehicles/:vehicleId/reminders/new';
+  static const String editReminder =
+      '/vehicles/:vehicleId/reminders/:reminderId';
 
   static String editVehiclePath(String vehicleId) =>
       '/vehicles/$vehicleId/edit';
@@ -91,6 +97,15 @@ abstract final class AppRoutes {
 
   static String editDocumentPath(String vehicleId, String documentId) =>
       '/vehicles/$vehicleId/documents/$documentId/edit';
+
+  static String remindersPath(String vehicleId) =>
+      '/vehicles/$vehicleId/reminders';
+
+  static String addReminderPath(String vehicleId) =>
+      '/vehicles/$vehicleId/reminders/new';
+
+  static String editReminderPath(String vehicleId, String reminderId) =>
+      '/vehicles/$vehicleId/reminders/$reminderId';
 
   static const Set<String> signedOutOnly = {signIn, createAccount};
 }
@@ -271,6 +286,24 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => DocumentFormScreen(
           vehicleId: state.pathParameters['vehicleId']!,
           documentId: state.pathParameters['documentId'],
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.reminders,
+        builder: (context, state) =>
+            RemindersScreen(vehicleId: state.pathParameters['vehicleId']!),
+      ),
+      // Listed before the edit route so "new" is not read as an ID.
+      GoRoute(
+        path: AppRoutes.addReminder,
+        builder: (context, state) =>
+            ReminderFormScreen(vehicleId: state.pathParameters['vehicleId']!),
+      ),
+      GoRoute(
+        path: AppRoutes.editReminder,
+        builder: (context, state) => ReminderFormScreen(
+          vehicleId: state.pathParameters['vehicleId']!,
+          reminderId: state.pathParameters['reminderId'],
         ),
       ),
     ],
