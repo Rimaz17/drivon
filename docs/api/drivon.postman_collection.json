@@ -15,6 +15,8 @@
     { "key": "readingId", "value": "" },
     { "key": "serviceId", "value": "" },
     { "key": "expenseId", "value": "" },
+    { "key": "documentId", "value": "" },
+    { "key": "uploadUrl", "value": "" },
     { "key": "today", "value": "" }
   ],
   "auth": {
@@ -824,8 +826,163 @@
       ]
     },
     {
+      "name": "Documents",
+      "description": "Needs the R2_* variables on the server (otherwise 503 STORAGE_UNAVAILABLE). The file goes straight to storage with the presigned URL, without the API token.",
+      "item": [
+        {
+          "name": "Start upload",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/documents",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"INSURANCE\",\n  \"issueDate\": \"{{today}}\",\n  \"notes\": \"Comprehensive policy\",\n  \"contentType\": \"application/pdf\",\n  \"sizeBytes\": 22\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('documentId', body.document.id);",
+                  "pm.collectionVariables.set('uploadUrl', body.upload.url);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Upload file to storage",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/pdf" }],
+            "url": "{{uploadUrl}}",
+            "body": {
+              "mode": "raw",
+              "raw": "%PDF-1.4 Drivon sample"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('stored', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Confirm upload",
+          "request": { "method": "POST", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/documents/{{documentId}}/confirm" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('active', () => pm.expect(pm.response.json().status).to.eql('ACTIVE'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List documents",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/documents?sort=expiryDate,asc" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update document",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/documents/{{documentId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"INSURANCE\",\n  \"issueDate\": \"{{today}}\",\n  \"expiryDate\": \"2099-12-31\",\n  \"notes\": \"Renewed\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get download URL",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/documents/{{documentId}}/download-url" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Expiring documents",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/documents/expiring?withinDays=30" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "Cleanup",
       "item": [
+        {
+          "name": "Delete document",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/documents/{{documentId}}" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
         {
           "name": "Delete vehicle",
           "request": { "method": "DELETE", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}" },

@@ -20,6 +20,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
+import org.springframework.context.ApplicationEventPublisher;
 
 class VehicleServiceTest {
 
@@ -30,7 +31,9 @@ class VehicleServiceTest {
   private final VehicleRepository repository = mock(VehicleRepository.class);
   private final OdometerService odometer = mock(OdometerService.class);
   private final UserService users = mock(UserService.class);
-  private final VehicleService service = new VehicleService(repository, odometer, users, CLOCK);
+  private final ApplicationEventPublisher events = mock(ApplicationEventPublisher.class);
+  private final VehicleService service =
+      new VehicleService(repository, odometer, users, events, CLOCK);
 
   private static VehicleRequest request(String registration, int year, int odometer) {
     return new VehicleRequest(" Toyota ", "Aqua", year, registration, FuelType.HYBRID, odometer);
@@ -117,6 +120,19 @@ class VehicleServiceTest {
     assertThatThrownBy(() -> service.delete(USER, vehicleId))
         .extracting(e -> ((DrivonException) e).code())
         .isEqualTo(ErrorCode.VEHICLE_NOT_FOUND);
+  }
+
+  @Test
+  void announcesADeletionBeforeRemovingTheVehicle() {
+    Vehicle existing = existing(50_000);
+    UUID id = UUID.randomUUID();
+    when(repository.findByIdAndUserId(id, USER)).thenReturn(Optional.of(existing));
+
+    service.delete(USER, id);
+
+    InOrder order = inOrder(events, repository);
+    order.verify(events).publishEvent(new VehicleDeletingEvent(id));
+    order.verify(repository).delete(existing);
   }
 
   @Test

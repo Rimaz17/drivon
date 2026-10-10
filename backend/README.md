@@ -15,7 +15,7 @@ All commands run from `backend/` (Git Bash on Windows: use `./mvnw`).
 | Tests only | `./mvnw test` |
 | Build the Docker image | `docker build -t drivon-api .` |
 
-Docker must be running for the integration tests (Testcontainers starts `postgres:17.11-alpine`).
+Docker must be running for the integration tests (Testcontainers starts `postgres:17.11-alpine` and `adobe/s3mock:5.2.3`, a local S3-compatible server that stands in for Cloudflare R2).
 
 ### Running from IntelliJ IDEA
 
@@ -23,6 +23,7 @@ Docker must be running for the integration tests (Testcontainers starts `postgre
 2. *File → Project Structure → Project → SDK*: choose a Java 17 JDK.
 3. Start Postgres: `docker compose up -d postgres` from the repo root (Docker Desktop must be running).
 4. Run `DrivonApplication` (green arrow next to `main`). No profile or environment variables are needed: `dev` is the default and has a local-only database and JWT configuration.
+   - To use documents, add the R2 variables to the run configuration (*Run → Edit Configurations… → Environment variables*): `R2_ACCOUNT_ID=…;R2_ACCESS_KEY_ID=…;R2_SECRET_ACCESS_KEY=…;R2_BUCKET=…`. Keep *Store as project file* unchecked so the secret never lands in the repo. Without them, document endpoints answer `503 STORAGE_UNAVAILABLE`.
 5. Alternatively run `TestDrivonApplication` (under `src/test`) to get a throwaway Testcontainers database instead of Docker Compose.
 
 Swagger UI: <http://localhost:8080/swagger-ui.html>. Click *Authorize* and paste an `accessToken` from register or login.
@@ -34,6 +35,8 @@ Swagger UI: <http://localhost:8080/swagger-ui.html>. Click *Authorize* and paste
 | `dev` (default) | Local development | `jdbc:postgresql://localhost:5433/drivon` unless `DB_URL`/`DB_USERNAME`/`DB_PASSWORD` are set | Built-in, publicly known dev key unless `JWT_SECRET` is set |
 | `test` | Automated tests | Testcontainers (`@IntegrationTest`) | Fixed test key |
 | `prod` | Render + Neon | `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` required | `JWT_SECRET` required |
+
+Document files go to Cloudflare R2 when `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` and `R2_BUCKET` are set (required in `prod`, optional elsewhere). Tests use S3Mock instead.
 
 The Docker image defaults to `prod`, so a misconfigured deploy fails at startup instead of silently using dev settings.
 
@@ -61,6 +64,11 @@ The Docker image defaults to `prod`, so a misconfigured deploy fails at startup 
 | `GET /api/v1/vehicles/{id}/spending?from=&to=` | Bearer | Total and per-category spend; fill-ups count as FUEL, services as MAINTENANCE |
 | `GET /api/v1/vehicles/{id}/spending/monthly?months=6` | Bearer | Total spend per month (1–24), oldest first, zero-filled |
 | `GET /api/v1/spending/vehicles?from=&to=` | Bearer | Total spend of each of the user's vehicles |
+| `GET/POST /api/v1/vehicles/{id}/documents` | Bearer | Paged confirmed documents (`?type=` filter) / start an upload: returns a pending document and a presigned `PUT` |
+| `POST /api/v1/vehicles/{id}/documents/{documentId}/confirm` | Bearer | After uploading: checks the stored file and makes the document visible |
+| `GET/PUT/DELETE /api/v1/vehicles/{id}/documents/{documentId}` | Bearer | Details can be edited; delete also removes the file |
+| `GET /api/v1/vehicles/{id}/documents/{documentId}/download-url` | Bearer | Presigned `GET`, valid for 5 minutes |
+| `GET /api/v1/documents/expiring?withinDays=30` | Bearer | Documents expiring within 0–365 days (or already expired), across the user's vehicles |
 | `GET/POST /api/v1/vehicles/{id}/odometer-readings` | Bearer | Odometer history (paged) / add a manual reading |
 | `GET/PUT/DELETE /api/v1/vehicles/{id}/odometer-readings/{readingId}` | Bearer | Correct an initial or manual reading; delete a manual one |
 | `GET /actuator/health`, `/actuator/info` | Public | Render health check |
@@ -75,6 +83,7 @@ Tokens: access tokens are 15-minute JWTs sent as `Authorization: Bearer <token>`
 - **Lists** return `{content, page, size, totalElements, totalPages, hasNext}`. Use `page` (from 0), `size` (default 20, at most 100) and `sort=field,asc|desc` with the fields listed in Swagger; other fields give `400 INVALID_SORT`.
 - **Odometer timeline** (`docs/adr/0007-odometer-timeline.md`): readings can't be lower than one on an earlier date or higher than one on a later date (`422 ODOMETER_OUT_OF_ORDER`, with `minKm`/`maxKm`). The vehicle's current odometer is its highest reading. A mistyped initial or manual reading is fixed with `PUT …/odometer-readings/{readingId}`.
 - **Spending** (`docs/adr/0009-maintenance-expenses-and-spending.md`) adds fill-ups and services to expenses, so a cost is entered once. Services may set a next date (after the service) and next mileage (above its odometer).
+- **Documents** (`docs/adr/0011-documents-on-r2.md`): JPEG, PNG or PDF up to 5 MB, at most 100 per vehicle. Send the file to the presigned URL with exactly the headers returned, without the `Authorization` header, then confirm. Resending the same `id` resumes an upload.
 - **Fuel efficiency** uses the full-tank method (`docs/adr/0008-fuel-records-and-efficiency.md`). A price per litre that is sent must match amount ÷ litres to within 1% (at least Rs. 1), or it is left out and derived.
 
 ### Errors

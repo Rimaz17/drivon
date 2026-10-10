@@ -15,12 +15,25 @@
   <description>Drivon REST API: personal vehicle companion backend</description>
   <properties>
     <java.version>17</java.version>
+    <aws-sdk.version>2.55.5</aws-sdk.version>
     <bucket4j.version>8.21.0</bucket4j.version>
     <springdoc.version>3.1.1</springdoc.version>
     <spotless.version>3.10.3</spotless.version>
     <!-- Spotless caps google-java-format at 1.28.0 when running on Java 17. -->
     <google-java-format.version>1.28.0</google-java-format.version>
   </properties>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>bom</artifactId>
+        <version>${aws-sdk.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -67,6 +80,18 @@
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-postgresql</artifactId>
+    </dependency>
+    <!-- Cloudflare R2 speaks the S3 API. Only the blocking client is used, so the
+         Netty-based async transport is left out to keep the image small. -->
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>s3</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>software.amazon.awssdk</groupId>
+          <artifactId>netty-nio-client</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>

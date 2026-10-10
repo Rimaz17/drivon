@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Drivon uses the camera to photograph your vehicle documents, such as insurance and revenue licence.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Drivon lets you choose photos of your vehicle documents from your library.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

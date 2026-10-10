@@ -86,4 +86,12 @@ abstract final class ApiErrorCodes {
   static const String nextServiceDateInvalid = 'NEXT_SERVICE_DATE_INVALID';
   static const String nextServiceKmInvalid = 'NEXT_SERVICE_KM_INVALID';
   static const String expenseNotFound = 'EXPENSE_NOT_FOUND';
+  static const String documentNotFound = 'DOCUMENT_NOT_FOUND';
+  static const String documentDatesInvalid = 'DOCUMENT_DATES_INVALID';
+  static const String unsupportedFileType = 'UNSUPPORTED_FILE_TYPE';
+  static const String fileTooLarge = 'FILE_TOO_LARGE';
+  static const String documentLimitReached = 'DOCUMENT_LIMIT_REACHED';
+  static const String uploadNotFound = 'UPLOAD_NOT_FOUND';
+  static const String uploadMismatch = 'UPLOAD_MISMATCH';
+  static const String storageUnavailable = 'STORAGE_UNAVAILABLE';
 }

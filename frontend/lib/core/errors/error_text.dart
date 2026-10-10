@@ -14,6 +14,7 @@ String errorText(AppLocalizations l10n, Object error) => switch (error) {
     ApiErrorCodes.emailAlreadyRegistered => l10n.errorEmailTaken,
     ApiErrorCodes.rateLimited => l10n.errorRateLimited,
     ApiErrorCodes.validationFailed => l10n.errorValidation,
+    ApiErrorCodes.storageUnavailable => l10n.errorStorageUnavailable,
     _ => l10n.errorGeneric,
   },
   _ => l10n.errorGeneric,

@@ -6,7 +6,7 @@
 [![Frontend CI](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-violet.svg)](LICENSE)
 
-> **Status:** Phases 1–3 are complete: accounts, up to two vehicles with an odometer history, fuel tracking with km/L and fuel cost per km, service records with upcoming services, and expenses with spending totals by period, category, month and vehicle. Features land phase by phase; see the [roadmap](#roadmap).
+> **Status:** Phases 1–4 are complete: accounts, up to two vehicles with an odometer history, fuel tracking with km/L and fuel cost per km, service records with upcoming services, expenses with spending totals by period, category, month and vehicle, and vehicle documents (photos and PDFs) stored privately on Cloudflare R2 with expiry tracking. Features land phase by phase; see the [roadmap](#roadmap).
 
 ## Features (MVP)
 
@@ -99,13 +99,14 @@ All variables are listed with placeholders in [`backend/.env.example`](backend/.
 | `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | Backend | Database connection (Neon needs `sslmode=require`) |
 | `JWT_SECRET` | Backend | Base64 HS256 signing key (≥ 256 bits, `openssl rand -base64 48`); required in prod |
 | `PORT` | Backend | HTTP port, injected by Render |
+| `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | Backend | Cloudflare R2 bucket for documents; required in prod, optional locally (without them only document endpoints are unavailable) |
 
 The Flutter app takes only non-secret build settings via `--dart-define` (`API_BASE_URL`).
 
 ## Testing
 
 ```bash
-cd backend && ./mvnw verify      # formatting check + unit + Testcontainers integration tests
+cd backend && ./mvnw verify      # formatting check + unit + Testcontainers integration tests (Postgres, S3Mock)
 cd frontend && flutter test      # unit and widget tests
 ```
 
@@ -130,8 +131,8 @@ drivon/
 | 1 | Auth & vehicles | ✅ Done |
 | 2 | Fuel tracking | ✅ Done |
 | 3 | Maintenance & expenses | ✅ Done |
-| 4 | Documents (Cloudflare R2) | Next |
-| 5 | Analytics & cost per km | |
+| 4 | Documents (Cloudflare R2) | ✅ Done |
+| 5 | Analytics & cost per km | Next |
 | 6 | Reminders & notifications | |
 | 7 | Ask My Vehicle | |
 | 8 | Offline support | |
