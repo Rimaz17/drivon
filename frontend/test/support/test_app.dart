@@ -1,5 +1,7 @@
 import 'package:drivon/core/network/storage_client.dart';
 import 'package:drivon/core/services/file_picker_service.dart';
+import 'package:drivon/core/services/local_notifications.dart';
+import 'package:drivon/core/services/push_messaging.dart';
 import 'package:drivon/core/storage/token_store.dart';
 import 'package:drivon/design_system/design_system.dart';
 import 'package:drivon/features/analytics/data/analytics_api.dart';
@@ -9,6 +11,8 @@ import 'package:drivon/features/documents/data/document_api.dart';
 import 'package:drivon/features/expenses/data/expense_api.dart';
 import 'package:drivon/features/fuel/data/fuel_api.dart';
 import 'package:drivon/features/maintenance/data/maintenance_api.dart';
+import 'package:drivon/features/notifications/data/device_token_api.dart';
+import 'package:drivon/features/reminders/data/reminder_api.dart';
 import 'package:drivon/features/vehicles/data/odometer_api.dart';
 import 'package:drivon/features/vehicles/data/selected_vehicle_store.dart';
 import 'package:drivon/features/vehicles/data/vehicle_api.dart';
@@ -22,6 +26,7 @@ import '../features/documents/document_test_doubles.dart';
 import '../features/expenses/expense_test_doubles.dart';
 import '../features/fuel/fuel_test_doubles.dart';
 import '../features/maintenance/maintenance_test_doubles.dart';
+import '../features/reminders/reminder_test_doubles.dart';
 import '../features/vehicles/odometer_test_doubles.dart';
 import '../features/vehicles/vehicle_test_doubles.dart';
 import 'fakes.dart';
@@ -40,6 +45,10 @@ List<Override> testOverrides({
   FakeStorageClient? storage,
   FakeFilePickerService? filePicker,
   FakeAnalyticsApi? analyticsApi,
+  FakeReminderApi? reminderApi,
+  FakeDeviceTokenApi? deviceTokenApi,
+  FakeLocalNotifications? localNotifications,
+  FakePushMessaging? pushMessaging,
   List<Override> extra = const [],
 }) => [
   authApiProvider.overrideWithValue(authApi ?? FakeAuthApi()),
@@ -61,6 +70,14 @@ List<Override> testOverrides({
     filePicker ?? FakeFilePickerService(),
   ),
   analyticsApiProvider.overrideWithValue(analyticsApi ?? FakeAnalyticsApi()),
+  reminderApiProvider.overrideWithValue(reminderApi ?? FakeReminderApi()),
+  deviceTokenApiProvider.overrideWithValue(
+    deviceTokenApi ?? FakeDeviceTokenApi(),
+  ),
+  localNotificationsProvider.overrideWithValue(
+    localNotifications ?? FakeLocalNotifications(),
+  ),
+  pushMessagingProvider.overrideWithValue(pushMessaging ?? FakePushMessaging()),
   ...extra,
 ];
 
