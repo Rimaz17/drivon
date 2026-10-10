@@ -31,3 +31,8 @@ drivon:
       service-account-base64: ${FIREBASE_SERVICE_ACCOUNT_BASE64}
   reminders:
     job-secret: ${REMINDERS_JOB_SECRET}
+  assistant:
+    gemini:
+      api-key: ${GEMINI_API_KEY}
+    groq:
+      api-key: ${GROQ_API_KEY}

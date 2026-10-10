@@ -11,14 +11,18 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 /**
- * Full application context against a Testcontainers Postgres, with MockMvc and recorded (not sent)
- * push notifications. Using one shared annotation keeps the Spring context (and the container)
- * cached across test classes.
+ * Full application context against a Testcontainers Postgres, with MockMvc, recorded (not sent)
+ * push notifications and scripted AI models. Using one shared annotation keeps the Spring context
+ * (and the container) cached across test classes.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Import({TestcontainersConfiguration.class, TestPushConfiguration.class})
+@Import({
+  TestcontainersConfiguration.class,
+  TestPushConfiguration.class,
+  TestAssistantConfiguration.class
+})
 public @interface IntegrationTest {}

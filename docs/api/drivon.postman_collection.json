@@ -1194,6 +1194,59 @@
       ]
     },
     {
+      "name": "Ask My Vehicle",
+      "description": "Needs GEMINI_API_KEY or GROQ_API_KEY on the server. Answers come from your own data (docs/adr/0014-ask-my-vehicle.md).",
+      "item": [
+        {
+          "name": "Ask a question",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/assistant/chat",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"How much did I spend on fuel this month, and what is my average km/L?\",\n  \"vehicleId\": \"{{vehicleId}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('has a reply', () => pm.expect(pm.response.json().reply).to.be.a('string'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ask a follow-up",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/assistant/chat",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"And last month?\",\n  \"vehicleId\": \"{{vehicleId}}\",\n  \"history\": [\n    { \"role\": \"USER\", \"text\": \"How much did I spend on fuel this month?\" },\n    { \"role\": \"ASSISTANT\", \"text\": \"You spent Rs. 18,500 on fuel this month.\" }\n  ]\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "Cleanup",
       "item": [
         {

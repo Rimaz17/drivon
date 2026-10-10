@@ -3,17 +3,21 @@ package com.drivon.api.expense;
 import com.drivon.api.common.error.DrivonException;
 import com.drivon.api.common.error.ErrorCode;
 import com.drivon.api.common.time.BusinessCalendar;
+import com.drivon.api.common.time.DateRange;
 import com.drivon.api.common.web.CreateResult;
 import com.drivon.api.common.web.PageResponse;
 import com.drivon.api.common.web.SortOptions;
 import com.drivon.api.expense.Expense.ExpenseDetails;
 import com.drivon.api.vehicle.VehicleService;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -54,6 +58,29 @@ public class ExpenseService {
             ? expenses.findByVehicleId(vehicleId, page)
             : expenses.findByVehicleIdAndCategory(vehicleId, category, page);
     return PageResponse.of(found, ExpenseResponse::from);
+  }
+
+  /**
+   * Up to {@code limit} logged expenses in a date range, newest first, optionally of one category
+   * (open ends mean "from the beginning" and "up to today"). Fill-ups and services are not expenses
+   * here; spending totals add them.
+   */
+  @Transactional(readOnly = true)
+  public List<ExpenseResponse> history(
+      UUID userId,
+      UUID vehicleId,
+      @Nullable ExpenseCategory category,
+      @Nullable LocalDate from,
+      @Nullable LocalDate to,
+      int limit) {
+    vehicles.requireOwned(userId, vehicleId);
+    DateRange range = calendar.range(from, to);
+    PageRequest newestFirst =
+        PageRequest.of(
+            0, limit, Sort.by(Direction.DESC, "date").and(Sort.by(Direction.DESC, "createdAt")));
+    return expenses.findBetween(vehicleId, category, range.from(), range.to(), newestFirst).stream()
+        .map(ExpenseResponse::from)
+        .toList();
   }
 
   @Transactional(readOnly = true)

@@ -6,6 +6,7 @@ import '../../../app/router.dart';
 import '../../../core/errors/error_text.dart';
 import '../../../design_system/design_system.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../assistant/presentation/assistant_garage_tile.dart';
 import '../../auth/domain/user.dart';
 import '../../auth/presentation/session_controller.dart';
 import '../../documents/presentation/widgets/documents_garage_tile.dart';
@@ -33,6 +34,12 @@ class GarageScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.appTitle),
         actions: [
+          if (vehicles.value?.isNotEmpty ?? false)
+            IconButton(
+              tooltip: l10n.assistantTitle,
+              icon: const Icon(Icons.auto_awesome_outlined),
+              onPressed: () => context.push(AppRoutes.assistant),
+            ),
           if (user != null)
             IconButton(
               tooltip: l10n.accountTooltip,
@@ -171,6 +178,8 @@ class _Garage extends ConsumerWidget {
             VehicleSnapshot(vehicle: selected),
             const SizedBox(height: DrivonSpacing.md),
             RemindersGarageTile(vehicleId: selected.id),
+            const SizedBox(height: DrivonSpacing.md),
+            const AssistantGarageTile(),
             const SizedBox(height: DrivonSpacing.md),
             DocumentsGarageTile(vehicleId: selected.id),
             const SizedBox(height: DrivonSpacing.md),

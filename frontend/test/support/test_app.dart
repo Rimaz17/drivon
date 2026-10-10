@@ -5,6 +5,7 @@ import 'package:drivon/core/services/push_messaging.dart';
 import 'package:drivon/core/storage/token_store.dart';
 import 'package:drivon/design_system/design_system.dart';
 import 'package:drivon/features/analytics/data/analytics_api.dart';
+import 'package:drivon/features/assistant/data/assistant_api.dart';
 import 'package:drivon/features/auth/data/auth_api.dart';
 import 'package:drivon/features/auth/data/user_cache.dart';
 import 'package:drivon/features/documents/data/document_api.dart';
@@ -21,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
 import '../features/analytics/analytics_test_doubles.dart';
+import '../features/assistant/assistant_test_doubles.dart';
 import '../features/auth/auth_test_doubles.dart';
 import '../features/documents/document_test_doubles.dart';
 import '../features/expenses/expense_test_doubles.dart';
@@ -49,6 +51,7 @@ List<Override> testOverrides({
   FakeDeviceTokenApi? deviceTokenApi,
   FakeLocalNotifications? localNotifications,
   FakePushMessaging? pushMessaging,
+  FakeAssistantApi? assistantApi,
   List<Override> extra = const [],
 }) => [
   authApiProvider.overrideWithValue(authApi ?? FakeAuthApi()),
@@ -78,6 +81,7 @@ List<Override> testOverrides({
     localNotifications ?? FakeLocalNotifications(),
   ),
   pushMessagingProvider.overrideWithValue(pushMessaging ?? FakePushMessaging()),
+  assistantApiProvider.overrideWithValue(assistantApi ?? FakeAssistantApi()),
   ...extra,
 ];
 

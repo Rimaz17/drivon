@@ -1142,5 +1142,33 @@
         "type": "String"
       }
     }
-  }
+  },
+  "assistantTitle": "Ask My Vehicle",
+  "assistantClearTooltip": "Start over",
+  "assistantWelcomeTitle": "Ask about your vehicle",
+  "assistantWelcomeMessage": "Ask about fuel, services, costs, documents or reminders. Answers come from what you've logged in Drivon.",
+  "assistantWelcomeVehicle": "Ask about your {vehicle}: fuel, services, costs, documents or reminders. Answers come from what you've logged in Drivon.",
+  "@assistantWelcomeVehicle": {
+    "placeholders": {
+      "vehicle": {
+        "type": "String"
+      }
+    }
+  },
+  "assistantTryAsking": "Try asking",
+  "assistantSuggestionFuel": "How much did I spend on fuel this month?",
+  "assistantSuggestionEfficiency": "What's my average km/L?",
+  "assistantSuggestionService": "When is my next service due?",
+  "assistantSuggestionInsurance": "Is my insurance still valid?",
+  "assistantSuggestionCostPerKm": "How much does my vehicle cost per km?",
+  "assistantPrivacyNote": "Questions are answered by an AI service. Don't include personal details such as phone or ID numbers.",
+  "assistantYouSaid": "You asked",
+  "assistantReplied": "Drivon answered",
+  "assistantThinking": "Looking it up…",
+  "assistantInputHint": "Ask about your vehicle",
+  "assistantSendTooltip": "Send",
+  "assistantUnavailable": "Ask My Vehicle can't answer right now. Try again in a minute.",
+  "assistantIncomplete": "I couldn't work that out. Try asking in a simpler way, one thing at a time.",
+  "assistantRateLimited": "You've asked a lot of questions today. Try again later.",
+  "assistantTileHint": "Ask about fuel, services and costs"
 }
