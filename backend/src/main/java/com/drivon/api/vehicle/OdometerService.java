@@ -6,6 +6,8 @@ import com.drivon.api.common.time.BusinessCalendar;
 import com.drivon.api.common.web.PageResponse;
 import com.drivon.api.common.web.SortOptions;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -104,6 +106,41 @@ public class OdometerService {
     readings.delete(reading);
     readings.flush();
     syncVehicle(vehicle);
+  }
+
+  /**
+   * Kilometres driven in an inclusive date range, from the odometer timeline. The caller must have
+   * checked that the vehicle belongs to the user.
+   */
+  @Transactional(readOnly = true)
+  public int distanceBetween(UUID vehicleId, LocalDate from, LocalDate to) {
+    return OdometerDistance.between(
+        readings.findMaxOnOrBefore(vehicleId, from.minusDays(1)).orElse(null),
+        readings.findMinBetween(vehicleId, from, to).orElse(null),
+        readings.findMaxOnOrBefore(vehicleId, to).orElse(null));
+  }
+
+  /**
+   * Kilometres driven in each of the {@code months} months ending with {@code last}, oldest first.
+   * The caller must have checked that the vehicle belongs to the user.
+   */
+  @Transactional(readOnly = true)
+  public List<MonthlyDistance> distanceByMonth(UUID vehicleId, YearMonth last, int months) {
+    YearMonth first = last.minusMonths(months - 1L);
+    List<OdometerDistance.MonthSpan> spans =
+        readings.findMonthReadings(vehicleId, first.atDay(1), last.atEndOfMonth()).stream()
+            .map(
+                month ->
+                    new OdometerDistance.MonthSpan(
+                        YearMonth.of(month.getYear(), month.getMonth()),
+                        month.getMinKm(),
+                        month.getMaxKm()))
+            .toList();
+    return OdometerDistance.byMonth(
+        last,
+        months,
+        readings.findMaxOnOrBefore(vehicleId, first.atDay(1).minusDays(1)).orElse(null),
+        spans);
   }
 
   /**

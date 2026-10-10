@@ -178,4 +178,42 @@ class SpendingServiceTest {
     assertThat(result.vehicles().get(1).registrationNumber()).isEqualTo("BGH-4521");
     assertThat(result.total().toPlainString()).isEqualTo("20575.00");
   }
+
+  @Test
+  void monthlyByCategoryLabelsFillUpsAsFuelAndServicesAsMaintenance() {
+    ExpenseRepository.MonthlyCategorySum insurance =
+        new ExpenseRepository.MonthlyCategorySum() {
+          @Override
+          public ExpenseCategory getCategory() {
+            return ExpenseCategory.INSURANCE;
+          }
+
+          @Override
+          public Integer getYear() {
+            return 2026;
+          }
+
+          @Override
+          public Integer getMonth() {
+            return 9;
+          }
+
+          @Override
+          public BigDecimal getTotal() {
+            return new BigDecimal("45000.00");
+          }
+        };
+    when(expenses.sumByMonthAndCategory(VEHICLE, FROM, TO)).thenReturn(List.of(insurance));
+    when(fuel.spendByMonth(VEHICLE, FROM, TO)).thenReturn(List.of(monthSum(9, "18500.00")));
+    when(maintenance.spendByMonth(VEHICLE, FROM, TO)).thenReturn(List.of(monthSum(10, "9800.00")));
+
+    assertThat(service.monthlyByCategory(VEHICLE, FROM, TO))
+        .containsExactlyInAnyOrder(
+            new MonthlyCategoryTotal(
+                YearMonth.of(2026, 9), ExpenseCategory.INSURANCE, new BigDecimal("45000.00")),
+            new MonthlyCategoryTotal(
+                YearMonth.of(2026, 9), ExpenseCategory.FUEL, new BigDecimal("18500.00")),
+            new MonthlyCategoryTotal(
+                YearMonth.of(2026, 10), ExpenseCategory.MAINTENANCE, new BigDecimal("9800.00")));
+  }
 }

@@ -12,6 +12,7 @@ environment:
 dependencies:
   dio: 5.11.1
   file_selector: 1.1.0
+  fl_chart: 1.2.0
   flutter:
     sdk: flutter
   flutter_localizations:

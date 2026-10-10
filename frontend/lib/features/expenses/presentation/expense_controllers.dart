@@ -4,6 +4,7 @@ import '../../../core/models/monthly_amount.dart';
 import '../../../core/models/paged.dart';
 import '../../../core/ui/paged_list_controller.dart';
 import '../../../core/utils/date_format.dart';
+import '../../analytics/presentation/analytics_controllers.dart';
 import '../../auth/presentation/session_controller.dart';
 import '../data/expense_repository.dart';
 import '../domain/expense.dart';
@@ -77,13 +78,15 @@ final expenseProvider = FutureProvider.autoDispose
           .get(key.vehicleId, key.expenseId);
     }, retry: (_, _) => null);
 
-/// Reloads every spending total. Fill-ups, services and expenses all feed
-/// them, so each of those features calls this after a change.
+/// Reloads every spending total, and the Insights figures built on them.
+/// Fill-ups, services and expenses all feed them, so each of those features
+/// calls this after a change.
 void refreshSpending(Ref ref) {
   ref
     ..invalidate(spendingSummaryProvider)
     ..invalidate(monthlySpendingProvider)
     ..invalidate(vehicleTotalsProvider);
+  refreshInsights(ref.invalidate);
 }
 
 /// Logs, edits and deletes expenses, then refreshes the list and totals.

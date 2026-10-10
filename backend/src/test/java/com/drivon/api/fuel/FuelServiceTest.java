@@ -381,4 +381,39 @@ class FuelServiceTest {
     assertThat(months.get(5).month()).isEqualTo(YearMonth.of(2026, 10));
     assertThat(months.get(5).total().toPlainString()).isEqualTo("0.00");
   }
+
+  @Test
+  void efficiencyTrendListsTheTanksThatEndedInTheRangeOldestFirst() {
+    when(records.findFillsInOdometerOrder(VEHICLE))
+        .thenReturn(
+            List.of(
+                fill(LocalDate.of(2026, 8, 1), 10_000, "30", true),
+                fill(LocalDate.of(2026, 8, 20), 10_600, "40", true), // ends in August
+                fill(LocalDate.of(2026, 9, 1), 10_750, "8", false),
+                fill(LocalDate.of(2026, 9, 10), 10_900, "12", true), // partial + full: 20 L
+                fill(LocalDate.of(2026, 9, 25), 11_200, "30", true)));
+
+    List<EfficiencyPoint> trend =
+        service.efficiencyTrend(USER, VEHICLE, LocalDate.of(2026, 9, 1), LocalDate.of(2026, 9, 30));
+
+    verify(vehicles).requireOwned(USER, VEHICLE);
+    assertThat(trend)
+        .extracting(EfficiencyPoint::endDate)
+        .containsExactly(LocalDate.of(2026, 9, 10), LocalDate.of(2026, 9, 25));
+    EfficiencyPoint first = trend.get(0);
+    assertThat(first.startDate()).isEqualTo(LocalDate.of(2026, 8, 20));
+    assertThat(first.distanceKm()).isEqualTo(300);
+    assertThat(first.litres().toPlainString()).isEqualTo("20.000");
+    assertThat(first.kmPerLitre()).isEqualByComparingTo("15.00");
+    assertThat(first.costPerKm()).isEqualByComparingTo("24.33"); // Rs. 7,300 / 300 km
+    assertThat(trend.get(1).kmPerLitre()).isEqualByComparingTo("10.00");
+  }
+
+  @Test
+  void efficiencyTrendIsEmptyUntilTheSecondFullFill() {
+    when(records.findFillsInOdometerOrder(VEHICLE))
+        .thenReturn(List.of(fill(TODAY, 10_000, "30", true)));
+
+    assertThat(service.efficiencyTrend(USER, VEHICLE, null, null)).isEmpty();
+  }
 }

@@ -42,6 +42,22 @@ interface ExpenseRepository extends JpaRepository<Expense, UUID> {
   List<MonthlySum> sumByMonth(
       @Param("vehicleId") UUID vehicleId, @Param("from") LocalDate from, @Param("to") LocalDate to);
 
+  @Query(
+      """
+      select year(e.date) as year, month(e.date) as month, e.category as category,
+             sum(e.amount) as total
+      from Expense e
+      where e.vehicleId = :vehicleId and e.date between :from and :to
+      group by year(e.date), month(e.date), e.category
+      """)
+  List<MonthlyCategorySum> sumByMonthAndCategory(
+      @Param("vehicleId") UUID vehicleId, @Param("from") LocalDate from, @Param("to") LocalDate to);
+
+  /** Projection of {@link #sumByMonthAndCategory}. */
+  interface MonthlyCategorySum extends MonthlySum {
+    ExpenseCategory getCategory();
+  }
+
   /** Projection of {@link #sumByCategory}. */
   interface CategorySum {
     ExpenseCategory getCategory();

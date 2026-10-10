@@ -106,6 +106,18 @@ void main() {
         greaterThanOrEqualTo(3),
       );
     });
+
+    test('cost chart series meet 3:1 on the cards that hold charts', () {
+      expect(colors.costSeries, hasLength(3));
+      for (final series in colors.costSeries) {
+        for (final card in [
+          scheme.surfaceContainerLow,
+          scheme.surfaceContainer,
+        ]) {
+          expect(contrast(series, card), greaterThanOrEqualTo(3));
+        }
+      }
+    });
   });
 
   group('paper theme', () {

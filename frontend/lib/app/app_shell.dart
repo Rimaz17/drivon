@@ -26,6 +26,7 @@ class AppShell extends StatelessWidget {
       (Icons.local_gas_station_outlined, Icons.local_gas_station, l10n.navFuel),
       (Icons.build_outlined, Icons.build, l10n.navService),
       (Icons.receipt_long_outlined, Icons.receipt_long, l10n.navExpenses),
+      (Icons.insights_outlined, Icons.insights, l10n.navInsights),
     ];
     final wide =
         MediaQuery.sizeOf(context).width >=

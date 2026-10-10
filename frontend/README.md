@@ -95,6 +95,12 @@ Signed-in screens sit in a tab shell (`app/app_shell.dart`, go_router `StatefulS
   - A denied permission shows how to allow it in Settings or use the other source.
 - PDFs open in the phone's viewer (`url_launcher`) with a fresh link each time; photos are shown in the app with pinch-to-zoom.
 
+### Insights and charts
+
+- The Insights tab shows the server's running-cost analytics (`docs/adr/0012-analytics-and-cost-per-km.md`): cost per km for the chosen period split into fuel, maintenance and other, six months of costs, cost per km by month, km/L per full tank over twelve months, the category split and, with two vehicles, a comparison. The app formats these numbers; it never calculates them.
+- Charts are design-system components built on `fl_chart` (`design_system/widgets/charts/`). Running-cost parts always use `costSeries` (violet, teal, ochre) in that order, chosen to stay distinguishable with colour-blindness and to keep 3:1 contrast on the dark chart cards. Values show on tap, every chart has a spoken summary, and charts don't animate under reduced motion.
+- Fill-ups, services, expenses and odometer changes reload the Insights figures (`refreshInsights`), so the tab never shows stale totals.
+
 ### Sessions
 
 - Access and refresh tokens, and the cached profile, live in `flutter_secure_storage` (iOS Keychain, this device only; Android Keystore-backed). Nothing session-related goes into SharedPreferences.

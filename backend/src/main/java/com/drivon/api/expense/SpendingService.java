@@ -107,6 +107,28 @@ public class SpendingService {
     return MonthlySeries.of(last, months, sums);
   }
 
+  /**
+   * Spend per month and category in an inclusive range, for months and categories that have any.
+   * The caller must have checked that the vehicle belongs to the user.
+   */
+  @Transactional(readOnly = true)
+  public List<MonthlyCategoryTotal> monthlyByCategory(
+      UUID vehicleId, LocalDate from, LocalDate to) {
+    List<MonthlyCategoryTotal> totals = new ArrayList<>();
+    for (ExpenseRepository.MonthlyCategorySum sum :
+        expenses.sumByMonthAndCategory(vehicleId, from, to)) {
+      totals.add(new MonthlyCategoryTotal(sum.yearMonth(), sum.getCategory(), sum.getTotal()));
+    }
+    for (MonthlySum sum : fuel.spendByMonth(vehicleId, from, to)) {
+      totals.add(new MonthlyCategoryTotal(sum.yearMonth(), ExpenseCategory.FUEL, sum.getTotal()));
+    }
+    for (MonthlySum sum : maintenance.spendByMonth(vehicleId, from, to)) {
+      totals.add(
+          new MonthlyCategoryTotal(sum.yearMonth(), ExpenseCategory.MAINTENANCE, sum.getTotal()));
+    }
+    return totals;
+  }
+
   /** What each of the user's vehicles cost in the range, to compare them. */
   @Transactional(readOnly = true)
   public VehicleSpendingResponse byVehicle(

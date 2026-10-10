@@ -67,6 +67,10 @@ class FixedDecimal implements Comparable<FixedDecimal> {
 
   bool get isZero => units == 0;
 
+  /// The value as a floating-point number, for drawing charts only. Never
+  /// use it for arithmetic on amounts.
+  double toDouble() => units / _pow10(scale);
+
   int get wholePart => units ~/ _pow10(scale);
 
   int get fractionPart => units % _pow10(scale);

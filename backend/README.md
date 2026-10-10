@@ -69,6 +69,10 @@ The Docker image defaults to `prod`, so a misconfigured deploy fails at startup 
 | `GET/PUT/DELETE /api/v1/vehicles/{id}/documents/{documentId}` | Bearer | Details can be edited; delete also removes the file |
 | `GET /api/v1/vehicles/{id}/documents/{documentId}/download-url` | Bearer | Presigned `GET`, valid for 5 minutes |
 | `GET /api/v1/documents/expiring?withinDays=30` | Bearer | Documents expiring within 0–365 days (or already expired), across the user's vehicles |
+| `GET /api/v1/vehicles/{id}/analytics/cost-per-km?from=&to=` | Bearer | Total cost ÷ distance driven, split into FUEL, MAINTENANCE and OTHER; `null` without distance |
+| `GET /api/v1/vehicles/{id}/analytics/monthly-costs?months=6` | Bearer | Per month (1–24): fuel, maintenance, other, total, distance, cost per km |
+| `GET /api/v1/vehicles/{id}/analytics/efficiency-trend?from=&to=` | Bearer | km/L and fuel cost per km of each full-to-full tank, oldest first |
+| `GET /api/v1/analytics/vehicle-comparison?from=&to=` | Bearer | Each vehicle's distance, total, cost per km with its parts, and average km/L |
 | `GET/POST /api/v1/vehicles/{id}/odometer-readings` | Bearer | Odometer history (paged) / add a manual reading |
 | `GET/PUT/DELETE /api/v1/vehicles/{id}/odometer-readings/{readingId}` | Bearer | Correct an initial or manual reading; delete a manual one |
 | `GET /actuator/health`, `/actuator/info` | Public | Render health check |
@@ -84,6 +88,7 @@ Tokens: access tokens are 15-minute JWTs sent as `Authorization: Bearer <token>`
 - **Odometer timeline** (`docs/adr/0007-odometer-timeline.md`): readings can't be lower than one on an earlier date or higher than one on a later date (`422 ODOMETER_OUT_OF_ORDER`, with `minKm`/`maxKm`). The vehicle's current odometer is its highest reading. A mistyped initial or manual reading is fixed with `PUT …/odometer-readings/{readingId}`.
 - **Spending** (`docs/adr/0009-maintenance-expenses-and-spending.md`) adds fill-ups and services to expenses, so a cost is entered once. Services may set a next date (after the service) and next mileage (above its odometer).
 - **Documents** (`docs/adr/0011-documents-on-r2.md`): JPEG, PNG or PDF up to 5 MB, at most 100 per vehicle. Send the file to the presigned URL with exactly the headers returned, without the `Authorization` header, then confirm. Resending the same `id` resumes an upload.
+- **Analytics** (`docs/adr/0012-analytics-and-cost-per-km.md`): distance driven comes from the odometer timeline (the highest reading at each end of the period). Cost per km is everything spent in the period over that distance; repairs count as maintenance, and insurance, parking, tolls, washing and other as OTHER.
 - **Fuel efficiency** uses the full-tank method (`docs/adr/0008-fuel-records-and-efficiency.md`). A price per litre that is sent must match amount ÷ litres to within 1% (at least Rs. 1), or it is left out and derived.
 
 ### Errors
