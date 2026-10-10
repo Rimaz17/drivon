@@ -27,6 +27,7 @@ public enum ErrorCode {
   MAINTENANCE_RECORD_NOT_FOUND(HttpStatus.NOT_FOUND, "Service record not found"),
   EXPENSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Expense not found"),
   DOCUMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Document not found"),
+  REMINDER_NOT_FOUND(HttpStatus.NOT_FOUND, "Reminder not found"),
   METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "Method not allowed"),
   UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported media type"),
 
@@ -57,6 +58,11 @@ public enum ErrorCode {
   DOCUMENT_LIMIT_REACHED(HttpStatus.UNPROCESSABLE_CONTENT, "Document limit reached"),
   UPLOAD_NOT_FOUND(HttpStatus.UNPROCESSABLE_CONTENT, "File not uploaded yet"),
   UPLOAD_MISMATCH(HttpStatus.UNPROCESSABLE_CONTENT, "Uploaded file doesn't match the request"),
+  REMINDER_DUE_MISSING(HttpStatus.UNPROCESSABLE_CONTENT, "Reminder needs a due date or mileage"),
+  REMINDER_DATE_PAST(HttpStatus.UNPROCESSABLE_CONTENT, "Reminder date is in the past"),
+  REMINDER_KM_PAST(HttpStatus.UNPROCESSABLE_CONTENT, "Reminder mileage is already reached"),
+  REMINDER_READ_ONLY(HttpStatus.UNPROCESSABLE_CONTENT, "Reminder follows a service or document"),
+  REMINDER_LIMIT_REACHED(HttpStatus.UNPROCESSABLE_CONTENT, "Reminder limit reached"),
 
   // 429 / 5xx
   RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "Too many requests"),

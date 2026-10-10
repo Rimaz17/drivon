@@ -992,5 +992,155 @@
       }
     }
   },
-  "sectionLoadFailed": "Couldn't load this part."
+  "sectionLoadFailed": "Couldn't load this part.",
+  "remindersTitle": "Reminders",
+  "loadingReminders": "Loading reminders",
+  "remindersLoadErrorTitle": "Couldn't load reminders",
+  "remindersEmptyTitle": "No reminders yet",
+  "remindersEmptyMessage": "Services with a next date or mileage and documents with an expiry date show up here by themselves. You can add your own too.",
+  "addReminderAction": "Add reminder",
+  "remindersNothingDue": "Nothing is due soon",
+  "remindersTilePrompt": "Add a reminder",
+  "nextReminderDetail": "Next: {reminder}",
+  "@nextReminderDetail": {
+    "placeholders": {
+      "reminder": {
+        "type": "String"
+      }
+    }
+  },
+  "moreRemindersNotice": "{count, plural, =1{1 more reminder needs attention} other{{count} more reminders need attention}}",
+  "@moreRemindersNotice": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reminderStatusOverdue": "Overdue",
+  "reminderStatusDueSoon": "Due soon",
+  "reminderStatusUpcoming": "Upcoming",
+  "reminderDueNowHeadline": "{name} is due now",
+  "@reminderDueNowHeadline": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderFromService": "From your services",
+  "reminderFromDocument": "From your documents",
+  "reminderFromYou": "Your reminder",
+  "reminderRowSemantics": "{headline}, {status}, {detail}, {source}",
+  "@reminderRowSemantics": {
+    "placeholders": {
+      "headline": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      },
+      "detail": {
+        "type": "String"
+      },
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "addReminderTitle": "Add reminder",
+  "editReminderTitle": "Edit reminder",
+  "reminderTitleLabel": "What's due",
+  "reminderTitleHint": "For example, emission test",
+  "reminderTitleRequired": "Enter what the reminder is for.",
+  "reminderDueExplainer": "Set a date, an odometer reading or both. You'll be reminded at whichever comes first.",
+  "reminderDueDateLabel": "Due date (optional)",
+  "reminderDueKmLabel": "Due at odometer (optional)",
+  "reminderDueMissing": "Set a due date or an odometer reading.",
+  "errorReminderDatePast": "Choose today or a later date.",
+  "errorReminderKmPast": "Enter more than the current {km} km.",
+  "@errorReminderKmPast": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "errorReminderLimit": "A vehicle can have up to 50 of your own reminders. Mark some as done first.",
+  "errorReminderNotFound": "Reminder not found",
+  "savingReminder": "Saving reminder",
+  "reminderAdded": "Reminder added",
+  "markReminderDoneAction": "Mark as done",
+  "markReminderDoneTitle": "Mark as done?",
+  "markReminderDoneMessage": "The reminder will be removed.",
+  "reminderDone": "Reminder done",
+  "notificationsOffTitle": "Get reminder notifications",
+  "notificationsOffMessage": "Drivon can tell you when a service is due or a document is about to expire.",
+  "notificationsBlockedMessage": "Notifications are off for Drivon. Turn them on in your phone's settings.",
+  "notificationsTurnOnAction": "Turn on notifications",
+  "notificationsOpenSettingsAction": "Open settings",
+  "notificationsOnPush": "Notifications are on.",
+  "notificationsOnLocal": "Notifications are on for date reminders. Mileage reminders show here.",
+  "sendTestNotificationAction": "Send a test",
+  "testNotificationTitle": "Drivon reminders are on",
+  "testNotificationBody": "This is how your reminders will look.",
+  "notificationChannelName": "Reminders",
+  "@notificationChannelName": {
+    "description": "Name of the Android notification channel, shown in the phone's settings."
+  },
+  "notificationChannelDescription": "Services that are due and documents that are about to expire.",
+  "notificationDueSoonTitle": "{name} is due soon",
+  "@notificationDueSoonTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationDueTodayTitle": "{name} is due today",
+  "@notificationDueTodayTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationExpiresSoonTitle": "{name} expires soon",
+  "@notificationExpiresSoonTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationExpiresTodayTitle": "{name} expires today",
+  "@notificationExpiresTodayTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationDueBody": "{vehicle}: due {date}",
+  "@notificationDueBody": {
+    "placeholders": {
+      "vehicle": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationExpiresBody": "{vehicle}: expires {date}",
+  "@notificationExpiresBody": {
+    "placeholders": {
+      "vehicle": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  }
 }

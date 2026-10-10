@@ -38,6 +38,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.context.ApplicationEventPublisher;
 
 class DocumentServiceTest {
 
@@ -57,8 +58,9 @@ class DocumentServiceTest {
   private final DocumentRepository documents = mock(DocumentRepository.class);
   private final VehicleService vehicles = mock(VehicleService.class);
   private final ObjectStorage storage = mock(ObjectStorage.class);
+  private final ApplicationEventPublisher events = mock(ApplicationEventPublisher.class);
   private final DocumentService service =
-      new DocumentService(documents, vehicles, storage, new BusinessCalendar(CLOCK), CLOCK);
+      new DocumentService(documents, vehicles, storage, new BusinessCalendar(CLOCK), CLOCK, events);
 
   @BeforeEach
   void setUp() {

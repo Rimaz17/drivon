@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/paged.dart';
 import '../../../core/ui/paged_list_controller.dart';
 import '../../analytics/presentation/analytics_controllers.dart';
+import '../../reminders/presentation/reminder_controllers.dart';
 import '../data/odometer_repository.dart';
 import '../domain/odometer_reading.dart';
 import 'vehicles_controller.dart';
@@ -74,6 +75,7 @@ class OdometerMutations {
     _ref.invalidate(odometerHistoryProvider(vehicleId));
     // Distance driven, and so cost per km, comes from these readings.
     refreshInsights(_ref.invalidate);
+    refreshReminders(_ref.invalidate);
     unawaited(_ref.read(vehiclesControllerProvider.notifier).reload());
   }
 }

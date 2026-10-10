@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/presentation/session_controller.dart';
+import '../../reminders/presentation/reminder_controllers.dart';
 import '../data/selected_vehicle_store.dart';
 import '../data/vehicle_repository.dart';
 import '../domain/vehicle.dart';
@@ -33,6 +34,8 @@ class VehiclesController extends AsyncNotifier<List<Vehicle>> {
 
   Future<Vehicle> edit(String id, VehicleDraft draft) async {
     final updated = await ref.read(vehicleRepositoryProvider).update(id, draft);
+    // A higher odometer moves mileage reminders.
+    refreshReminders(ref.invalidate);
     _replaceList([
       for (final vehicle in _current) vehicle.id == id ? updated : vehicle,
     ]);

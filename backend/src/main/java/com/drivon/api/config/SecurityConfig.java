@@ -17,15 +17,18 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 /**
- * Stateless JWT security. Health, info, API docs and the auth endpoints are public; everything else
- * needs a valid bearer access token. Security errors are rendered by the same Problem Details
- * handler as every other error.
+ * Stateless JWT security. Health, info, API docs and the auth endpoints are public, and the
+ * reminder job checks its own shared secret; everything else needs a valid bearer access token.
+ * Security errors are rendered by the same Problem Details handler as every other error.
  */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
   static final String AUTH_PATH_PREFIX = "/api/v1/auth/";
+
+  /** Called by the scheduled reminders workflow, which proves itself with a shared secret. */
+  static final String REMINDER_JOB_PATH = "/internal/reminders/run";
 
   private static final String[] PUBLIC_PATHS = {
     "/actuator/health",
@@ -68,6 +71,8 @@ public class SecurityConfig {
                 auth.requestMatchers(PUBLIC_PATHS)
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, AUTH_PATH_PREFIX + "**")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.POST, REMINDER_JOB_PATH)
                     .permitAll()
                     .anyRequest()
                     .authenticated())

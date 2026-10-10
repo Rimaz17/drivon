@@ -95,6 +95,53 @@ Signed-in screens sit in a tab shell (`app/app_shell.dart`, go_router `StatefulS
   - A denied permission shows how to allow it in Settings or use the other source.
 - PDFs open in the phone's viewer (`url_launcher`) with a fresh link each time; photos are shown in the app with pinch-to-zoom.
 
+### Reminders and notifications
+
+- Reminders are opened from the Garage (the Reminders tile).
+  - Services with a next date or mileage and documents with an expiry date create them on the server.
+  - Users add their own (title, due date and/or odometer) and mark them done.
+  - The server works out the status (overdue, due soon, upcoming) and the remaining days and kilometres (`docs/adr/0013-reminders-and-notifications.md`).
+  - Services, documents, fill-ups and odometer changes refresh them (`refreshReminders`).
+- `NotificationController` (`features/notifications/`) decides how reminders reach the user, after they tap *Turn on notifications* on the Reminders screen:
+  - **Push (Android):** with Firebase set up, the phone's FCM token is registered with the API, which pushes "due soon" and "due" notifications. Pushes that arrive while the app is open are shown through the same channel.
+  - **Local (iOS, or Android without Firebase):** date reminders are scheduled on the device at 9:00 Sri Lanka time on the first due-soon day and on the due day (at most 60, the iOS limit). Mileage reminders show in the app.
+  - Signing out unregisters the token on the server, deletes it on the phone and cancels every scheduled notification.
+- Tapping a notification opens that vehicle's reminders, also when the tap launched the app.
+- Platform code sits behind `LocalNotifications` and `PushMessaging` in `core/services/`. Tests use fakes; nothing calls Firebase.
+
+#### Firebase setup (push on Android)
+
+Push needs `android/app/google-services.json` from the Firebase console (*Project settings → Your apps → Android app `io.github.rimaz17.drivon` → google-services.json*). The file is gitignored. Without it the app still builds (the Gradle plugin only warns, which is how CI builds) and falls back to local notifications. The API needs the matching service account in `FIREBASE_SERVICE_ACCOUNT_BASE64` (see `backend/README.md`).
+
+To try push on a phone:
+
+1. Sign in.
+2. Open *Garage → Reminders* and tap *Turn on notifications*.
+3. Add your own reminder due today.
+4. Start a reminder run: Postman → *Reminders → Run daily reminders (job)*.
+
+Mileage reminders are pushed right after a fill-up or odometer reading reaches them.
+
+iOS push needs an APNs key from the paid Apple Developer Program, so it is not set up in the MVP and no `GoogleService-Info.plist` is needed. To add it later:
+
+1. Register an iOS app with bundle ID `io.github.rimaz17.drivon` in the Firebase console and download `GoogleService-Info.plist`.
+2. In Xcode, add the file to the *Runner* target (it is gitignored).
+3. Upload the APNs key under *Project settings → Cloud Messaging*.
+4. Add the *Push Notifications* and *Background Modes → Remote notifications* capabilities.
+5. Allow iOS in `FirebasePushMessaging.supported`.
+
+#### Permissions
+
+- **Android:**
+  - `POST_NOTIFICATIONS` is asked for at runtime on Android 13+.
+  - `RECEIVE_BOOT_COMPLETED` and the plugin's receivers put scheduled notifications back after a restart.
+  - Scheduling is inexact, so no exact-alarm permission is needed.
+  - Core library desugaring is on for the plugin.
+- **iOS:**
+  - Permission is asked for with the system prompt; no `Info.plist` entry is needed for local notifications.
+  - `AppDelegate` sets the notification center delegate so notifications show while the app is open.
+  - Firebase needs iOS 15, so the deployment target is 15.0.
+
 ### Insights and charts
 
 - The Insights tab shows the server's running-cost analytics (`docs/adr/0012-analytics-and-cost-per-km.md`): cost per km for the chosen period split into fuel, maintenance and other, six months of costs, cost per km by month, km/L per full tank over twelve months, the category split and, with two vehicles, a comparison. The app formats these numbers; it never calculates them.

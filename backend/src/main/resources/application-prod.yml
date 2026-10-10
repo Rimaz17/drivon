@@ -26,3 +26,8 @@ drivon:
       access-key-id: ${R2_ACCESS_KEY_ID}
       secret-access-key: ${R2_SECRET_ACCESS_KEY}
       bucket: ${R2_BUCKET}
+  notifications:
+    firebase:
+      service-account-base64: ${FIREBASE_SERVICE_ACCOUNT_BASE64}
+  reminders:
+    job-secret: ${REMINDERS_JOB_SECRET}

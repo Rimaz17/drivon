@@ -15,3 +15,6 @@ drivon:
     jwt:
       # DEV ONLY and publicly known. Never use it outside local development.
       secret: ${JWT_SECRET:ZGV2LW9ubHktZHJpdm9uLWp3dC1zZWNyZXQtbm90LWZvci1wcm9kdWN0aW9uLXVzZQ==}
+  reminders:
+    # DEV ONLY and publicly known; lets you start a reminder run from Postman locally.
+    job-secret: ${REMINDERS_JOB_SECRET:dev-only-reminders-job-secret-not-for-production}

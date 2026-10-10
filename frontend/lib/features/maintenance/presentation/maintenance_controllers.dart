@@ -6,6 +6,7 @@ import '../../../core/models/paged.dart';
 import '../../../core/ui/paged_list_controller.dart';
 import '../../auth/presentation/session_controller.dart';
 import '../../expenses/presentation/expense_controllers.dart';
+import '../../reminders/presentation/reminder_controllers.dart';
 import '../../vehicles/presentation/odometer_controllers.dart';
 import '../../vehicles/presentation/vehicles_controller.dart';
 import '../data/maintenance_repository.dart';
@@ -111,6 +112,8 @@ class MaintenanceMutations {
       ..invalidate(upcomingServicesProvider(vehicleId))
       ..invalidate(odometerHistoryProvider(vehicleId));
     refreshSpending(_ref);
+    // Service reminders follow each type's latest next date and mileage.
+    refreshReminders(_ref.invalidate);
     unawaited(_ref.read(vehiclesControllerProvider.notifier).reload());
   }
 }

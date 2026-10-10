@@ -84,3 +84,12 @@ drivon:
       bucket: ${R2_BUCKET:}
       upload-url-ttl: 10m
       download-url-ttl: 5m
+  notifications:
+    firebase:
+      # Base64 of the Firebase service account JSON. Optional outside production:
+      # without it, reminders are only shown in the app (no push notifications).
+      service-account-base64: ${FIREBASE_SERVICE_ACCOUNT_BASE64:}
+  reminders:
+    # Shared secret of POST /internal/reminders/run (the daily reminders workflow).
+    # Without it the endpoint is switched off.
+    job-secret: ${REMINDERS_JOB_SECRET:}

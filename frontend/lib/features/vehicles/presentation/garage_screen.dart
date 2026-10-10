@@ -9,6 +9,8 @@ import '../../../l10n/app_localizations.dart';
 import '../../auth/domain/user.dart';
 import '../../auth/presentation/session_controller.dart';
 import '../../documents/presentation/widgets/documents_garage_tile.dart';
+import '../../notifications/presentation/notification_controller.dart';
+import '../../reminders/presentation/widgets/reminders_garage_tile.dart';
 import '../data/selected_vehicle_store.dart';
 import '../domain/vehicle.dart';
 import 'fuel_type_label.dart';
@@ -89,6 +91,11 @@ class GarageScreen extends ConsumerWidget {
                   label: Text(l10n.signOutAction),
                   onPressed: () async {
                     Navigator.of(sheetContext).pop();
+                    // While still signed in, so the server stops pushing
+                    // reminders to this phone.
+                    await ref
+                        .read(notificationControllerProvider.notifier)
+                        .prepareSignOut();
                     await ref.read(selectedVehicleStoreProvider).clear();
                     await ref
                         .read(sessionControllerProvider.notifier)
@@ -120,6 +127,7 @@ class _Garage extends ConsumerWidget {
     return RefreshIndicator.adaptive(
       onRefresh: () {
         VehicleSnapshot.refresh(ref, selected.id);
+        RemindersGarageTile.refresh(ref, selected.id);
         DocumentsGarageTile.refresh(ref, selected.id);
         return ref.read(vehiclesControllerProvider.notifier).reload();
       },
@@ -161,6 +169,8 @@ class _Garage extends ConsumerWidget {
           ],
           sheet: [
             VehicleSnapshot(vehicle: selected),
+            const SizedBox(height: DrivonSpacing.md),
+            RemindersGarageTile(vehicleId: selected.id),
             const SizedBox(height: DrivonSpacing.md),
             DocumentsGarageTile(vehicleId: selected.id),
             const SizedBox(height: DrivonSpacing.md),
