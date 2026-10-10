@@ -17,6 +17,8 @@
     <java.version>17</java.version>
     <aws-sdk.version>2.55.5</aws-sdk.version>
     <bucket4j.version>8.21.0</bucket4j.version>
+    <firebase-admin.version>9.9.0</firebase-admin.version>
+    <google-http-client.version>2.1.0</google-http-client.version>
     <springdoc.version>3.1.1</springdoc.version>
     <spotless.version>3.10.3</spotless.version>
     <!-- Spotless caps google-java-format at 1.28.0 when running on Java 17. -->
@@ -92,6 +94,34 @@
           <artifactId>netty-nio-client</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <!-- Push notifications through Firebase Cloud Messaging. Firestore, Cloud Storage and the
+         Realtime Database client (Netty) are never used, so they stay out of the image. -->
+    <dependency>
+      <groupId>com.google.firebase</groupId>
+      <artifactId>firebase-admin</artifactId>
+      <version>${firebase-admin.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.cloud</groupId>
+          <artifactId>google-cloud-firestore</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.google.cloud</groupId>
+          <artifactId>google-cloud-storage</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>io.netty</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <!-- firebase-admin parses JSON with this; it normally arrives through the excluded
+         Firestore client. Same version as google-http-client from firebase-admin. -->
+    <dependency>
+      <groupId>com.google.http-client</groupId>
+      <artifactId>google-http-client-jackson2</artifactId>
+      <version>${google-http-client.version}</version>
     </dependency>
 
     <dependency>
