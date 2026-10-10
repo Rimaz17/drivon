@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 class OdometerServiceTest {
@@ -32,11 +33,13 @@ class OdometerServiceTest {
 
   private final OdometerReadingRepository readings = mock(OdometerReadingRepository.class);
   private final VehicleRepository vehicles = mock(VehicleRepository.class);
+  private final ApplicationEventPublisher events = mock(ApplicationEventPublisher.class);
   private final OdometerService service =
       new OdometerService(
           readings,
           vehicles,
-          new BusinessCalendar(Clock.fixed(Instant.parse("2026-10-07T04:30:00Z"), ZoneOffset.UTC)));
+          new BusinessCalendar(Clock.fixed(Instant.parse("2026-10-07T04:30:00Z"), ZoneOffset.UTC)),
+          events);
 
   private Vehicle vehicle;
 

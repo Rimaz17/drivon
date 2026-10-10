@@ -40,6 +40,18 @@ interface DocumentRepository extends JpaRepository<Document, UUID> {
   @Query("select d.fileKey from Document d where d.vehicleId = :vehicleId")
   List<String> findFileKeysByVehicleId(@Param("vehicleId") UUID vehicleId);
 
+  /** For each type, the active document with the latest expiry date. */
+  @Query(
+      nativeQuery = true,
+      value =
+          """
+          SELECT DISTINCT ON (type) *
+          FROM documents
+          WHERE vehicle_id = :vehicleId AND status = 'ACTIVE' AND expires_on IS NOT NULL
+          ORDER BY type, expires_on DESC, created_at DESC
+          """)
+  List<Document> findLatestExpiryOfEachType(@Param("vehicleId") UUID vehicleId);
+
   /** The user's active documents expiring on or before {@code until}, soonest first. */
   @Query(
       """

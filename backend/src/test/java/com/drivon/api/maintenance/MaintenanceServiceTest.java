@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
@@ -42,12 +43,14 @@ class MaintenanceServiceTest {
   private final VehicleService vehicles = mock(VehicleService.class);
   private final OdometerService odometer = mock(OdometerService.class);
   private final Vehicle vehicle = mock(Vehicle.class);
+  private final ApplicationEventPublisher events = mock(ApplicationEventPublisher.class);
   private final MaintenanceService service =
       new MaintenanceService(
           records,
           vehicles,
           odometer,
-          new BusinessCalendar(Clock.fixed(Instant.parse("2026-10-07T04:30:00Z"), ZoneOffset.UTC)));
+          new BusinessCalendar(Clock.fixed(Instant.parse("2026-10-07T04:30:00Z"), ZoneOffset.UTC)),
+          events);
 
   @BeforeEach
   void setUp() {

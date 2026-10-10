@@ -6,6 +6,7 @@ import com.drivon.api.user.UserService;
 import java.time.Clock;
 import java.time.Year;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -59,6 +60,15 @@ public class VehicleService {
   @Transactional(readOnly = true)
   public Vehicle requireOwned(UUID userId, UUID vehicleId) {
     return findOwned(userId, vehicleId);
+  }
+
+  /**
+   * A vehicle by ID alone, for background work that acts for the vehicle's owner, such as reminder
+   * notifications. Never pass an ID that came from a request; use {@link #requireOwned} there.
+   */
+  @Transactional(readOnly = true)
+  public Optional<Vehicle> findForBackgroundJob(UUID vehicleId) {
+    return vehicles.findById(vehicleId);
   }
 
   /** Adds a vehicle, enforcing the per-user limit even under concurrent requests. */

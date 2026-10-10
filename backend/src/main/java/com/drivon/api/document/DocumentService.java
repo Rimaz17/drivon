@@ -25,6 +25,7 @@ import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -38,7 +39,8 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * Documents of the signed-in user's vehicles, with their files in R2. A document is created in two
  * steps: {@link #startUpload} saves it as pending and returns a presigned upload URL; after the app
  * has uploaded the file, {@link #confirmUpload} checks the object and makes the document visible.
- * Files are deleted from storage only after the database change commits. See
+ * Files are deleted from storage only after the database change commits. Changes to visible
+ * documents publish a {@link DocumentsChangedEvent}, which keeps expiry reminders current. See
  * docs/adr/0011-documents-on-r2.md.
  */
 @Service
@@ -63,18 +65,21 @@ public class DocumentService {
   private final ObjectStorage storage;
   private final BusinessCalendar calendar;
   private final Clock clock;
+  private final ApplicationEventPublisher events;
 
   DocumentService(
       DocumentRepository documents,
       VehicleService vehicles,
       ObjectStorage storage,
       BusinessCalendar calendar,
-      Clock clock) {
+      Clock clock,
+      ApplicationEventPublisher events) {
     this.documents = documents;
     this.vehicles = vehicles;
     this.storage = storage;
     this.calendar = calendar;
     this.clock = clock;
+    this.events = events;
   }
 
   /**
@@ -145,7 +150,9 @@ public class DocumentService {
           "The uploaded file doesn't match the size or type that was announced. Upload it again.");
     }
     document.activate();
-    return DocumentResponse.from(documents.saveAndFlush(document));
+    DocumentResponse confirmed = DocumentResponse.from(documents.saveAndFlush(document));
+    events.publishEvent(new DocumentsChangedEvent(vehicleId));
+    return confirmed;
   }
 
   /** A vehicle's visible documents, newest first unless sorted otherwise. */
@@ -171,7 +178,9 @@ public class DocumentService {
     Document document = findActive(vehicleId, documentId);
     document.update(
         validate(request.type(), request.issueDate(), request.expiryDate(), request.notes()));
-    return DocumentResponse.from(documents.saveAndFlush(document));
+    DocumentResponse updated = DocumentResponse.from(documents.saveAndFlush(document));
+    events.publishEvent(new DocumentsChangedEvent(vehicleId));
+    return updated;
   }
 
   /** Deletes a document (also an unfinished upload) and, once that commits, its file. */
@@ -180,7 +189,9 @@ public class DocumentService {
     vehicles.requireOwned(userId, vehicleId);
     Document document = findAny(vehicleId, documentId);
     documents.delete(document);
+    documents.flush();
     deleteFilesAfterCommit(List.of(document.getFileKey()));
+    events.publishEvent(new DocumentsChangedEvent(vehicleId));
   }
 
   /** A short-lived URL to view or save the document's file. */
@@ -200,6 +211,18 @@ public class DocumentService {
   public List<DocumentResponse> expiring(UUID userId, int withinDays) {
     LocalDate until = calendar.today().plusDays(withinDays);
     return documents.findExpiring(userId, until).stream().map(DocumentResponse::from).toList();
+  }
+
+  /**
+   * For each document type, the visible document that expires last; types without an expiry date
+   * are left out. Older documents of a type (an expired policy that was renewed) don't count. The
+   * caller must have checked that the vehicle belongs to the user.
+   */
+  @Transactional(readOnly = true)
+  public List<DocumentExpiry> latestExpiries(UUID vehicleId) {
+    return documents.findLatestExpiryOfEachType(vehicleId).stream()
+        .map(d -> new DocumentExpiry(d.getType(), d.getId(), d.getExpiryDate()))
+        .toList();
   }
 
   /**

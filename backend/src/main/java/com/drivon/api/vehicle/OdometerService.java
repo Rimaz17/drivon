@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -26,7 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>Fill-ups and services record their odometer through {@link #recordLinked} inside their own
  * transaction, after {@link #lockVehicle}, so concurrent writes for one vehicle run one at a time.
  * Initial and manual readings can be corrected here; that is the explicit way to fix a mistyped
- * odometer. See docs/adr/0007-odometer-timeline.md.
+ * odometer. Every change publishes an {@link OdometerChangedEvent}. See
+ * docs/adr/0007-odometer-timeline.md.
  */
 @Service
 public class OdometerService {
@@ -40,12 +42,17 @@ public class OdometerService {
   private final OdometerReadingRepository readings;
   private final VehicleRepository vehicles;
   private final BusinessCalendar calendar;
+  private final ApplicationEventPublisher events;
 
   OdometerService(
-      OdometerReadingRepository readings, VehicleRepository vehicles, BusinessCalendar calendar) {
+      OdometerReadingRepository readings,
+      VehicleRepository vehicles,
+      BusinessCalendar calendar,
+      ApplicationEventPublisher events) {
     this.readings = readings;
     this.vehicles = vehicles;
     this.calendar = calendar;
+    this.events = events;
   }
 
   @Transactional(readOnly = true)
@@ -221,6 +228,7 @@ public class OdometerService {
 
   private void syncVehicle(Vehicle vehicle) {
     readings.findMaxReading(vehicle.getId()).ifPresent(vehicle::syncOdometer);
+    events.publishEvent(new OdometerChangedEvent(vehicle.getId()));
   }
 
   private void findOwned(UUID userId, UUID vehicleId) {

@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -31,7 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service records for the signed-in user's vehicles. Every method checks that the vehicle belongs
- * to the user; a record under someone else's vehicle is reported as not found.
+ * to the user; a record under someone else's vehicle is reported as not found. Every change
+ * publishes a {@link ServiceScheduleChangedEvent}, which keeps service reminders current.
  */
 @Service
 public class MaintenanceService {
@@ -55,16 +57,19 @@ public class MaintenanceService {
   private final VehicleService vehicles;
   private final OdometerService odometer;
   private final BusinessCalendar calendar;
+  private final ApplicationEventPublisher events;
 
   MaintenanceService(
       MaintenanceRecordRepository records,
       VehicleService vehicles,
       OdometerService odometer,
-      BusinessCalendar calendar) {
+      BusinessCalendar calendar,
+      ApplicationEventPublisher events) {
     this.records = records;
     this.vehicles = vehicles;
     this.odometer = odometer;
     this.calendar = calendar;
+    this.events = events;
   }
 
   /** Newest first, optionally only one service type. */
@@ -107,6 +112,7 @@ public class MaintenanceService {
     MaintenanceRecord record = new MaintenanceRecord(request.id(), vehicleId, details);
     syncOdometer(vehicle, record.getId(), details);
     records.saveAndFlush(record);
+    events.publishEvent(new ServiceScheduleChangedEvent(vehicleId));
     return new CreateResult<>(MaintenanceRecordResponse.from(record), true);
   }
 
@@ -119,7 +125,10 @@ public class MaintenanceService {
     ServiceDetails details = validate(request);
     syncOdometer(vehicle, record.getId(), details);
     record.update(details);
-    return MaintenanceRecordResponse.from(records.saveAndFlush(record));
+    MaintenanceRecordResponse updated =
+        MaintenanceRecordResponse.from(records.saveAndFlush(record));
+    events.publishEvent(new ServiceScheduleChangedEvent(vehicleId));
+    return updated;
   }
 
   /** Deletes a service and its odometer reading. */
@@ -128,7 +137,9 @@ public class MaintenanceService {
     Vehicle vehicle = odometer.lockVehicle(userId, vehicleId);
     MaintenanceRecord record = find(vehicleId, recordId);
     records.delete(record);
+    records.flush();
     odometer.removeLinked(vehicle, record.getId());
+    events.publishEvent(new ServiceScheduleChangedEvent(vehicleId));
   }
 
   /**
@@ -143,6 +154,25 @@ public class MaintenanceService {
         .filter(MaintenanceRecord::hasNextService)
         .map(record -> toUpcoming(record, today, vehicle.getCurrentOdometerKm()))
         .sorted(SOONEST_FIRST)
+        .toList();
+  }
+
+  /**
+   * When each service type is next due, from its latest record; types whose latest record sets no
+   * next date or mileage are left out. The caller must have checked that the vehicle belongs to the
+   * user.
+   */
+  @Transactional(readOnly = true)
+  public List<ServiceDue> nextServices(UUID vehicleId) {
+    return records.findLatestOfEachType(vehicleId).stream()
+        .filter(MaintenanceRecord::hasNextService)
+        .map(
+            record ->
+                new ServiceDue(
+                    record.getServiceType(),
+                    record.getId(),
+                    record.getNextServiceDate(),
+                    record.getNextServiceKm()))
         .toList();
   }
 
