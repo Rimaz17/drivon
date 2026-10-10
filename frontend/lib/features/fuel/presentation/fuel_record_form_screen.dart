@@ -199,18 +199,15 @@ class _FuelFormState extends ConsumerState<_FuelForm> with SubmissionStatus {
     await submit(() async {
       final mutations = ref.read(fuelMutationsProvider);
       final initial = widget.initial;
+      String message;
       if (initial != null) {
         await mutations.edit(widget.vehicleId, initial.id, draft);
+        message = l10n.changesSaved;
       } else {
-        await mutations.add(widget.vehicleId, draft);
+        final saved = await mutations.add(widget.vehicleId, draft);
+        message = saved == null ? l10n.fillUpSavedOffline : l10n.fillUpLogged;
       }
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            initial != null ? l10n.changesSaved : l10n.fillUpLogged,
-          ),
-        ),
-      );
+      messenger.showSnackBar(SnackBar(content: Text(message)));
       if (mounted) context.pop();
     }, describe: (error) => _describe(l10n, error));
   }

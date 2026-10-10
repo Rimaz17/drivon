@@ -21,8 +21,15 @@ class FuelRepository {
   Future<FuelRecord> get(String vehicleId, String id) async =>
       (await _api.get(vehicleId, id)).toDomain();
 
-  Future<FuelRecord> create(String vehicleId, FuelDraft draft) async =>
-      (await _api.create(vehicleId, draft, id: _newId())).toDomain();
+  /// An ID for a new fill-up. A fill-up saved offline keeps it, so sending
+  /// it again later can't save it twice.
+  String newFillUpId() => _newId();
+
+  Future<FuelRecord> create(
+    String vehicleId,
+    FuelDraft draft, {
+    required String id,
+  }) async => (await _api.create(vehicleId, draft, id: id)).toDomain();
 
   Future<FuelRecord> update(
     String vehicleId,

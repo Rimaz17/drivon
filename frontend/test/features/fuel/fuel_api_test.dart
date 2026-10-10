@@ -58,7 +58,11 @@ void main() {
     () async {
       responses['POST $records'] = () => jsonBody(201, fuelRecordJson());
 
-      await repository.create('vehicle-1', fuelDraft(station: '  Ceypetco  '));
+      await repository.create(
+        'vehicle-1',
+        fuelDraft(station: '  Ceypetco  '),
+        id: repository.newFillUpId(),
+      );
 
       final body = adapter.requests.single.data as Map<String, dynamic>;
       expect(body, {
@@ -153,7 +157,7 @@ void main() {
     );
 
     await expectLater(
-      repository.create('vehicle-1', fuelDraft()),
+      repository.create('vehicle-1', fuelDraft(), id: 'client-id-1'),
       throwsA(
         isA<ApiProblemException>().having(
           (e) => e.code,

@@ -6,7 +6,7 @@
 [![Frontend CI](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-violet.svg)](LICENSE)
 
-> **Status:** Phases 1–7 are complete: accounts, up to two vehicles with an odometer history, fuel tracking with km/L and fuel cost per km, service records with upcoming services, expenses with spending totals by period, category, month and vehicle, vehicle documents (photos and PDFs) stored privately on Cloudflare R2 with expiry tracking, an Insights tab with running cost per km (fuel, maintenance, other), monthly cost and efficiency charts, and a two-vehicle comparison, reminders for services, document expiry and your own, pushed on Android and scheduled on the device on iOS, Ask My Vehicle, an assistant that answers questions from your own data (Google Gemini, with Groq as fallback). Features land phase by phase; see the [roadmap](#roadmap).
+> **Status:** Phases 1–8 are complete: accounts, up to two vehicles with an odometer history, fuel tracking with km/L and fuel cost per km, service records with upcoming services, expenses with spending totals by period, category, month and vehicle, vehicle documents (photos and PDFs) stored privately on Cloudflare R2 with expiry tracking, an Insights tab with running cost per km (fuel, maintenance, other), monthly cost and efficiency charts, and a two-vehicle comparison, reminders for services, document expiry and your own, pushed on Android and scheduled on the device on iOS, Ask My Vehicle, an assistant that answers questions from your own data (Google Gemini, with Groq as fallback), and offline use: saved data when there's no connection and fill-ups that sync once you're back online. Features land phase by phase; see the [roadmap](#roadmap).
 
 ## Features (MVP)
 
@@ -138,8 +138,8 @@ drivon/
 | 5 | Analytics & cost per km | ✅ Done |
 | 6 | Reminders & notifications | ✅ Done |
 | 7 | Ask My Vehicle | ✅ Done |
-| 8 | Offline support | Next |
-| 9 | Deploy & polish | |
+| 8 | Offline support | ✅ Done |
+| 9 | Deploy & polish | Next |
 
 Out of scope for the MVP: more than two vehicles, OCR, PDF/CSV export, assistant write actions, store publishing, shared vehicles and iOS push notifications.
 

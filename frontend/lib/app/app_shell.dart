@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/network/connection_status.dart';
 import '../design_system/design_system.dart';
 import '../l10n/app_localizations.dart';
 
 /// The signed-in app's frame: a bottom navigation bar on phones and a
 /// navigation rail on wider windows, switching between the top-level tabs.
-/// Each tab keeps its own navigation stack and scroll position.
+/// Each tab keeps its own navigation stack and scroll position. While the
+/// server can't be reached, a line on top says that saved data is shown.
 class AppShell extends StatelessWidget {
   const AppShell({required this.navigationShell, super.key});
 
@@ -32,6 +35,13 @@ class AppShell extends StatelessWidget {
         MediaQuery.sizeOf(context).width >=
         DrivonSpacing.navigationRailMinWidth;
 
+    final body = Column(
+      children: [
+        const _OfflineBanner(),
+        Expanded(child: navigationShell),
+      ],
+    );
+
     if (wide) {
       return Scaffold(
         body: Row(
@@ -53,13 +63,13 @@ class AppShell extends StatelessWidget {
               ),
             ),
             const VerticalDivider(),
-            Expanded(child: navigationShell),
+            Expanded(child: body),
           ],
         ),
       );
     }
     return Scaffold(
-      body: navigationShell,
+      body: body,
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: _select,
@@ -71,6 +81,51 @@ class AppShell extends StatelessWidget {
               label: label,
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// Says the app is offline and showing what it saved earlier; hidden online.
+class _OfflineBanner extends ConsumerWidget {
+  const _OfflineBanner();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (ref.watch(connectionStatusProvider) is! Offline) {
+      return const SizedBox.shrink();
+    }
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      liveRegion: true,
+      child: Material(
+        color: scheme.surfaceContainerHigh,
+        child: SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: DrivonSpacing.screenGutter,
+              vertical: DrivonSpacing.sm,
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.cloud_off_rounded,
+                  size: DrivonSpacing.xl,
+                  color: context.drivonColors.warning,
+                ),
+                const SizedBox(width: DrivonSpacing.sm),
+                Expanded(
+                  child: Text(
+                    l10n.offlineBanner,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
