@@ -13,9 +13,11 @@ import '../../vehicles/presentation/vehicles_controller.dart';
 import '../../vehicles/presentation/widgets/selected_vehicle_view.dart';
 import '../data/fuel_repository.dart';
 import 'fuel_controllers.dart';
+import 'fuel_sync_controller.dart';
 import 'widgets/fuel_efficiency_card.dart';
 import 'widgets/fuel_record_tile.dart';
 import 'widgets/monthly_spend_card.dart';
+import 'widgets/pending_fill_ups_section.dart';
 
 /// Fuel tab: efficiency, spend and the fill-up history of the selected
 /// vehicle.
@@ -64,6 +66,9 @@ class _FuelBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final history = ref.watch(fuelHistoryProvider(vehicle.id));
+    final pending = ref.watch(
+      fuelSyncProvider.select((sync) => sync.forVehicle(vehicle.id).length),
+    );
     final switcherHeader = switcher == null
         ? null
         : Padding(
@@ -90,7 +95,7 @@ class _FuelBody extends ConsumerWidget {
         retryLabel: l10n.retryAction,
         onRetry: retry,
       ),
-      data: (data) => data.items.isEmpty
+      data: (data) => data.items.isEmpty && pending == 0
           ? EmptyState(
               icon: Icons.local_gas_station_outlined,
               title: l10n.fuelEmptyTitle,
@@ -152,6 +157,7 @@ class _FuelBody extends ConsumerWidget {
               ..._summary(context, summary),
               const SizedBox(height: DrivonSpacing.xxl),
             ],
+            PendingFillUpsSection(vehicleId: vehicle.id),
             SectionTitle(l10n.fillUpsTitle),
             const SizedBox(height: DrivonSpacing.xs),
             for (final (index, record) in data.items.indexed) ...[

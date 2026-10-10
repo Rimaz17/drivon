@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/errors/app_exception.dart';
 import '../../../core/models/paged.dart';
 import '../../../core/ui/paged_list_controller.dart';
 import '../../auth/presentation/session_controller.dart';
@@ -11,6 +12,7 @@ import '../../vehicles/presentation/odometer_controllers.dart';
 import '../../vehicles/presentation/vehicles_controller.dart';
 import '../data/fuel_repository.dart';
 import '../domain/fuel_record.dart';
+import 'fuel_sync_controller.dart';
 
 /// A vehicle's fill-ups, newest first, a page at a time.
 class FuelHistoryController extends PagedListController<FuelRecord> {
@@ -48,9 +50,21 @@ final fuelRecordProvider = FutureProvider.autoDispose
       return ref.read(fuelRepositoryProvider).get(key.vehicleId, key.recordId);
     }, retry: (_, _) => null);
 
-/// Logs, edits and deletes fill-ups, then refreshes everything they affect:
-/// the history (km/L of neighbouring fill-ups can change), the figures and
-/// the vehicle's odometer and its history, and spending totals. Throws AppExceptions for forms to explain.
+/// Reloads everything a fill-up affects: the history (km/L of neighbouring
+/// fill-ups can change), the figures, the vehicle's odometer and its
+/// history, spending totals and mileage reminders.
+void refreshAfterFuelChange(Ref ref, String vehicleId) {
+  ref
+    ..invalidate(fuelHistoryProvider(vehicleId))
+    ..invalidate(fuelSummaryProvider(vehicleId))
+    ..invalidate(odometerHistoryProvider(vehicleId));
+  refreshSpending(ref);
+  refreshReminders(ref.invalidate);
+  unawaited(ref.read(vehiclesControllerProvider.notifier).reload());
+}
+
+/// Logs, edits and deletes fill-ups, then refreshes everything they affect.
+/// Throws AppExceptions for forms to explain.
 class FuelMutations {
   FuelMutations(this._ref);
 
@@ -58,11 +72,27 @@ class FuelMutations {
 
   FuelRepository get _repository => _ref.read(fuelRepositoryProvider);
 
-  Future<FuelRecord> add(String vehicleId, FuelDraft draft) async {
-    final record = await _repository.create(vehicleId, draft);
+  /// Saves a fill-up. Without a connection it is kept on the phone and sent
+  /// later (see [FuelSyncController]); then this returns null.
+  Future<FuelRecord?> add(String vehicleId, FuelDraft draft) async {
+    final id = _repository.newFillUpId();
+    final FuelRecord record;
+    try {
+      record = await _repository.create(vehicleId, draft, id: id);
+    } on NoConnectionException {
+      await _keep(vehicleId, id, draft);
+      return null;
+    } on ServerTimeoutException {
+      // It may have been saved; sending it again with the same ID is safe.
+      await _keep(vehicleId, id, draft);
+      return null;
+    }
     _refresh(vehicleId);
     return record;
   }
+
+  Future<void> _keep(String vehicleId, String id, FuelDraft draft) =>
+      _ref.read(fuelSyncProvider.notifier).keep(vehicleId, id, draft);
 
   Future<FuelRecord> edit(String vehicleId, String id, FuelDraft draft) async {
     final record = await _repository.update(vehicleId, id, draft);
@@ -75,16 +105,7 @@ class FuelMutations {
     _refresh(vehicleId);
   }
 
-  void _refresh(String vehicleId) {
-    _ref
-      ..invalidate(fuelHistoryProvider(vehicleId))
-      ..invalidate(fuelSummaryProvider(vehicleId))
-      ..invalidate(odometerHistoryProvider(vehicleId));
-    refreshSpending(_ref);
-    // A fill-up's odometer moves mileage reminders.
-    refreshReminders(_ref.invalidate);
-    unawaited(_ref.read(vehiclesControllerProvider.notifier).reload());
-  }
+  void _refresh(String vehicleId) => refreshAfterFuelChange(_ref, vehicleId);
 }
 
 final fuelMutationsProvider = Provider<FuelMutations>(FuelMutations.new);

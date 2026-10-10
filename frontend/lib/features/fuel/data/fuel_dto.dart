@@ -95,6 +95,27 @@ Map<String, dynamic> fuelRequestJson(FuelDraft draft, {String? id}) => {
   'station': ?_trimmedOrNull(draft.station),
 };
 
+/// A [FuelDraft] from a body written by [fuelRequestJson], as kept for
+/// fill-ups saved offline.
+FuelDraft fuelDraftFromRequestJson(Map<String, dynamic> json) => FuelDraft(
+  date: ApiDate.parse(json['date'] as String),
+  litres: FixedDecimal.parse(
+    json['litres'] as String,
+    scale: FixedDecimal.litresScale,
+  ),
+  amount: FixedDecimal.parse(
+    json['amount'] as String,
+    scale: FixedDecimal.moneyScale,
+  ),
+  pricePerLitre: FixedDecimal.parse(
+    json['pricePerLitre'] as String,
+    scale: FixedDecimal.moneyScale,
+  ),
+  odometerKm: (json['odometerKm'] as num).toInt(),
+  fullTank: json['fullTank'] as bool,
+  station: json['station'] as String?,
+);
+
 String? _trimmedOrNull(String? value) {
   final trimmed = value?.trim();
   return trimmed == null || trimmed.isEmpty ? null : trimmed;
