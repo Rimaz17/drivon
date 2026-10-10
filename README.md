@@ -6,7 +6,7 @@
 [![Frontend CI](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-violet.svg)](LICENSE)
 
-> **Status:** Phases 1–6 are complete: accounts, up to two vehicles with an odometer history, fuel tracking with km/L and fuel cost per km, service records with upcoming services, expenses with spending totals by period, category, month and vehicle, vehicle documents (photos and PDFs) stored privately on Cloudflare R2 with expiry tracking, an Insights tab with running cost per km (fuel, maintenance, other), monthly cost and efficiency charts, and a two-vehicle comparison, and reminders for services, document expiry and your own, pushed on Android and scheduled on the device on iOS. Features land phase by phase; see the [roadmap](#roadmap).
+> **Status:** Phases 1–7 are complete: accounts, up to two vehicles with an odometer history, fuel tracking with km/L and fuel cost per km, service records with upcoming services, expenses with spending totals by period, category, month and vehicle, vehicle documents (photos and PDFs) stored privately on Cloudflare R2 with expiry tracking, an Insights tab with running cost per km (fuel, maintenance, other), monthly cost and efficiency charts, and a two-vehicle comparison, reminders for services, document expiry and your own, pushed on Android and scheduled on the device on iOS, Ask My Vehicle, an assistant that answers questions from your own data (Google Gemini, with Groq as fallback). Features land phase by phase; see the [roadmap](#roadmap).
 
 ## Features (MVP)
 
@@ -102,6 +102,7 @@ All variables are listed with placeholders in [`backend/.env.example`](backend/.
 | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | Backend | Cloudflare R2 bucket for documents; required in prod, optional locally (without them only document endpoints are unavailable) |
 | `FIREBASE_SERVICE_ACCOUNT_BASE64` | Backend | Firebase service account JSON, Base64-encoded, for push notifications; required in prod, optional locally (reminders then show in the app only) |
 | `REMINDERS_JOB_SECRET` | Backend, GitHub secret | Shared secret (≥ 32 characters) of the daily reminder run; required in prod. The `reminders-cron.yml` workflow also needs the `DRIVON_API_URL` secret |
+| `GEMINI_API_KEY`, `GROQ_API_KEY` | Backend | Ask My Vehicle (Gemini primary, Groq fallback); required in prod, optional locally. `GEMINI_MODEL` and `GROQ_MODEL` override the models |
 
 The Flutter app takes only non-secret build settings via `--dart-define` (`API_BASE_URL`).
 
@@ -136,8 +137,8 @@ drivon/
 | 4 | Documents (Cloudflare R2) | ✅ Done |
 | 5 | Analytics & cost per km | ✅ Done |
 | 6 | Reminders & notifications | ✅ Done |
-| 7 | Ask My Vehicle | Next |
-| 8 | Offline support | |
+| 7 | Ask My Vehicle | ✅ Done |
+| 8 | Offline support | Next |
 | 9 | Deploy & polish | |
 
 Out of scope for the MVP: more than two vehicles, OCR, PDF/CSV export, assistant write actions, store publishing, shared vehicles and iOS push notifications.
