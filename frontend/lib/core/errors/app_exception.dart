@@ -94,4 +94,10 @@ abstract final class ApiErrorCodes {
   static const String uploadNotFound = 'UPLOAD_NOT_FOUND';
   static const String uploadMismatch = 'UPLOAD_MISMATCH';
   static const String storageUnavailable = 'STORAGE_UNAVAILABLE';
+  static const String reminderNotFound = 'REMINDER_NOT_FOUND';
+  static const String reminderDueMissing = 'REMINDER_DUE_MISSING';
+  static const String reminderDatePast = 'REMINDER_DATE_PAST';
+  static const String reminderKmPast = 'REMINDER_KM_PAST';
+  static const String reminderReadOnly = 'REMINDER_READ_ONLY';
+  static const String reminderLimitReached = 'REMINDER_LIMIT_REACHED';
 }

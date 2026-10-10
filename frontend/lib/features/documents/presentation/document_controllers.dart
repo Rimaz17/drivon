@@ -4,6 +4,7 @@ import '../../../core/models/paged.dart';
 import '../../../core/services/picked_file.dart';
 import '../../../core/ui/paged_list_controller.dart';
 import '../../auth/presentation/session_controller.dart';
+import '../../reminders/presentation/reminder_controllers.dart';
 import '../data/document_repository.dart';
 import '../domain/vehicle_document.dart';
 
@@ -100,6 +101,8 @@ class DocumentMutations {
     _ref
       ..invalidate(documentListProvider(vehicleId))
       ..invalidate(expiringDocumentsProvider);
+    // Document reminders follow each type's latest expiry date.
+    refreshReminders(_ref.invalidate);
   }
 }
 
