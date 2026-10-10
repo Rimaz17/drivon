@@ -12,3 +12,5 @@ drivon:
     auth-rate-limit:
       capacity: 10000
       refill-period: 1m
+  reminders:
+    job-secret: test-only-reminders-job-secret-0123456789
