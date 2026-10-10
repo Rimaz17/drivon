@@ -89,6 +89,27 @@ drivon:
       # Base64 of the Firebase service account JSON. Optional outside production:
       # without it, reminders are only shown in the app (no push notifications).
       service-account-base64: ${FIREBASE_SERVICE_ACCOUNT_BASE64:}
+  assistant:
+    # Ask My Vehicle. Keys are optional outside production: without them the
+    # chat endpoint answers ASSISTANT_UNAVAILABLE. The other provider takes over
+    # when the primary one fails (docs/adr/0014-ask-my-vehicle.md).
+    primary: GEMINI
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      model: ${GEMINI_MODEL:gemini-3.6-flash}
+      base-url: https://generativelanguage.googleapis.com/v1beta
+    groq:
+      api-key: ${GROQ_API_KEY:}
+      model: ${GROQ_MODEL:openai/gpt-oss-120b}
+      base-url: https://api.groq.com/openai/v1
+    call-timeout: 25s
+    # Below the app's 70-second receive timeout.
+    total-timeout: 60s
+    max-tool-rounds: 5
+    # Per user: 30 questions, refilled over a day, to stay inside free quotas.
+    rate-limit:
+      capacity: 30
+      refill-period: 24h
   reminders:
     # Shared secret of POST /internal/reminders/run (the daily reminders workflow).
     # Without it the endpoint is switched off.

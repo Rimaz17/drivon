@@ -63,11 +63,13 @@ public enum ErrorCode {
   REMINDER_KM_PAST(HttpStatus.UNPROCESSABLE_CONTENT, "Reminder mileage is already reached"),
   REMINDER_READ_ONLY(HttpStatus.UNPROCESSABLE_CONTENT, "Reminder follows a service or document"),
   REMINDER_LIMIT_REACHED(HttpStatus.UNPROCESSABLE_CONTENT, "Reminder limit reached"),
+  ASSISTANT_INCOMPLETE(HttpStatus.UNPROCESSABLE_CONTENT, "The assistant couldn't finish"),
 
   // 429 / 5xx
   RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "Too many requests"),
   INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal error"),
-  STORAGE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "File storage unavailable");
+  STORAGE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "File storage unavailable"),
+  ASSISTANT_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Assistant unavailable");
 
   private final HttpStatus status;
   private final String title;
