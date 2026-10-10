@@ -142,6 +142,12 @@ iOS push needs an APNs key from the paid Apple Developer Program, so it is not s
   - `AppDelegate` sets the notification center delegate so notifications show while the app is open.
   - Firebase needs iOS 15, so the deployment target is 15.0.
 
+### Ask My Vehicle
+
+- Opened from the Garage (the sparkle button in the app bar, or the *Ask My Vehicle* tile). The chat asks the API (`POST /api/v1/assistant/chat`) about the selected vehicle and shows plain-text answers; the server looks up the user's data with read-only tools (`docs/adr/0014-ask-my-vehicle.md`). The app never talks to an AI provider and holds no AI keys.
+- `ChatController` keeps the conversation in memory only (cleared on sign-out or *Start over*) and sends the latest 10 answered turns with each question, so follow-ups work. Example questions start an empty chat; a question that fails shows why (unavailable, couldn't finish, daily limit, offline) with *Try again*.
+- The welcome text reminds users that questions go to an AI service, so they shouldn't include personal details.
+
 ### Insights and charts
 
 - The Insights tab shows the server's running-cost analytics (`docs/adr/0012-analytics-and-cost-per-km.md`): cost per km for the chosen period split into fuel, maintenance and other, six months of costs, cost per km by month, km/L per full tank over twelve months, the category split and, with two vehicles, a comparison. The app formats these numbers; it never calculates them.
