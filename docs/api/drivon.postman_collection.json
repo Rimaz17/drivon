@@ -17,7 +17,8 @@
     { "key": "expenseId", "value": "" },
     { "key": "documentId", "value": "" },
     { "key": "uploadUrl", "value": "" },
-    { "key": "today", "value": "" }
+    { "key": "today", "value": "" },
+    { "key": "reminderId", "value": "" }
   ],
   "auth": {
     "type": "bearer",
@@ -1025,6 +1026,166 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Reminders",
+      "description": "Service and document reminders appear by themselves; these requests manage your own reminders, register a device for push and start the daily run (docs/adr/0013-reminders-and-notifications.md).",
+      "item": [
+        {
+          "name": "Add own reminder",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/reminders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Emission test\",\n  \"dueDate\": \"{{today}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 201', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('due today is due soon', () => pm.expect(body.status).to.eql('DUE_SOON'));",
+                  "pm.collectionVariables.set('reminderId', body.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update own reminder",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/reminders/{{reminderId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Emission test and revenue licence\",\n  \"dueDate\": \"{{today}}\",\n  \"dueKm\": 999999\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List vehicle reminders",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/reminders" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('has reminders', () => pm.expect(pm.response.json().length).to.be.above(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List all reminders due soon",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/reminders?status=DUE_SOON" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register device",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/device-tokens",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"postman-test-device-token\",\n  \"platform\": \"ANDROID\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Run daily reminders (job)",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "X-Drivon-Job-Secret", "value": "dev-only-reminders-job-secret-not-for-production", "description": "The dev profile's built-in secret; use REMINDERS_JOB_SECRET elsewhere." }],
+            "url": "{{baseUrl}}/internal/reminders/run"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('reports a summary', () => pm.expect(pm.response.json()).to.have.property('checked'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unregister device",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/api/v1/device-tokens/postman-test-device-token" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete own reminder",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/reminders/{{reminderId}}" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 204', () => pm.response.to.have.status(204));"
                 ]
               }
             }
