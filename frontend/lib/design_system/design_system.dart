@@ -17,6 +17,7 @@ export 'widgets/charts/stacked_bar_chart.dart';
 export 'widgets/charts/trend_line_chart.dart';
 export 'widgets/content_width.dart';
 export 'widgets/drivon_card.dart';
+export 'widgets/drivon_logo.dart' hide parseOutline;
 export 'widgets/inline_notice.dart';
 export 'widgets/pill_segmented_control.dart';
 export 'widgets/primary_button.dart';
