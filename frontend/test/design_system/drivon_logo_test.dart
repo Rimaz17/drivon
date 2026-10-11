@@ -29,6 +29,20 @@ void main() {
       );
     });
 
+    testWidgets('the lockup sizes itself to the mark and wordmark', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const Center(child: DrivonLogo.lockup(markWidth: 130)),
+      );
+
+      final size = tester.getSize(find.byType(DrivonLogo));
+      // 2 units per pixel: about 65.8 wide and 87.5 tall in design units.
+      expect(size.width, closeTo(131.5, 0.1));
+      expect(size.height, closeTo(175.1, 0.1));
+      expect(size, DrivonLogoPainter.lockupSize(130));
+    });
+
     testWidgets('paints nothing on an empty frame', (tester) async {
       await tester.pumpWidget(_host(DrivonLogoFrame.empty));
 

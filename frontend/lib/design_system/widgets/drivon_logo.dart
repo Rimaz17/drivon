@@ -9,25 +9,45 @@ import '../tokens/drivon_palette.dart';
 /// T of spokes and a hub) with the "drivon" wordmark beneath it.
 ///
 /// It is drawn from the vector geometry in `docs/brand`, so it stays sharp at
-/// any size, and each part can be animated through a [DrivonLogoFrame]. The
-/// hub sits at the centre of the widget.
+/// any size, and each part can be animated through a [DrivonLogoFrame].
 class DrivonLogo extends StatelessWidget {
+  /// Fills the available space with the hub at its centre, so it lines up
+  /// with a full-screen canvas such as the launch animation.
   const DrivonLogo({
     this.frame = DrivonLogoFrame.complete,
     this.markWidth = DrivonLogoPainter.defaultMarkWidth,
     super.key,
-  });
+  }) : _lockup = false;
+
+  /// The finished logo, sized to the mark and wordmark, for placing in a
+  /// layout like any other widget.
+  const DrivonLogo.lockup({
+    this.markWidth = DrivonLogoPainter.defaultMarkWidth,
+    super.key,
+  }) : frame = DrivonLogoFrame.complete,
+       _lockup = true;
 
   final DrivonLogoFrame frame;
 
   /// Outer width of the rim, in logical pixels.
   final double markWidth;
+  final bool _lockup;
 
   @override
-  Widget build(BuildContext context) => CustomPaint(
-    painter: DrivonLogoPainter(frame: frame, markWidth: markWidth),
-    child: const SizedBox.expand(),
-  );
+  Widget build(BuildContext context) {
+    final painter = DrivonLogoPainter(
+      frame: frame,
+      markWidth: markWidth,
+      hubAtCentre: !_lockup,
+    );
+    if (!_lockup) {
+      return CustomPaint(painter: painter, child: const SizedBox.expand());
+    }
+    return CustomPaint(
+      painter: painter,
+      size: DrivonLogoPainter.lockupSize(markWidth),
+    );
+  }
 }
 
 /// How far each part of the logo has been drawn in, for animating it.
@@ -134,9 +154,19 @@ class DrivonLogoPainter extends CustomPainter {
   const DrivonLogoPainter({
     required this.frame,
     this.markWidth = defaultMarkWidth,
+    this.hubAtCentre = true,
   });
 
   static const double defaultMarkWidth = 160;
+
+  /// Size of the finished mark and wordmark for a given [markWidth].
+  static Size lockupSize(double markWidth) {
+    final unit = markWidth / _markUnits;
+    return Size(
+      2 * _lockupHalfWidth * unit,
+      (_rimOuter + _lockupBottom) * unit,
+    );
+  }
 
   // Brand colors are fixed: the logo looks the same in every theme.
   static const List<Color> _rimColors = [
@@ -182,6 +212,11 @@ class DrivonLogoPainter extends CustomPainter {
   // (1526.8, 548.53) and it is drawn at 0.06 units per font unit, with the
   // baseline 54.8 units below the hub.
   static const double _wordmarkBaseline = 54.8;
+
+  // Extent of the finished lockup around the hub: the wordmark is slightly
+  // wider than the rim, and its lowest point sits just under the baseline.
+  static const double _lockupHalfWidth = 32.88;
+  static const double _lockupBottom = 55.03;
   static const double _wordmarkScale = 0.06;
   static const Offset _wordmarkOrigin = Offset(1526.8, 548.53);
 
@@ -191,6 +226,10 @@ class DrivonLogoPainter extends CustomPainter {
   final DrivonLogoFrame frame;
   final double markWidth;
 
+  /// True to put the hub at the centre of the canvas; false to put the top
+  /// of the rim at the top, as in [lockupSize].
+  final bool hubAtCentre;
+
   @override
   void paint(Canvas canvas, Size size) {
     final f = frame;
@@ -199,7 +238,10 @@ class DrivonLogoPainter extends CustomPainter {
 
     canvas
       ..save()
-      ..translate(size.width / 2, size.height / 2)
+      ..translate(
+        size.width / 2,
+        hubAtCentre ? size.height / 2 : _rimOuter * unit,
+      )
       ..scale(f.scale * unit);
     final faded = f.opacity < 1;
     if (faded) {
@@ -361,7 +403,9 @@ class DrivonLogoPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(DrivonLogoPainter oldDelegate) =>
-      oldDelegate.frame != frame || oldDelegate.markWidth != markWidth;
+      oldDelegate.frame != frame ||
+      oldDelegate.markWidth != markWidth ||
+      oldDelegate.hubAtCentre != hubAtCentre;
 }
 
 /// Parses SVG path data that uses only absolute M, L, Q and Z commands, as
