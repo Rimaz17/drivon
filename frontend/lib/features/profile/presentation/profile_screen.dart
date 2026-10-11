@@ -193,13 +193,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                     onPressed: _changed(user) && !_signingOut ? _save : null,
                   ),
                 ),
-                const SizedBox(height: DrivonSpacing.lg),
+                // Sign out stands apart from the form so it doesn't read as
+                // one of its actions.
+                const SizedBox(height: DrivonSpacing.xxxl),
+                const Divider(),
+                const SizedBox(height: DrivonSpacing.xxl),
                 OutlinedButton.icon(
                   icon: const Icon(Icons.logout_rounded),
                   label: Text(l10n.signOutAction),
                   onPressed: locked ? null : _signOut,
                 ),
-                const SizedBox(height: DrivonSpacing.huge),
+                const SizedBox(height: DrivonSpacing.xxl),
                 const Divider(),
                 const SizedBox(height: DrivonSpacing.xxl),
                 SectionTitle(l10n.deleteAccountAction),
