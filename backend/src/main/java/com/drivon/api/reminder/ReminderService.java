@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,18 +56,21 @@ public class ReminderService {
   private final MaintenanceService maintenance;
   private final DocumentService documents;
   private final BusinessCalendar calendar;
+  private final ApplicationEventPublisher events;
 
   ReminderService(
       ReminderRepository reminders,
       VehicleService vehicles,
       MaintenanceService maintenance,
       DocumentService documents,
-      BusinessCalendar calendar) {
+      BusinessCalendar calendar,
+      ApplicationEventPublisher events) {
     this.reminders = reminders;
     this.vehicles = vehicles;
     this.maintenance = maintenance;
     this.documents = documents;
     this.calendar = calendar;
+    this.events = events;
   }
 
   /**
@@ -130,6 +134,7 @@ public class ReminderService {
         Reminder.manual(
             request.id(), vehicleId, request.title().strip(), request.dueDate(), request.dueKm());
     reminders.saveAndFlush(reminder);
+    events.publishEvent(new RemindersChangedEvent(vehicleId));
     return new CreateResult<>(respond(reminder, today, vehicle.getCurrentOdometerKm()), true);
   }
 
@@ -143,7 +148,9 @@ public class ReminderService {
     checkDue(request, vehicle, today, reminder);
     reminder.rename(request.title().strip());
     reminder.reschedule(request.dueDate(), request.dueKm());
-    return respond(reminders.saveAndFlush(reminder), today, vehicle.getCurrentOdometerKm());
+    Reminder saved = reminders.saveAndFlush(reminder);
+    events.publishEvent(new RemindersChangedEvent(vehicleId));
+    return respond(saved, today, vehicle.getCurrentOdometerKm());
   }
 
   /** Deletes one of the user's own reminders, for example once it's done. */
@@ -176,6 +183,7 @@ public class ReminderService {
               vehicleId, due.serviceType(), due.recordId(), due.dueDate(), due.dueKm()));
     }
     reminders.saveAllAndFlush(keep);
+    events.publishEvent(new RemindersChangedEvent(vehicleId));
   }
 
   /** Keeps one reminder per document type in step with the latest expiry date of that type. */
@@ -200,6 +208,7 @@ public class ReminderService {
           Reminder.forDocument(vehicleId, expiry.type(), expiry.documentId(), expiry.expiryDate()));
     }
     reminders.saveAllAndFlush(keep);
+    events.publishEvent(new RemindersChangedEvent(vehicleId));
   }
 
   static ReminderResponse respond(Reminder reminder, LocalDate today, int odometerKm) {
