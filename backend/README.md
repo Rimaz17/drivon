@@ -56,6 +56,8 @@ The Docker image defaults to `prod`, so a misconfigured deploy fails at startup 
 | `POST /api/v1/auth/refresh` | Public | `{refreshToken}` → new tokens; the old refresh token is revoked |
 | `POST /api/v1/auth/logout` | Public | `{refreshToken}` → 204 |
 | `GET /api/v1/users/me` | Bearer | Signed-in profile |
+| `PUT /api/v1/users/me` | Bearer | `{name, email}` → updated profile; `409 EMAIL_ALREADY_REGISTERED` when another account has the email |
+| `POST /api/v1/users/me/deletion` | Bearer, rate-limited | `{password}` → 204; deletes the account with its vehicles, records, document files and sessions. `422 PASSWORD_INCORRECT` keeps the account |
 | `GET /api/v1/vehicles` | Bearer | Own vehicles, oldest first (at most two) |
 | `POST /api/v1/vehicles` | Bearer | 201 + `Location` |
 | `GET/PUT/DELETE /api/v1/vehicles/{id}` | Bearer | 404 for missing *or someone else's* vehicle |
@@ -105,6 +107,7 @@ Tokens: access tokens are 15-minute JWTs sent as `Authorization: Bearer <token>`
 - **Analytics** (`docs/adr/0012-analytics-and-cost-per-km.md`): distance driven comes from the odometer timeline (the highest reading at each end of the period). Cost per km is everything spent in the period over that distance; repairs count as maintenance, and insurance, parking, tolls, washing and other as OTHER.
 - **Reminders** (`docs/adr/0013-reminders-and-notifications.md`): one reminder per service type (from the latest service that sets a next date or mileage) and per document type (latest expiry), plus your own. A reminder with a date and a mileage is due at whichever comes first; it is due soon 7 days ahead (30 for documents) or 500 km ahead. Each stage (due soon, due) is pushed once, by the daily run or right after an odometer change.
 - **Ask My Vehicle** (`docs/adr/0014-ask-my-vehicle.md`): the model picks from 20 read-only tools; the server runs them for the signed-in user only and caps a question at 5 tool rounds and 60 seconds. `503 ASSISTANT_UNAVAILABLE` when both providers fail, `422 ASSISTANT_INCOMPLETE` when the model doesn't finish.
+- **Account deletion** (`docs/adr/0016-profile-and-account-deletion.md`) needs the password again. The database cascades from the user to everything they own; document files are removed from R2 after the transaction commits. A wrong password is a 422, not a 401, so clients don't treat it as an ended session.
 - **Fuel efficiency** uses the full-tank method (`docs/adr/0008-fuel-records-and-efficiency.md`). A price per litre that is sent must match amount ÷ litres to within 1% (at least Rs. 1), or it is left out and derived.
 
 ### Errors
