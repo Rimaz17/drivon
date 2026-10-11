@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Drivon mark for the adaptive launcher icon, drawn from
+     docs/brand/drivon-app-icon.svg (same 1024 grid). It is scaled to 2/3 so
+     it fills the same share of the visible 72 dp icon as it does of the iOS
+     icon, well inside the 66 dp safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
+    <group
+        android:pivotX="512"
+        android:pivotY="512"
+        android:scaleX="0.6667"
+        android:scaleY="0.6667">
+        <!-- Spokes -->
+        <path
+            android:fillColor="#FFF4F4F6"
+            android:pathData="M243.2,524 H780.8 A24,24 0 0 1 780.8,572 H243.2 A24,24 0 0 1 243.2,524 Z" />
+        <path
+            android:fillColor="#FFF4F4F6"
+            android:pathData="M488,572 A24,24 0 0 1 536,572 V754.4 A24,24 0 0 1 488,754.4 Z" />
+        <!-- Hub -->
+        <path
+            android:fillColor="#FFB9A3FF"
+            android:pathData="M444.8,548 A67.2,67.2 0 1 1 579.2,548 A67.2,67.2 0 1 1 444.8,548 Z" />
+        <!-- Rim, with the signature gradient -->
+        <path android:pathData="M291.38,768.62 A312,312 0 1 1 732.62,768.62 A38.4,38.4 0 0 1 678.31,714.31 A235.2,235.2 0 1 0 345.69,714.31 A38.4,38.4 0 0 1 291.38,768.62 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="200"
+                    android:startY="0"
+                    android:endX="824"
+                    android:endY="0">
+                    <item android:offset="0" android:color="#FF7D56EE" />
+                    <item android:offset="0.36" android:color="#FFB9A3FF" />
+                    <item android:offset="0.7" android:color="#FFF3C7F8" />
+                    <item android:offset="1" android:color="#FF99E7D8" />
+                </gradient>
+            </aapt:attr>
+        </path>
+    </group>
+</vector>

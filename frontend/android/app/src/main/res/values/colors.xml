@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The Drivon canvas: behind the launcher icon, the launch screen and
+         the Flutter UI, so nothing flashes a different color at startup. -->
+    <color name="drivon_canvas">#FF0B0B0D</color>
+</resources>
