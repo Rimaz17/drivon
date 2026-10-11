@@ -18,6 +18,16 @@ class _ManualSession extends SessionController {
   void finishRestore() => state = const SignedOut();
 }
 
+/// Plays [milliseconds] of frames at 60 fps, as a device would.
+Future<void> play(WidgetTester tester, int milliseconds) async {
+  for (var left = milliseconds; left > 0; left -= 16) {
+    await tester.pump(Duration(milliseconds: left < 16 ? left : 16));
+  }
+}
+
+DrivonLogoFrame shownFrame(WidgetTester tester) =>
+    tester.widget<DrivonLogo>(find.byType(DrivonLogo)).frame;
+
 void main() {
   late ProviderContainer container;
   late int taps;
@@ -68,13 +78,12 @@ void main() {
   testWidgets('covers the app until the session is restored', (tester) async {
     await launch(tester);
     await tester.pump();
-    await tester.pump(const Duration(seconds: 10));
+    await play(tester, 5000);
 
     expect(find.byType(DrivonLogo), findsOneWidget);
 
     finishRestore();
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 450));
+    await play(tester, 450);
 
     expect(find.byType(DrivonLogo), findsNothing);
     expect(find.text('Behind'), findsOneWidget);
@@ -85,13 +94,29 @@ void main() {
   ) async {
     await launch(tester, session: const SignedOut());
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 1600));
+    await play(tester, 1600);
 
     expect(find.byType(DrivonLogo), findsOneWidget);
 
-    await tester.pump(const Duration(milliseconds: 200));
+    await play(tester, 200);
 
     expect(find.byType(DrivonLogo), findsNothing);
+  });
+
+  testWidgets('a stalled frame pauses the animation instead of skipping it', (
+    tester,
+  ) async {
+    await launch(tester, session: const SignedOut());
+    await tester.pump();
+    // Startup work blocks frames for a second.
+    await tester.pump(const Duration(seconds: 1));
+
+    // Only 50 ms of animation have passed: the canvas is still empty.
+    expect(shownFrame(tester).isVisible, isFalse);
+
+    await play(tester, 1150);
+
+    expect(shownFrame(tester), DrivonLogoFrame.complete);
   });
 
   testWidgets('blocks touches to the app until it has finished', (
@@ -99,7 +124,7 @@ void main() {
   ) async {
     await launch(tester, session: const SignedOut());
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
+    await play(tester, 500);
 
     await tester.tap(find.text('Behind'), warnIfMissed: false);
     expect(taps, 0);
@@ -145,13 +170,12 @@ void main() {
     addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
     await launch(tester, session: const SignedOut());
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 250));
+    await play(tester, 250);
 
     // The finished logo, already in place: nothing is drawn in.
-    final logo = tester.widget<DrivonLogo>(find.byType(DrivonLogo));
-    expect(logo.frame, DrivonLogoFrame.complete);
+    expect(shownFrame(tester), DrivonLogoFrame.complete);
 
-    await tester.pump(const Duration(milliseconds: 900));
+    await play(tester, 900);
 
     expect(find.byType(DrivonLogo), findsNothing);
   });

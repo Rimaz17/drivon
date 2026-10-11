@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -27,8 +29,10 @@ class _LaunchIntroState extends ConsumerState<LaunchIntro>
     with SingleTickerProviderStateMixin {
   late final Ticker _ticker = createTicker(_tick);
 
-  /// Milliseconds since the first frame.
+  /// Animation time in milliseconds. It follows the clock frame by frame,
+  /// but a slow frame moves it on by at most [LaunchTimeline.maxFrameStep].
   final ValueNotifier<double> _elapsed = ValueNotifier(0);
+  Duration _lastTick = Duration.zero;
   late LaunchTimeline _timeline;
   bool _timelineSet = false;
   double? _readyAt;
@@ -56,7 +60,11 @@ class _LaunchIntroState extends ConsumerState<LaunchIntro>
   }
 
   void _tick(Duration elapsed) {
-    final t = elapsed.inMicroseconds / Duration.microsecondsPerMillisecond;
+    final step =
+        (elapsed - _lastTick).inMicroseconds /
+        Duration.microsecondsPerMillisecond;
+    _lastTick = elapsed;
+    final t = _elapsed.value + math.min(step, LaunchTimeline.maxFrameStep);
     _elapsed.value = t;
     if (_timeline.isFinished(t, readyAt: _readyAt)) {
       _ticker.stop();

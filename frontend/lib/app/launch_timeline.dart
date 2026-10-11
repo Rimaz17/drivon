@@ -34,6 +34,12 @@ class LaunchTimeline {
   /// Every move eases out on this curve. It is not [Curves.easeOutCubic].
   static const Curve curve = Cubic(0.33, 1, 0.68, 1);
 
+  /// The most one frame may move the animation on. The first second after
+  /// launch is busy (plugins start, the first screen builds) and frames can
+  /// stall for most of a second; counting wall-clock time would skip the
+  /// whole intro, so a stall pauses the animation instead.
+  static const double maxFrameStep = 50;
+
   // Intro.
   static const double rimStart = 150;
   static const double rimDuration = 450;

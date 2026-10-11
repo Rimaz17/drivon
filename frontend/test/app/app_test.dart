@@ -24,7 +24,7 @@ void main() {
       ProviderScope(overrides: testOverrides(), child: const DrivonApp()),
     );
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pump(const Duration(milliseconds: 16));
 
     expect(find.byType(DrivonLogo), findsOneWidget);
 
