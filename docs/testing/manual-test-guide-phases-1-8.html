@@ -64,7 +64,7 @@
   </ol>
 </div>
 <div class="note"><b>How to read a test.</b> <b>Steps</b> say what to do: <i>Field → value</i> means tap the field and type the value. <b>Expected</b> lists what must be true. Tick Pass or Fail and note anything odd.</div>
-<div class="note"><b>Known issue — date pickers for future dates.</b> The calendars for <span class="ui">Next service date</span>, <span class="ui">Due date (optional)</span>, <span class="ui">Issue date (optional)</span> and <span class="ui">Expiry date (optional)</span> open far ahead (January 2100, next year or ten years ahead) instead of near today. The steps work around it: tap the <b>month-and-year label</b> at the top of the calendar (for example <i>January 2100</i>), choose this year in the list, and the calendar jumps back to the current month. Then tap the day (use the <b>&lt; &gt;</b> arrows for another month) and tap <span class="ui">OK</span>.</div>
+<div class="note"><b>Date pickers.</b> A calendar opens on the current month. Tap the day (use the <b>&lt; &gt;</b> arrows for another month, or tap the month-and-year label to choose another year), then tap <span class="ui">OK</span>.</div>
 
 <h3>Test data used throughout</h3>
 <table>
@@ -551,13 +551,13 @@
   <div class="label">Steps</div>
   <ol>
     <li>On the Service tab tap the floating <span class="ui">Log service</span>. Service type → <span class="ui">Brake service</span>. Leave Odometer empty. Cost → <code>4500</code>.</li>
-    <li>Tap <span class="ui">Next service date</span>. Tap the month-and-year label (it shows January 2100), choose this year; go to the date <b>30 days from today</b> (e.g. 10 Nov 2026) and tap <span class="ui">OK</span>.</li>
+    <li>Tap <span class="ui">Next service date</span>. Go to the date <b>30 days from today</b> (e.g. 10 Nov 2026) and tap <span class="ui">OK</span>.</li>
     <li>Tap the <b>×</b> in the field, then pick the same date again. Tap <span class="ui">Log service</span>.</li>
     <li>Open the <span class="ui">Garage</span> tab.</li>
   </ol>
   <div class="label">Expected</div>
   <ul class="expect">
-    <li>Step 2: after choosing the year, tomorrow is selected and today and earlier days can't be picked.</li>
+    <li>Step 2: the calendar opens on this month with tomorrow selected; today and earlier days can't be picked.</li>
     <li>Step 3: the × clears the date; picking again sets it. Then <span class="say">Service logged</span>. The Coming up card now reads <span class="say">Brake service due in 30 days</span> / <span class="say">Due 10 Nov 2026</span>; below it a smaller row <span class="say">Oil change due in 5,000 km</span> / <span class="say">Due at 50,700 km</span>. The brake row in History shows <span class="say">Rs. 4,500</span> and only the date.</li>
     <li>Step 4: the Next service card reads <span class="say">Brake service due in 30 days</span>; Reminders: <span class="say">Next: Brake service due in 30 days</span>. Odometer still 45,700 km.</li>
   </ul>
@@ -725,8 +725,8 @@
   <div class="label">Steps</div>
   <ol>
     <li>Tap <span class="ui">Save document</span> without filling anything.</li>
-    <li>Tap <span class="ui">Insurance</span>. Tap <span class="ui">Issue date (optional)</span>: the calendar opens a year ahead; tap the month-and-year label, choose this year (today becomes selected), tap <span class="ui">OK</span>.</li>
-    <li>Tap <span class="ui">Expiry date (optional)</span>: it opens ten years ahead; tap the label, choose this year (today is selected), tap <span class="ui">OK</span>. Tap <span class="ui">Save document</span>.</li>
+    <li>Tap <span class="ui">Insurance</span>. Tap <span class="ui">Issue date (optional)</span>: the calendar opens with today selected; tap <span class="ui">OK</span>.</li>
+    <li>Tap <span class="ui">Expiry date (optional)</span>: today is selected; tap <span class="ui">OK</span>. Tap <span class="ui">Save document</span>.</li>
   </ol>
   <div class="label">Expected</div>
   <ul class="expect">
@@ -774,7 +774,7 @@
   <div class="label">Steps</div>
   <ol>
     <li>Go back to Documents. Tap <span class="ui">Add document</span>, then <span class="ui">Choose PDF</span> and pick your small PDF.</li>
-    <li>Tap <span class="ui">Revenue licence</span>. Leave Issue date empty. Expiry date → <b>yesterday</b> (tap the label, choose this year, tap yesterday, <span class="ui">OK</span>). Tap <span class="ui">Save document</span>.</li>
+    <li>Tap <span class="ui">Revenue licence</span>. Leave Issue date empty. Expiry date → <b>yesterday</b> (tap yesterday, then <span class="ui">OK</span>). Tap <span class="ui">Save document</span>.</li>
     <li>Go back to the Garage.</li>
   </ol>
   <div class="label">Expected</div>
@@ -1009,7 +1009,7 @@
   <h3><span class="id">6.5</span>A reminder due today, and its push</h3>
   <div class="label">Steps</div>
   <ol>
-    <li>Clear Due at odometer. Tap <span class="ui">Due date (optional)</span>: tap the month-and-year label (January 2100), choose this year (today becomes selected), tap <span class="ui">OK</span>. Tap <span class="ui">Add reminder</span>.</li>
+    <li>Clear Due at odometer. Tap <span class="ui">Due date (optional)</span>: today is selected; tap <span class="ui">OK</span>. Tap <span class="ui">Add reminder</span>.</li>
     <li>Go back to the Garage and look at the Reminders card.</li>
     <li>Tap <span class="ui">Odometer history</span> → <span class="ui">Add reading</span>: Odometer reading → <code>45750</code> (today). Tap <span class="ui">Save reading</span>. Wait up to a minute.</li>
   </ol>
