@@ -1,4 +1,5 @@
 import 'package:drivon/core/errors/app_exception.dart';
+import 'package:drivon/design_system/design_system.dart';
 import 'package:drivon/features/auth/presentation/session_controller.dart';
 import 'package:drivon/features/auth/presentation/sign_in_screen.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,49 @@ void main() {
   Finder field(String label) => find.widgetWithText(TextFormField, label);
 
   setUp(() => api = FakeAuthApi());
+
+  testWidgets('shows the logo instead of the app name in text', (tester) async {
+    final handle = tester.ensureSemantics();
+    await pumpSignIn(tester);
+
+    expect(find.byType(DrivonLogo), findsOneWidget);
+    expect(find.text('Drivon'), findsNothing);
+    expect(find.bySemanticsLabel('Drivon'), findsOneWidget);
+    handle.dispose();
+  });
+
+  /// How far the screen scrolls (the first scrollable is the screen's own;
+  /// text fields have their own inside it).
+  double maxScroll(WidgetTester tester) => tester
+      .state<ScrollableState>(find.byType(Scrollable).first)
+      .position
+      .maxScrollExtent;
+
+  testWidgets('fits a phone screen without scrolling', (tester) async {
+    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.devicePixelRatio = 2.8125;
+    addTearDown(tester.view.reset);
+    await pumpSignIn(tester);
+
+    expect(maxScroll(tester), 0);
+    // The logo sits above the heading, the form below it.
+    expect(
+      tester.getBottomLeft(find.byType(DrivonLogo)).dy,
+      lessThan(tester.getTopLeft(find.text('Welcome back')).dy),
+    );
+  });
+
+  testWidgets('scrolls rather than overflowing on a short screen', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 1200);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await pumpSignIn(tester);
+
+    expect(tester.takeException(), isNull);
+    expect(maxScroll(tester), greaterThan(0));
+  });
 
   testWidgets('validates the form before calling the server', (tester) async {
     await pumpSignIn(tester);

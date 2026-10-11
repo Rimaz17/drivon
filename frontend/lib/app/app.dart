@@ -6,6 +6,7 @@ import '../design_system/theme/drivon_theme.dart';
 import '../features/fuel/presentation/fuel_sync_controller.dart';
 import '../features/notifications/presentation/notification_controller.dart';
 import '../l10n/app_localizations.dart';
+import 'launch_intro.dart';
 import 'notification_navigation.dart';
 import 'router.dart';
 
@@ -29,6 +30,8 @@ class DrivonApp extends ConsumerWidget {
       theme: DrivonTheme.dark(),
       themeMode: ThemeMode.dark,
       routerConfig: ref.watch(routerProvider),
+      // The launch animation plays over the router at startup.
+      builder: (context, child) => LaunchIntro(child: child!),
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
