@@ -192,6 +192,48 @@
           ]
         },
         {
+          "name": "Update profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/users/me",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Rimaz Saththar\",\n  \"email\": \"{{email}}\"\n}" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('name saved', () => pm.expect(pm.response.json().name).to.eql('Rimaz Saththar'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete account with wrong password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/users/me/deletion",
+            "body": { "mode": "raw", "raw": "{\n  \"password\": \"not-the-password\"\n}" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 422', () => pm.response.to.have.status(422));",
+                  "pm.test('account kept', () => pm.expect(pm.response.json().code).to.eql('PASSWORD_INCORRECT'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Me without token",
           "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/api/v1/users/me" },
           "event": [
@@ -1297,6 +1339,43 @@
             "type": "text/javascript",
             "exec": ["pm.test('status is 204', () => pm.response.to.have.status(204));"]
           }
+        }
+      ]
+    },
+    {
+      "name": "Delete account",
+      "description": "Permanently deletes the signed-in account with its vehicles, records, document files and sessions. Run it last: the access token still works for a few minutes after Logout.",
+      "item": [
+        {
+          "name": "Delete account",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/users/me/deletion",
+            "body": { "mode": "raw", "raw": "{\n  \"password\": \"{{password}}\"\n}" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('status is 204', () => pm.response.to.have.status(204));"]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me after deletion",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/users/me" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('status is 401', () => pm.response.to.have.status(401));"]
+              }
+            }
+          ]
         }
       ]
     }
