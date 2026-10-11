@@ -17,6 +17,7 @@ import '../features/fuel/presentation/fuel_record_form_screen.dart';
 import '../features/fuel/presentation/fuel_screen.dart';
 import '../features/maintenance/presentation/maintenance_form_screen.dart';
 import '../features/maintenance/presentation/service_screen.dart';
+import '../features/profile/presentation/profile_screen.dart';
 import '../features/reminders/presentation/reminder_form_screen.dart';
 import '../features/reminders/presentation/reminders_screen.dart';
 import '../features/vehicles/presentation/garage_screen.dart';
@@ -36,6 +37,7 @@ abstract final class AppRoutes {
   static const String expenses = '/expenses';
   static const String insights = '/insights';
   static const String assistant = '/assistant';
+  static const String profile = '/profile';
   static const String addVehicle = '/vehicles/new';
   static const String editVehicle = '/vehicles/:vehicleId/edit';
   static const String addFuelRecord = '/vehicles/:vehicleId/fuel/new';
@@ -202,6 +204,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.insights,
         builder: (context, state) => const InsightsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.profile,
+        builder: (context, state) => const ProfileScreen(),
       ),
       GoRoute(
         path: AppRoutes.addVehicle,

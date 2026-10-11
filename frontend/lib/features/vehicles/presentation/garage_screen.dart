@@ -4,18 +4,12 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../core/errors/error_text.dart';
-import '../../../core/storage/local_store.dart';
-import '../../../core/ui/confirm_dialog.dart';
 import '../../../design_system/design_system.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../assistant/presentation/assistant_garage_tile.dart';
-import '../../auth/domain/user.dart';
 import '../../auth/presentation/session_controller.dart';
 import '../../documents/presentation/widgets/documents_garage_tile.dart';
-import '../../fuel/presentation/fuel_sync_controller.dart';
-import '../../notifications/presentation/notification_controller.dart';
 import '../../reminders/presentation/widgets/reminders_garage_tile.dart';
-import '../data/selected_vehicle_store.dart';
 import '../domain/vehicle.dart';
 import 'fuel_type_label.dart';
 import 'vehicles_controller.dart';
@@ -45,9 +39,9 @@ class GarageScreen extends ConsumerWidget {
             ),
           if (user != null)
             IconButton(
-              tooltip: l10n.accountTooltip,
+              tooltip: l10n.profileTitle,
               icon: const Icon(Icons.account_circle_outlined),
-              onPressed: () => _showAccount(context, ref, user),
+              onPressed: () => context.push(AppRoutes.profile),
             ),
         ],
       ),
@@ -73,69 +67,6 @@ class GarageScreen extends ConsumerWidget {
       ),
     );
   }
-
-  Future<void> _showAccount(BuildContext context, WidgetRef ref, User user) {
-    return showModalBottomSheet<void>(
-      context: context,
-      builder: (sheetContext) {
-        final l10n = AppLocalizations.of(sheetContext);
-        final textTheme = Theme.of(sheetContext).textTheme;
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              DrivonSpacing.screenGutter,
-              0,
-              DrivonSpacing.screenGutter,
-              DrivonSpacing.xxl,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(user.name, style: textTheme.titleLarge),
-                const SizedBox(height: DrivonSpacing.xs),
-                Text(user.email, style: textTheme.bodyMedium),
-                const SizedBox(height: DrivonSpacing.xxl),
-                OutlinedButton.icon(
-                  icon: const Icon(Icons.logout_rounded),
-                  label: Text(l10n.signOutAction),
-                  onPressed: () async {
-                    Navigator.of(sheetContext).pop();
-                    await _signOut(context, ref);
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-/// Signs out after warning about fill-ups that haven't synced, and removes
-/// everything kept on the phone for this user.
-Future<void> _signOut(BuildContext context, WidgetRef ref) async {
-  final l10n = AppLocalizations.of(context);
-  final unsynced = ref.read(fuelSyncProvider).pending.length;
-  if (unsynced > 0) {
-    final confirmed = await showConfirmDialog(
-      context,
-      title: l10n.signOutPendingTitle,
-      message: l10n.signOutPendingMessage(unsynced),
-      confirmLabel: l10n.signOutAction,
-      cancelLabel: l10n.cancelAction,
-      destructive: true,
-    );
-    if (!confirmed) return;
-  }
-  // While still signed in, so the server stops pushing reminders to this
-  // phone.
-  await ref.read(notificationControllerProvider.notifier).prepareSignOut();
-  final userId = ref.read(activeUserIdProvider);
-  if (userId != null) await ref.read(localStoreProvider).clearUser(userId);
-  await ref.read(selectedVehicleStoreProvider).clear();
-  await ref.read(sessionControllerProvider.notifier).signOut();
 }
 
 class _Garage extends ConsumerWidget {

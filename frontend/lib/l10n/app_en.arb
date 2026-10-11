@@ -132,7 +132,6 @@
       }
     }
   },
-  "accountTooltip": "Account",
   "signOutAction": "Sign out",
   "loadingVehicles": "Loading your vehicles",
   "vehiclesLoadErrorTitle": "Couldn't load your vehicles",
@@ -1198,5 +1197,25 @@
         "type": "int"
       }
     }
-  }
+  },
+  "profileTitle": "Profile",
+  "profileDetailsTitle": "Your details",
+  "savingProfile": "Saving profile",
+  "profileSaved": "Profile saved",
+  "errorEmailInUse": "Another account already uses this email.",
+  "deleteAccountAction": "Delete account",
+  "deleteAccountExplainer": "Deletes your account and your vehicles with everything logged for them: fill-ups, services, expenses, documents and reminders. This can't be undone.",
+  "deleteAccountDialogTitle": "Delete your account?",
+  "deleteAccountDialogMessage": "Your vehicles and everything logged for them are deleted for good. Enter your password to confirm.",
+  "deleteAccountPendingFillUps": "{count, plural, =1{1 fill-up saved offline is} other{{count} fill-ups saved offline are}} deleted too.",
+  "@deleteAccountPendingFillUps": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deletingAccount": "Deleting account",
+  "errorPasswordIncorrect": "That password isn't right. Try again.",
+  "accountDeletedNotice": "Your account and its data were deleted."
 }

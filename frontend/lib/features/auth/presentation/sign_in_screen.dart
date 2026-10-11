@@ -48,6 +48,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
     final l10n = AppLocalizations.of(context);
     final session = ref.watch(sessionControllerProvider);
     final expired = session is SignedOut && session.sessionExpired;
+    final deleted = session is SignedOut && session.accountDeleted;
 
     return AuthLayout(
       title: l10n.signInTitle,
@@ -61,9 +62,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (expired && error == null) ...[
+              if ((expired || deleted) && error == null) ...[
                 InlineNotice(
-                  message: l10n.sessionExpiredNotice,
+                  message: deleted
+                      ? l10n.accountDeletedNotice
+                      : l10n.sessionExpiredNotice,
                   tone: InlineNoticeTone.info,
                 ),
                 const SizedBox(height: DrivonSpacing.lg),

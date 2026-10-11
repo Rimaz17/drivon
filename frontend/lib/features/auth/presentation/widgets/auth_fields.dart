@@ -24,12 +24,20 @@ class EmailField extends StatelessWidget {
     required this.controller,
     this.enabled = true,
     this.textInputAction = TextInputAction.next,
+    this.forceErrorText,
+    this.onChanged,
+    this.onSubmitted,
     super.key,
   });
 
   final TextEditingController controller;
   final bool enabled;
   final TextInputAction textInputAction;
+
+  /// An error from the server, shown until the user edits the field.
+  final String? forceErrorText;
+  final ValueChanged<String>? onChanged;
+  final VoidCallback? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +51,9 @@ class EmailField extends StatelessWidget {
       autofillHints: const [AutofillHints.email, AutofillHints.username],
       autocorrect: false,
       enableSuggestions: false,
+      forceErrorText: forceErrorText,
+      onChanged: onChanged,
+      onFieldSubmitted: onSubmitted == null ? null : (_) => onSubmitted!(),
       validator: (value) => validateEmail(l10n, value),
     );
   }
@@ -56,6 +67,8 @@ class PasswordField extends StatefulWidget {
     required this.onSubmitted,
     this.isNewPassword = false,
     this.enabled = true,
+    this.forceErrorText,
+    this.onChanged,
     super.key,
   });
 
@@ -63,6 +76,10 @@ class PasswordField extends StatefulWidget {
   final VoidCallback onSubmitted;
   final bool isNewPassword;
   final bool enabled;
+
+  /// An error from the server, shown until the user edits the field.
+  final String? forceErrorText;
+  final ValueChanged<String>? onChanged;
 
   @override
   State<PasswordField> createState() => _PasswordFieldState();
@@ -88,6 +105,8 @@ class _PasswordFieldState extends State<PasswordField> {
             : AutofillHints.password,
       ],
       onFieldSubmitted: (_) => widget.onSubmitted(),
+      onChanged: widget.onChanged,
+      forceErrorText: widget.forceErrorText,
       decoration: InputDecoration(
         labelText: l10n.passwordLabel,
         helperText: widget.isNewPassword ? l10n.newPasswordHelper : null,
