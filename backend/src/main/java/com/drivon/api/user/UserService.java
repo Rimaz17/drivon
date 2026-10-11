@@ -26,6 +26,24 @@ public class UserService {
   }
 
   /**
+   * Changes the user's name and email. The email stays unique across accounts, compared after
+   * normalization, so changing only its case is allowed.
+   */
+  @Transactional
+  public UserResponse updateProfile(UUID userId, UpdateProfileRequest request) {
+    User user =
+        users.findById(userId).orElseThrow(() -> new DrivonException(ErrorCode.UNAUTHENTICATED));
+    String email = Emails.normalize(request.email());
+    if (!email.equals(user.getEmail()) && users.existsByEmail(email)) {
+      throw new DrivonException(
+          ErrorCode.EMAIL_ALREADY_REGISTERED, "An account with this email already exists.");
+    }
+    user.updateProfile(request.name().strip(), email);
+    // Flush so a unique-constraint race surfaces here, as a conflict.
+    return UserResponse.from(users.saveAndFlush(user));
+  }
+
+  /**
    * Locks the user's row for the rest of the caller's transaction, so concurrent requests that
    * check a per-user limit (such as the vehicle count) run one at a time.
    */

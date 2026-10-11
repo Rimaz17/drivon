@@ -64,4 +64,10 @@ public class User {
   public Instant getCreatedAt() {
     return createdAt;
   }
+
+  /** Replaces the profile details; the email must already be normalized. */
+  public void updateProfile(String name, String email) {
+    this.name = name;
+    this.email = email;
+  }
 }
