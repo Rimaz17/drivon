@@ -36,6 +36,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.context.ApplicationEventPublisher;
 
 class ReminderServiceTest {
 
@@ -49,13 +50,15 @@ class ReminderServiceTest {
   private final MaintenanceService maintenance = mock(MaintenanceService.class);
   private final DocumentService documents = mock(DocumentService.class);
   private final Vehicle vehicle = mock(Vehicle.class);
+  private final ApplicationEventPublisher events = mock(ApplicationEventPublisher.class);
   private final ReminderService service =
       new ReminderService(
           reminders,
           vehicles,
           maintenance,
           documents,
-          new BusinessCalendar(Clock.fixed(Instant.parse("2026-10-10T04:30:00Z"), ZoneOffset.UTC)));
+          new BusinessCalendar(Clock.fixed(Instant.parse("2026-10-10T04:30:00Z"), ZoneOffset.UTC)),
+          events);
 
   @BeforeEach
   void setUp() {
@@ -87,6 +90,8 @@ class ReminderServiceTest {
     assertThat(saved.kmRemaining()).isEqualTo(2_000);
     assertThat(saved.status()).isEqualTo(ReminderStatus.DUE_SOON);
     assertThat(saved.remindFrom()).isEqualTo(TODAY.minusDays(2));
+    // So a reminder that is already due is pushed now, not at the next daily run.
+    verify(events).publishEvent(new RemindersChangedEvent(VEHICLE));
   }
 
   @Test
@@ -101,6 +106,7 @@ class ReminderServiceTest {
     assertThat(result.created()).isFalse();
     assertThat(result.record().dueDate()).isEqualTo(TODAY);
     verify(reminders, never()).saveAndFlush(any());
+    verify(events, never()).publishEvent(any());
   }
 
   @Test
@@ -177,6 +183,7 @@ class ReminderServiceTest {
 
     assertThat(reminder.getNotifiedStage()).isEqualTo(NotificationStage.NONE);
     assertThat(reminder.getLastNotifiedAt()).isNull();
+    verify(events).publishEvent(new RemindersChangedEvent(VEHICLE));
   }
 
   @Test
@@ -268,6 +275,7 @@ class ReminderServiceTest {
     assertThat(tyres.getServiceType()).isEqualTo(ServiceType.TYRE_ROTATION);
     assertThat(tyres.getSourceId()).isEqualTo(tyreRecord);
     assertThat(tyres.getDueDate()).isEqualTo(TODAY.plusMonths(6));
+    verify(events).publishEvent(new RemindersChangedEvent(VEHICLE));
   }
 
   @Test
@@ -308,6 +316,7 @@ class ReminderServiceTest {
     assertThat(saved.getValue()).containsExactly(insurance);
     assertThat(insurance.getSourceId()).isEqualTo(renewed);
     assertThat(insurance.getDueDate()).isEqualTo(TODAY.plusYears(1));
+    verify(events).publishEvent(new RemindersChangedEvent(VEHICLE));
   }
 
   private static VehicleResponse vehicleResponse(UUID id, int odometerKm) {

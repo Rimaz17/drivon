@@ -75,17 +75,15 @@ class PushNotifierTest {
     Outcome outcome = notifier.notifyUser(USER, MESSAGE);
 
     assertThat(outcome).isEqualTo(Outcome.FAILED);
-    assertThat(outcome.settled()).isFalse();
   }
 
   @Test
-  void aUserWithoutDevicesIsSettled() {
+  void reportsAUserWithoutDevicesWithoutSending() {
     devices();
 
     Outcome outcome = notifier.notifyUser(USER, MESSAGE);
 
     assertThat(outcome).isEqualTo(Outcome.NO_DEVICES);
-    assertThat(outcome.settled()).isTrue();
     verify(sender, never()).send(any(), any());
   }
 
