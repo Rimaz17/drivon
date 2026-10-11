@@ -151,7 +151,7 @@ void main() {
     await tester.tap(find.text('Garage').last);
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byTooltip('Account'));
+    await tester.tap(find.byTooltip('Profile'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Sign out'));
     await tester.pumpAndSettle();
@@ -160,8 +160,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(store.storedDrafts, hasLength(1));
 
-    await tester.tap(find.byTooltip('Account'));
-    await tester.pumpAndSettle();
+    // Still on the profile page.
     await tester.tap(find.text('Sign out'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Sign out').last);

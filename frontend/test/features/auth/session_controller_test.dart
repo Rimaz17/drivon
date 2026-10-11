@@ -1,3 +1,4 @@
+import 'package:drivon/core/errors/app_exception.dart';
 import 'package:drivon/core/network/session_events.dart';
 import 'package:drivon/core/storage/token_store.dart';
 import 'package:drivon/features/auth/data/auth_repository.dart';
@@ -79,5 +80,68 @@ void main() {
     final state = container.read(sessionControllerProvider);
     expect(state, isA<SignedOut>());
     expect((state as SignedOut).sessionExpired, isTrue);
+  });
+
+  test('a profile update keeps the same user for data providers', () async {
+    tokens.tokens = const AuthTokens(accessToken: 'a', refreshToken: 'r');
+    container = createContainer();
+    await settled();
+    var idChanges = 0;
+    container.listen(currentUserIdProvider, (_, _) => idChanges++);
+
+    await container
+        .read(sessionControllerProvider.notifier)
+        .updateProfile(name: 'Rimaz S', email: 'new@example.com');
+
+    expect(container.read(currentUserProvider)?.name, 'Rimaz S');
+    expect(container.read(currentUserProvider)?.email, 'new@example.com');
+    expect(idChanges, 0);
+  });
+
+  test(
+    'deleting the account signs out with a reason and clears the phone',
+    () async {
+      tokens.tokens = const AuthTokens(accessToken: 'a', refreshToken: 'r');
+      container = createContainer();
+      await settled();
+      SessionState? stateWhenCleared;
+
+      await container
+          .read(sessionControllerProvider.notifier)
+          .deleteAccount(
+            'secret-pass',
+            clearDeviceData: () async =>
+                stateWhenCleared = container.read(sessionControllerProvider),
+          );
+
+      final state = container.read(sessionControllerProvider);
+      expect(state, isA<SignedOut>());
+      expect((state as SignedOut).accountDeleted, isTrue);
+      expect(stateWhenCleared, isA<SignedOut>());
+      expect(tokens.tokens, isNull);
+    },
+  );
+
+  test('a refused deletion keeps the user signed in', () async {
+    tokens.tokens = const AuthTokens(accessToken: 'a', refreshToken: 'r');
+    container = createContainer();
+    await settled();
+    api.deleteAccountError = const ApiProblemException(
+      statusCode: 422,
+      code: ApiErrorCodes.passwordIncorrect,
+    );
+    var cleared = false;
+
+    await expectLater(
+      container
+          .read(sessionControllerProvider.notifier)
+          .deleteAccount(
+            'wrong-pass',
+            clearDeviceData: () async => cleared = true,
+          ),
+      throwsA(isA<ApiProblemException>()),
+    );
+    expect(container.read(sessionControllerProvider), isA<SignedIn>());
+    expect(cleared, isFalse);
   });
 }
