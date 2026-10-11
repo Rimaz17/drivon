@@ -61,6 +61,34 @@ class AuthRepository {
     }
   }
 
+  /// Saves new profile details and returns the account as the server has it.
+  Future<User> updateProfile({
+    required String name,
+    required String email,
+  }) async {
+    final user = (await _api.updateProfile(
+      name: name.trim(),
+      email: email.trim(),
+    )).toDomain();
+    await _userCache.save(user);
+    // Reads the profile back so its offline copy is current too; otherwise
+    // an offline launch would bring the old details back.
+    try {
+      await _api.me();
+    } on AppException {
+      // The next successful read refreshes it.
+    }
+    return user;
+  }
+
+  /// Deletes the account on the server, then forgets the session here.
+  /// Throws (keeping the session) when the server refuses, for example
+  /// because the password is wrong.
+  Future<void> deleteAccount(String password) async {
+    await _api.deleteAccount(password);
+    await clearLocalSession();
+  }
+
   /// Revokes the session on the server (best effort) and forgets it locally.
   Future<void> signOut() async {
     final tokens = await _tokens.read();
