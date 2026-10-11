@@ -2,6 +2,7 @@ package com.drivon.api.vehicle;
 
 import com.drivon.api.common.error.DrivonException;
 import com.drivon.api.common.error.ErrorCode;
+import com.drivon.api.user.UserDeletingEvent;
 import com.drivon.api.user.UserService;
 import java.time.Clock;
 import java.time.Year;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -144,6 +146,17 @@ public class VehicleService {
     Vehicle vehicle = findOwned(userId, vehicleId);
     events.publishEvent(new VehicleDeletingEvent(vehicleId));
     vehicles.delete(vehicle);
+  }
+
+  /**
+   * Announces the deletion of each of the user's vehicles, so their listeners clean up too. The
+   * rows themselves go with the account through database cascades.
+   */
+  @EventListener
+  void onUserDeleting(UserDeletingEvent event) {
+    vehicles
+        .findAllByUserIdOrderByCreatedAtAsc(event.userId())
+        .forEach(vehicle -> events.publishEvent(new VehicleDeletingEvent(vehicle.getId())));
   }
 
   private Vehicle findOwned(UUID userId, UUID vehicleId) {
