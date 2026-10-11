@@ -30,7 +30,8 @@ class DateFormField extends FormField<DateTime> {
            Future<void> pick() async {
              final picked = await _pickDate(
                context,
-               initial: value ?? lastDate,
+               // Empty fields open near today; lastDate can be years away.
+               initial: value ?? today(),
                firstDate: firstDate,
                lastDate: lastDate,
                title: label,
