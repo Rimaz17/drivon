@@ -39,9 +39,9 @@ class GarageScreen extends ConsumerWidget {
         actions: [
           if (vehicles.value?.isNotEmpty ?? false)
             IconButton(
-              tooltip: l10n.assistantTitle,
-              icon: const Icon(Icons.auto_awesome_outlined),
-              onPressed: () => context.push(AppRoutes.assistant),
+              tooltip: l10n.insightsTitle,
+              icon: const Icon(Icons.insights_outlined),
+              onPressed: () => context.push(AppRoutes.insights),
             ),
           if (user != null)
             IconButton(

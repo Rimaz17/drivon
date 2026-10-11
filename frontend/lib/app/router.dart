@@ -184,24 +184,24 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.expenses,
-                builder: (context, state) => const ExpensesScreen(),
+                path: AppRoutes.assistant,
+                builder: (context, state) => const AssistantScreen(),
               ),
             ],
           ),
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.insights,
-                builder: (context, state) => const InsightsScreen(),
+                path: AppRoutes.expenses,
+                builder: (context, state) => const ExpensesScreen(),
               ),
             ],
           ),
         ],
       ),
       GoRoute(
-        path: AppRoutes.assistant,
-        builder: (context, state) => const AssistantScreen(),
+        path: AppRoutes.insights,
+        builder: (context, state) => const InsightsScreen(),
       ),
       GoRoute(
         path: AppRoutes.addVehicle,

@@ -5,8 +5,8 @@ import '../../../app/router.dart';
 import '../../../design_system/design_system.dart';
 import '../../../l10n/app_localizations.dart';
 
-/// The way into Ask My Vehicle from the Garage sheet, with an example
-/// question so it's clear what it is for.
+/// A way into the Ask tab from the Garage sheet, with an example question
+/// so it's clear what it is for.
 class AssistantGarageTile extends StatelessWidget {
   const AssistantGarageTile({super.key});
 
@@ -19,7 +19,7 @@ class AssistantGarageTile extends StatelessWidget {
       label: '${l10n.assistantTitle}, ${l10n.assistantTileHint}',
       excludeSemantics: true,
       child: DrivonCard(
-        onTap: () => context.push(AppRoutes.assistant),
+        onTap: () => context.go(AppRoutes.assistant),
         child: Builder(
           builder: (context) {
             final textTheme = Theme.of(context).textTheme;

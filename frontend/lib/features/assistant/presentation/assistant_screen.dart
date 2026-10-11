@@ -6,12 +6,13 @@ import '../../../core/errors/app_exception.dart';
 import '../../../core/errors/error_text.dart';
 import '../../../design_system/design_system.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../vehicles/presentation/vehicles_controller.dart';
+import '../../vehicles/presentation/widgets/selected_vehicle_view.dart';
 import '../domain/chat_message.dart';
 import 'chat_controller.dart';
 
-/// Ask My Vehicle: questions about the selected vehicle, answered by the
-/// server from the user's own records.
+/// Ask tab (Ask My Vehicle): questions about the selected vehicle, answered
+/// by the server from the user's own records. The conversation stays while
+/// the user moves between tabs.
 class AssistantScreen extends ConsumerStatefulWidget {
   const AssistantScreen({super.key});
 
@@ -41,7 +42,6 @@ class _AssistantScreenState extends ConsumerState<AssistantScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final chat = ref.watch(chatControllerProvider);
-    final vehicle = ref.watch(selectedVehicleProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -58,21 +58,33 @@ class _AssistantScreenState extends ConsumerState<AssistantScreen> {
         ],
       ),
       body: SafeArea(
-        child: ContentWidth(
-          child: Column(
-            children: [
-              Expanded(
-                child: chat.messages.isEmpty
-                    ? _Welcome(vehicleName: vehicle?.displayName, onAsk: _send)
-                    : _Conversation(chat: chat),
-              ),
-              _Composer(
-                controller: _input,
-                focusNode: _focus,
-                waiting: chat.waiting,
-                onSend: _send,
-              ),
-            ],
+        child: SelectedVehicleView(
+          builder: (context, vehicle, switcher) => ContentWidth(
+            child: Column(
+              children: [
+                if (switcher != null)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      DrivonSpacing.screenGutter,
+                      DrivonSpacing.sm,
+                      DrivonSpacing.screenGutter,
+                      0,
+                    ),
+                    child: switcher,
+                  ),
+                Expanded(
+                  child: chat.messages.isEmpty
+                      ? _Welcome(vehicleName: vehicle.displayName, onAsk: _send)
+                      : _Conversation(chat: chat),
+                ),
+                _Composer(
+                  controller: _input,
+                  focusNode: _focus,
+                  waiting: chat.waiting,
+                  onSend: _send,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -84,14 +96,13 @@ class _AssistantScreenState extends ConsumerState<AssistantScreen> {
 class _Welcome extends StatelessWidget {
   const _Welcome({required this.vehicleName, required this.onAsk});
 
-  final String? vehicleName;
+  final String vehicleName;
   final ValueChanged<String> onAsk;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final textTheme = Theme.of(context).textTheme;
-    final name = vehicleName;
     final suggestions = [
       l10n.assistantSuggestionFuel,
       l10n.assistantSuggestionEfficiency,
@@ -117,9 +128,7 @@ class _Welcome extends StatelessWidget {
         ),
         const SizedBox(height: DrivonSpacing.sm),
         Text(
-          name == null
-              ? l10n.assistantWelcomeMessage
-              : l10n.assistantWelcomeVehicle(name),
+          l10n.assistantWelcomeVehicle(vehicleName),
           style: textTheme.bodyLarge,
         ),
         const SizedBox(height: DrivonSpacing.xl),
