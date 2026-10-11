@@ -55,6 +55,9 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen>
     final l10n = AppLocalizations.of(context);
     return AuthLayout(
       title: l10n.createAccountTitle,
+      // A step below "Welcome back", so the longer title sits comfortably on
+      // one line.
+      titleStyle: Theme.of(context).textTheme.headlineLarge,
       subtitle: l10n.createAccountSubtitle,
       footerPrompt: l10n.haveAccountPrompt,
       footerAction: l10n.goToSignIn,

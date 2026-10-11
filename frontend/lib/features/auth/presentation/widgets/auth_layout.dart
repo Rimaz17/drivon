@@ -20,6 +20,7 @@ class AuthLayout extends StatelessWidget {
     required this.footerPrompt,
     required this.footerAction,
     required this.onFooterAction,
+    this.titleStyle,
     super.key,
   });
 
@@ -29,6 +30,10 @@ class AuthLayout extends StatelessWidget {
   final String footerPrompt;
   final String footerAction;
   final VoidCallback? onFooterAction;
+
+  /// Style of [title]; `displaySmall` unless given, e.g. a smaller style for
+  /// a longer title.
+  final TextStyle? titleStyle;
 
   static const double _logoMarkWidth = 104;
 
@@ -75,7 +80,10 @@ class AuthLayout extends StatelessWidget {
                         const SizedBox(height: DrivonSpacing.xxxl),
                         Semantics(
                           header: true,
-                          child: Text(title, style: textTheme.displaySmall),
+                          child: Text(
+                            title,
+                            style: titleStyle ?? textTheme.displaySmall,
+                          ),
                         ),
                         const SizedBox(height: DrivonSpacing.sm),
                         Text(subtitle, style: textTheme.bodyLarge),
