@@ -206,6 +206,41 @@ class AuthServiceTest {
     verify(refreshTokens, never()).revokeFamily(any(), any());
   }
 
+  @Test
+  void deletesTheAccountWhenThePasswordMatches() {
+    User user = withId(new User("Rimaz", "rimaz@example.com", "hashed:password1"));
+    when(users.findById(user.getId())).thenReturn(Optional.of(user));
+
+    auth.deleteAccount(user.getId(), new DeleteAccountRequest("password1"));
+
+    verify(userService).delete(user.getId());
+  }
+
+  @Test
+  void keepsTheAccountWhenThePasswordIsWrong() {
+    User user = withId(new User("Rimaz", "rimaz@example.com", "hashed:password1"));
+    when(users.findById(user.getId())).thenReturn(Optional.of(user));
+
+    assertThatThrownBy(
+            () -> auth.deleteAccount(user.getId(), new DeleteAccountRequest("password2")))
+        .extracting(e -> ((DrivonException) e).code())
+        .isEqualTo(ErrorCode.PASSWORD_INCORRECT);
+    verify(userService, never()).delete(any());
+  }
+
+  @Test
+  void treatsAPasswordLongerThanBcryptAcceptsAsWrong() {
+    User user = withId(new User("Rimaz", "rimaz@example.com", "hashed:password1"));
+    when(users.findById(user.getId())).thenReturn(Optional.of(user));
+    String tooLong = "x".repeat(AuthService.MAX_PASSWORD_BYTES + 1);
+
+    assertThatThrownBy(() -> auth.deleteAccount(user.getId(), new DeleteAccountRequest(tooLong)))
+        .extracting(e -> ((DrivonException) e).code())
+        .isEqualTo(ErrorCode.PASSWORD_INCORRECT);
+    verify(passwordEncoder, never()).matches(eq(tooLong), anyString());
+    verify(userService, never()).delete(any());
+  }
+
   private static RefreshToken token(UUID userId, UUID family, Instant expiresAt) {
     return new RefreshToken(userId, family, "hash", NOW.minus(Duration.ofDays(1)), expiresAt);
   }
