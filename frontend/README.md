@@ -63,6 +63,7 @@ lib/
 ├── design_system/   Tokens, theme and reusable widgets (import design_system.dart)
 ├── features/
 │   ├── auth/        Sign in, create account, session state
+│   ├── profile/     Profile page: edit name and email, sign out, delete the account
 │   ├── vehicles/    Garage home, vehicle switcher, add/edit/delete form, odometer history and corrections
 │   ├── fuel/        Fuel tab (km/L gauge, spend, history), fill-up form
 │   ├── maintenance/ Service tab (upcoming services, filtered history), service form
@@ -75,7 +76,7 @@ Data flows one way: screen → Riverpod controller → repository → API client
 
 ### Navigation
 
-Signed-in screens sit in a tab shell (`app/app_shell.dart`, go_router `StatefulShellRoute`): a bottom navigation bar on phones and a navigation rail from 600 dp wide. Each tab keeps its own stack and scroll position. Tabs work on the selected vehicle (`SelectedVehicleView` shows the switcher when there are two vehicles). Forms are top-level routes, so they cover the navigation bar, and system Back closes them.
+Signed-in screens sit in a tab shell (`app/app_shell.dart`, go_router `StatefulShellRoute`): a bottom navigation bar on phones and a navigation rail from 600 dp wide. The tabs are Garage, Fuel, Service, Ask (Ask My Vehicle) and Expenses. Each tab keeps its own stack and scroll position. The Garage app bar opens Insights and the Profile page, which cover the navigation bar like forms. Tabs work on the selected vehicle (`SelectedVehicleView` shows the switcher when there are two vehicles). Forms are top-level routes, so they cover the navigation bar, and system Back closes them.
 
 ### Numbers and dates
 
@@ -146,7 +147,7 @@ iOS push needs an APNs key from the paid Apple Developer Program, so it is not s
 
 ### Ask My Vehicle
 
-- Opened from the Garage (the sparkle button in the app bar, or the *Ask My Vehicle* tile). The chat asks the API (`POST /api/v1/assistant/chat`) about the selected vehicle and shows plain-text answers; the server looks up the user's data with read-only tools (`docs/adr/0014-ask-my-vehicle.md`). The app never talks to an AI provider and holds no AI keys.
+- The *Ask* tab, between Service and Expenses (the Garage's *Ask My Vehicle* tile switches to it). The conversation stays while the user visits other tabs. The chat asks the API (`POST /api/v1/assistant/chat`) about the selected vehicle and shows plain-text answers; the server looks up the user's data with read-only tools (`docs/adr/0014-ask-my-vehicle.md`). The app never talks to an AI provider and holds no AI keys.
 - `ChatController` keeps the conversation in memory only (cleared on sign-out or *Start over*) and sends the latest 10 answered turns with each question, so follow-ups work. Example questions start an empty chat; a question that fails shows why (unavailable, couldn't finish, daily limit, offline) with *Try again*.
 - The welcome text reminds users that questions go to an AI service, so they shouldn't include personal details.
 
@@ -164,9 +165,9 @@ iOS push needs an APNs key from the paid Apple Developer Program, so it is not s
 
 ### Insights and charts
 
-- The Insights tab shows the server's running-cost analytics (`docs/adr/0012-analytics-and-cost-per-km.md`): cost per km for the chosen period split into fuel, maintenance and other, six months of costs, cost per km by month, km/L per full tank over twelve months, the category split and, with two vehicles, a comparison. The app formats these numbers; it never calculates them.
+- Insights opens from the Garage app bar (the chart button) and shows the server's running-cost analytics (`docs/adr/0012-analytics-and-cost-per-km.md`): cost per km for the chosen period split into fuel, maintenance and other, six months of costs, cost per km by month, km/L per full tank over twelve months, the category split and, with two vehicles, a comparison. The app formats these numbers; it never calculates them.
 - Charts are design-system components built on `fl_chart` (`design_system/widgets/charts/`). Running-cost parts always use `costSeries` (violet, teal, ochre) in that order, chosen to stay distinguishable with colour-blindness and to keep 3:1 contrast on the dark chart cards. Values show on tap, every chart has a spoken summary, and charts don't animate under reduced motion.
-- Fill-ups, services, expenses and odometer changes reload the Insights figures (`refreshInsights`), so the tab never shows stale totals.
+- Fill-ups, services, expenses and odometer changes reload the Insights figures (`refreshInsights`), so the screen never shows stale totals.
 
 ### Sessions
 
@@ -174,6 +175,8 @@ iOS push needs an APNs key from the paid Apple Developer Program, so it is not s
 - `AuthInterceptor` adds the access token, refreshes it once on a 401 and retries. Concurrent 401s share one refresh, because the server treats refresh-token reuse as theft.
 - At launch the saved session is confirmed with `/users/me`. If the server is unreachable or still waking up, the cached profile keeps the user signed in.
 - Signing out revokes the session on the server and clears tokens, the profile and the remembered vehicle selection.
+- The Profile page (account button in the Garage app bar) edits the name and email (`PUT /users/me`; a taken email shows under the field), signs out, and deletes the account after asking for the password (`POST /users/me/deletion`). After a deletion the app clears the user's tokens, offline data and vehicle selection, cancels scheduled notifications, and the sign-in screen says the account was deleted.
+- Data providers watch `currentUserIdProvider`, not the whole user, so editing the profile doesn't reload them.
 
 ## Design system
 

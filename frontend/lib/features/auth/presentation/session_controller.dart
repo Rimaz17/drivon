@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/session_events.dart';
@@ -24,10 +25,13 @@ final class SignedIn extends SessionState {
 }
 
 final class SignedOut extends SessionState {
-  const SignedOut({this.sessionExpired = false});
+  const SignedOut({this.sessionExpired = false, this.accountDeleted = false});
 
   /// True when the server ended the session, so the UI can explain why.
   final bool sessionExpired;
+
+  /// True right after the user deleted their account.
+  final bool accountDeleted;
 }
 
 class SessionController extends Notifier<SessionState> {
@@ -70,6 +74,34 @@ class SessionController extends Notifier<SessionState> {
     if (ref.mounted) state = SignedIn(user);
   }
 
+  /// Saves the signed-in user's new name and email. Throws an AppException
+  /// when the server refuses them.
+  Future<void> updateProfile({
+    required String name,
+    required String email,
+  }) async {
+    final user = await _repository.updateProfile(name: name, email: email);
+    if (ref.mounted && state is SignedIn) state = SignedIn(user);
+  }
+
+  /// Deletes the account once the server has checked [password]. Throws an
+  /// AppException, keeping the session, when it refuses. After the account
+  /// is gone the user is signed out, then [clearDeviceData] removes what
+  /// the phone kept for them; it must not depend on widgets, which are
+  /// gone by then.
+  Future<void> deleteAccount(
+    String password, {
+    required Future<void> Function() clearDeviceData,
+  }) async {
+    await _repository.deleteAccount(password);
+    if (ref.mounted) state = const SignedOut(accountDeleted: true);
+    try {
+      await clearDeviceData();
+    } on Object catch (error) {
+      debugPrint('Clearing data of the deleted account failed: $error');
+    }
+  }
+
   Future<void> signOut() async {
     await _repository.signOut();
     if (ref.mounted) state = const SignedOut();
@@ -101,3 +133,9 @@ final currentUserProvider = Provider<User?>((ref) {
   final session = ref.watch(sessionControllerProvider);
   return session is SignedIn ? session.user : null;
 });
+
+/// ID of the signed-in user, or null. Data providers watch this rather than
+/// [currentUserProvider], so editing the profile doesn't reload them.
+final currentUserIdProvider = Provider<String?>(
+  (ref) => ref.watch(currentUserProvider.select((user) => user?.id)),
+);

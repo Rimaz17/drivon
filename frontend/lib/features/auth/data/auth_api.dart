@@ -39,6 +39,26 @@ class AuthApi {
     return UserDto.fromJson(response.data!);
   });
 
+  Future<UserDto> updateProfile({
+    required String name,
+    required String email,
+  }) => guardApi(() async {
+    final response = await _dio.put<Map<String, dynamic>>(
+      '/api/v1/users/me',
+      data: {'name': name, 'email': email},
+    );
+    return UserDto.fromJson(response.data!);
+  });
+
+  /// Permanently deletes the signed-in account after the server checks
+  /// [password].
+  Future<void> deleteAccount(String password) => guardApi(
+    () => _dio.post<void>(
+      '/api/v1/users/me/deletion',
+      data: {'password': password},
+    ),
+  );
+
   Future<AuthResponseDto> _post(String path, Map<String, String> body) =>
       guardApi(() async {
         final response = await _dio.post<Map<String, dynamic>>(

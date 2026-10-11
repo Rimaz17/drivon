@@ -11,16 +11,19 @@ import static org.mockito.Mockito.when;
 
 import com.drivon.api.common.error.DrivonException;
 import com.drivon.api.common.error.ErrorCode;
+import com.drivon.api.user.UserDeletingEvent;
 import com.drivon.api.user.UserService;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.test.util.ReflectionTestUtils;
 
 class VehicleServiceTest {
 
@@ -133,6 +136,23 @@ class VehicleServiceTest {
     InOrder order = inOrder(events, repository);
     order.verify(events).publishEvent(new VehicleDeletingEvent(id));
     order.verify(repository).delete(existing);
+  }
+
+  @Test
+  void announcesTheDeletionOfEveryVehicleWhenTheirOwnerIsDeleted() {
+    Vehicle car = existing(50_000);
+    Vehicle bike = existing(12_000);
+    UUID carId = UUID.randomUUID();
+    UUID bikeId = UUID.randomUUID();
+    ReflectionTestUtils.setField(car, "id", carId);
+    ReflectionTestUtils.setField(bike, "id", bikeId);
+    when(repository.findAllByUserIdOrderByCreatedAtAsc(USER)).thenReturn(List.of(car, bike));
+
+    service.onUserDeleting(new UserDeletingEvent(USER));
+
+    verify(events).publishEvent(new VehicleDeletingEvent(carId));
+    verify(events).publishEvent(new VehicleDeletingEvent(bikeId));
+    verify(repository, never()).delete(any());
   }
 
   @Test

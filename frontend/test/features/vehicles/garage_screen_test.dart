@@ -183,14 +183,14 @@ void main() {
     expect(find.text('Add your first vehicle'), findsOneWidget);
   });
 
-  testWidgets('signs out from the account sheet', (tester) async {
+  testWidgets('signs out from the profile page', (tester) async {
     api.vehicles.add(vehicleDto());
     selections.selections['user-1'] = 'vehicle-1';
     await launch(tester);
 
-    await tester.tap(find.byTooltip('Account'));
+    await tester.tap(find.byTooltip('Profile'));
     await tester.pumpAndSettle();
-    expect(find.text('rimaz@example.com'), findsOneWidget);
+    expect(find.text('rimaz@example.com'), findsWidgets);
     await tester.tap(find.text('Sign out'));
     await tester.pumpAndSettle();
 

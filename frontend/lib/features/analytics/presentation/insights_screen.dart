@@ -16,9 +16,9 @@ import 'widgets/insight_card.dart';
 import 'widgets/running_cost_card.dart';
 import 'widgets/split_and_comparison.dart';
 
-/// Insights tab: what the selected vehicle costs per km and why, how its
-/// costs and efficiency move month to month, and how two vehicles compare.
-/// Every figure comes from the server.
+/// Insights, opened from the Garage: what the selected vehicle costs per km
+/// and why, how its costs and efficiency move month to month, and how two
+/// vehicles compare. Every figure comes from the server.
 class InsightsScreen extends StatelessWidget {
   const InsightsScreen({super.key});
 

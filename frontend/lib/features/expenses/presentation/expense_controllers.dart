@@ -46,7 +46,7 @@ final spendingSummaryProvider = FutureProvider.autoDispose
       ref,
       key,
     ) {
-      ref.watch(currentUserProvider);
+      ref.watch(currentUserIdProvider);
       return ref
           .read(expenseRepositoryProvider)
           .summary(key.vehicleId, key.period, today());
@@ -55,14 +55,14 @@ final spendingSummaryProvider = FutureProvider.autoDispose
 /// A vehicle's total spend for the last six months, oldest first.
 final monthlySpendingProvider = FutureProvider.autoDispose
     .family<List<MonthlyAmount>, String>((ref, vehicleId) {
-      ref.watch(currentUserProvider);
+      ref.watch(currentUserIdProvider);
       return ref.read(expenseRepositoryProvider).monthly(vehicleId);
     }, retry: (_, _) => null);
 
 /// Each of the user's vehicles' total over a period, to compare them.
 final vehicleTotalsProvider = FutureProvider.autoDispose
     .family<List<VehicleTotal>, SpendingPeriod>((ref, period) {
-      ref.watch(currentUserProvider);
+      ref.watch(currentUserIdProvider);
       return ref.read(expenseRepositoryProvider).byVehicle(period, today());
     }, retry: (_, _) => null);
 

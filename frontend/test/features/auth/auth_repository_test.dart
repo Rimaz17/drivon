@@ -88,4 +88,67 @@ void main() {
     expect(tokens.tokens, isNull);
     expect(cache.user, isNull);
   });
+
+  test(
+    'a profile update keeps the saved profile and its offline copy current',
+    () async {
+      await repository.signIn(email: 'rimaz@example.com', password: 'x');
+
+      final user = await repository.updateProfile(
+        name: ' Rimaz S ',
+        email: ' New@Example.com ',
+      );
+
+      expect(api.lastProfileUpdate, {
+        'name': 'Rimaz S',
+        'email': 'New@Example.com',
+      });
+      expect(user.email, 'new@example.com');
+      expect(cache.user, user);
+      // Read back so the offline cache of /users/me has the new details.
+      expect(api.meCalls, 1);
+    },
+  );
+
+  test('a refused profile update changes nothing', () async {
+    final signedIn = await repository.signIn(
+      email: 'rimaz@example.com',
+      password: 'x',
+    );
+    api.updateProfileResult = const ApiProblemException(
+      statusCode: 409,
+      code: ApiErrorCodes.emailAlreadyRegistered,
+    );
+
+    await expectLater(
+      repository.updateProfile(name: 'R', email: 'taken@example.com'),
+      throwsA(isA<ApiProblemException>()),
+    );
+    expect(cache.user, signedIn);
+  });
+
+  test('deleting the account forgets the session on this phone', () async {
+    await repository.signIn(email: 'rimaz@example.com', password: 'x');
+
+    await repository.deleteAccount('secret-pass');
+
+    expect(api.deletionPasswords, ['secret-pass']);
+    expect(tokens.tokens, isNull);
+    expect(cache.user, isNull);
+  });
+
+  test('a refused deletion keeps the session', () async {
+    await repository.signIn(email: 'rimaz@example.com', password: 'x');
+    api.deleteAccountError = const ApiProblemException(
+      statusCode: 422,
+      code: ApiErrorCodes.passwordIncorrect,
+    );
+
+    await expectLater(
+      repository.deleteAccount('wrong-pass'),
+      throwsA(isA<ApiProblemException>()),
+    );
+    expect(tokens.tokens, isNotNull);
+    expect(cache.user, isNotNull);
+  });
 }

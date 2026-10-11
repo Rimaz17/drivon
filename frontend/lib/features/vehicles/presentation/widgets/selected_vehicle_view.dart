@@ -10,10 +10,11 @@ import '../../domain/vehicle.dart';
 import '../vehicles_controller.dart';
 import 'vehicle_switcher.dart';
 
-/// Body of a tab that works on the selected vehicle (Fuel, Service,
-/// Expenses). Handles loading, errors and having no vehicle, and passes the
-/// selected vehicle to [builder] with a [VehicleSwitcher] to place at the top
-/// of the content when the user has two vehicles (null otherwise).
+/// Body of a screen that works on the selected vehicle (Fuel, Service, Ask,
+/// Expenses, Insights). Handles loading, errors and having no vehicle, and
+/// passes the selected vehicle to [builder] with a [VehicleSwitcher] to place
+/// at the top of the content when the user has two vehicles (null
+/// otherwise).
 class SelectedVehicleView extends ConsumerWidget {
   const SelectedVehicleView({required this.builder, super.key});
 

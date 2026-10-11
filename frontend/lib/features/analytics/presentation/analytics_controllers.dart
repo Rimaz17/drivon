@@ -25,7 +25,7 @@ typedef PeriodKey = ({String vehicleId, SpendingPeriod period});
 
 final costPerKmProvider = FutureProvider.autoDispose
     .family<CostPerKm, PeriodKey>((ref, key) {
-      ref.watch(currentUserProvider);
+      ref.watch(currentUserIdProvider);
       return ref
           .read(analyticsRepositoryProvider)
           .costPerKm(key.vehicleId, key.period, today());
@@ -33,13 +33,13 @@ final costPerKmProvider = FutureProvider.autoDispose
 
 final monthlyCostsProvider = FutureProvider.autoDispose
     .family<List<MonthlyCost>, String>((ref, vehicleId) {
-      ref.watch(currentUserProvider);
+      ref.watch(currentUserIdProvider);
       return ref.read(analyticsRepositoryProvider).monthlyCosts(vehicleId);
     }, retry: (_, _) => null);
 
 final efficiencyTrendProvider = FutureProvider.autoDispose
     .family<List<EfficiencyPoint>, String>((ref, vehicleId) {
-      ref.watch(currentUserProvider);
+      ref.watch(currentUserIdProvider);
       return ref
           .read(analyticsRepositoryProvider)
           .efficiencyTrend(vehicleId, today());
@@ -47,7 +47,7 @@ final efficiencyTrendProvider = FutureProvider.autoDispose
 
 final vehicleComparisonProvider = FutureProvider.autoDispose
     .family<List<VehicleCost>, SpendingPeriod>((ref, period) {
-      ref.watch(currentUserProvider);
+      ref.watch(currentUserIdProvider);
       return ref
           .read(analyticsRepositoryProvider)
           .compareVehicles(period, today());

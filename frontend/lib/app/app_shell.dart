@@ -28,8 +28,8 @@ class AppShell extends StatelessWidget {
       (Icons.directions_car_outlined, Icons.directions_car, l10n.navGarage),
       (Icons.local_gas_station_outlined, Icons.local_gas_station, l10n.navFuel),
       (Icons.build_outlined, Icons.build, l10n.navService),
+      (Icons.auto_awesome_outlined, Icons.auto_awesome, l10n.navAssistant),
       (Icons.receipt_long_outlined, Icons.receipt_long, l10n.navExpenses),
-      (Icons.insights_outlined, Icons.insights, l10n.navInsights),
     ];
     final wide =
         MediaQuery.sizeOf(context).width >=

@@ -14,6 +14,7 @@ import com.drivon.api.common.error.DrivonException;
 import com.drivon.api.common.error.ErrorCode;
 import com.drivon.api.user.User;
 import com.drivon.api.user.UserRepository;
+import com.drivon.api.user.UserService;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -31,6 +32,7 @@ class AuthServiceTest {
   private static final Instant NOW = Instant.parse("2026-10-07T10:00:00Z");
 
   private final UserRepository users = mock(UserRepository.class);
+  private final UserService userService = mock(UserService.class);
   private final RefreshTokenRepository refreshTokens = mock(RefreshTokenRepository.class);
   private final PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
   private final TokenService tokens = mock(TokenService.class);
@@ -47,7 +49,12 @@ class AuthServiceTest {
         .thenReturn(new TokenService.IssuedToken("refresh", NOW.plus(Duration.ofDays(30))));
     auth =
         new AuthService(
-            users, refreshTokens, passwordEncoder, tokens, Clock.fixed(NOW, ZoneOffset.UTC));
+            users,
+            userService,
+            refreshTokens,
+            passwordEncoder,
+            tokens,
+            Clock.fixed(NOW, ZoneOffset.UTC));
   }
 
   @Test
@@ -197,6 +204,41 @@ class AuthServiceTest {
     auth.logout(new RefreshRequest("unknown"));
 
     verify(refreshTokens, never()).revokeFamily(any(), any());
+  }
+
+  @Test
+  void deletesTheAccountWhenThePasswordMatches() {
+    User user = withId(new User("Rimaz", "rimaz@example.com", "hashed:password1"));
+    when(users.findById(user.getId())).thenReturn(Optional.of(user));
+
+    auth.deleteAccount(user.getId(), new DeleteAccountRequest("password1"));
+
+    verify(userService).delete(user.getId());
+  }
+
+  @Test
+  void keepsTheAccountWhenThePasswordIsWrong() {
+    User user = withId(new User("Rimaz", "rimaz@example.com", "hashed:password1"));
+    when(users.findById(user.getId())).thenReturn(Optional.of(user));
+
+    assertThatThrownBy(
+            () -> auth.deleteAccount(user.getId(), new DeleteAccountRequest("password2")))
+        .extracting(e -> ((DrivonException) e).code())
+        .isEqualTo(ErrorCode.PASSWORD_INCORRECT);
+    verify(userService, never()).delete(any());
+  }
+
+  @Test
+  void treatsAPasswordLongerThanBcryptAcceptsAsWrong() {
+    User user = withId(new User("Rimaz", "rimaz@example.com", "hashed:password1"));
+    when(users.findById(user.getId())).thenReturn(Optional.of(user));
+    String tooLong = "x".repeat(AuthService.MAX_PASSWORD_BYTES + 1);
+
+    assertThatThrownBy(() -> auth.deleteAccount(user.getId(), new DeleteAccountRequest(tooLong)))
+        .extracting(e -> ((DrivonException) e).code())
+        .isEqualTo(ErrorCode.PASSWORD_INCORRECT);
+    verify(passwordEncoder, never()).matches(eq(tooLong), anyString());
+    verify(userService, never()).delete(any());
   }
 
   private static RefreshToken token(UUID userId, UUID family, Instant expiresAt) {

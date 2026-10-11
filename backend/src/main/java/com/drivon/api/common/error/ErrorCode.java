@@ -64,6 +64,8 @@ public enum ErrorCode {
   REMINDER_READ_ONLY(HttpStatus.UNPROCESSABLE_CONTENT, "Reminder follows a service or document"),
   REMINDER_LIMIT_REACHED(HttpStatus.UNPROCESSABLE_CONTENT, "Reminder limit reached"),
   ASSISTANT_INCOMPLETE(HttpStatus.UNPROCESSABLE_CONTENT, "The assistant couldn't finish"),
+  // Not 401: the session is fine, only the confirmation failed.
+  PASSWORD_INCORRECT(HttpStatus.UNPROCESSABLE_CONTENT, "Password is incorrect"),
 
   // 429 / 5xx
   RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "Too many requests"),

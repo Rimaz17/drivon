@@ -102,4 +102,5 @@ abstract final class ApiErrorCodes {
   static const String reminderLimitReached = 'REMINDER_LIMIT_REACHED';
   static const String assistantUnavailable = 'ASSISTANT_UNAVAILABLE';
   static const String assistantIncomplete = 'ASSISTANT_INCOMPLETE';
+  static const String passwordIncorrect = 'PASSWORD_INCORRECT';
 }

@@ -24,6 +24,15 @@ class FakeAuthApi implements AuthApi {
   final List<String> loggedOutTokens = [];
   Map<String, String>? lastLogin;
 
+  /// Null echoes the new details back as the server would.
+  Object? updateProfileResult;
+  Map<String, String>? lastProfileUpdate;
+
+  /// An AppException to refuse the deletion with; null accepts it.
+  AppException? deleteAccountError;
+  final List<String> deletionPasswords = [];
+  int meCalls = 0;
+
   @override
   Future<AuthResponseDto> login({
     required String email,
@@ -41,7 +50,29 @@ class FakeAuthApi implements AuthApi {
   }) async => _resolve(registerResult);
 
   @override
-  Future<UserDto> me() async => _resolve(meResult);
+  Future<UserDto> me() async {
+    meCalls++;
+    return _resolve(meResult);
+  }
+
+  @override
+  Future<UserDto> updateProfile({
+    required String name,
+    required String email,
+  }) async {
+    lastProfileUpdate = {'name': name, 'email': email};
+    return _resolve(
+      updateProfileResult ??
+          UserDto(id: testUserDto.id, name: name, email: email.toLowerCase()),
+    );
+  }
+
+  @override
+  Future<void> deleteAccount(String password) async {
+    deletionPasswords.add(password);
+    final error = deleteAccountError;
+    if (error != null) throw error;
+  }
 
   @override
   Future<void> logout(String refreshToken) async =>

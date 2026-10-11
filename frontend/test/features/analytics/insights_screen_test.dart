@@ -37,7 +37,8 @@ void main() {
       UncontrolledProviderScope(container: container, child: const DrivonApp()),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Insights').last);
+    // Opened from the Garage's app bar.
+    await tester.tap(find.byTooltip('Insights'));
     await tester.pumpAndSettle();
   }
 

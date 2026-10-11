@@ -225,6 +225,27 @@ class DocumentIntegrationTest {
   }
 
   @Test
+  void deletingTheAccountDeletesTheFilesOfEveryVehicle() throws Exception {
+    Session session = api.register();
+    String car = api.createVehicle(session, "CAB-2007", 46_000);
+    String bike = api.createVehicle(session, "BCD-2008", 12_000);
+    String carDocument = upload(session, car, "REGISTRATION", null);
+    String bikeDocument = upload(session, bike, "INSURANCE", TODAY.plusMonths(6));
+
+    assertThat(
+            api.postJson(
+                "/api/v1/users/me/deletion",
+                """
+                {"password": "correct-horse-battery"}
+                """,
+                session.bearer()))
+        .hasStatus(HttpStatus.NO_CONTENT);
+
+    assertThat(storage.head(keyOf(session, car, carDocument))).isEmpty();
+    assertThat(storage.head(keyOf(session, bike, bikeDocument))).isEmpty();
+  }
+
+  @Test
   void listsDocumentsExpiringSoonAcrossTheUsersVehicles() throws Exception {
     Session session = api.register();
     String car = api.createVehicle(session, "CAB-2005", 46_000);

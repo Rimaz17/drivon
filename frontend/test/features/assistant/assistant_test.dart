@@ -189,9 +189,67 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.byTooltip('Ask My Vehicle'));
+      await tester.tap(find.text('Ask'));
       await tester.pumpAndSettle();
     }
+
+    int selectedTab(WidgetTester tester) =>
+        tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex;
+
+    testWidgets('is the tab between Service and Expenses', (tester) async {
+      await openChat(tester);
+
+      final labels = tester
+          .widget<NavigationBar>(find.byType(NavigationBar))
+          .destinations
+          .cast<NavigationDestination>()
+          .map((destination) => destination.label);
+      expect(labels, ['Garage', 'Fuel', 'Service', 'Ask', 'Expenses']);
+      expect(selectedTab(tester), 3);
+      expect(find.text('Ask My Vehicle'), findsOneWidget);
+    });
+
+    testWidgets('keeps the conversation while the user visits other tabs', (
+      tester,
+    ) async {
+      await openChat(tester);
+      await tester.tap(find.text("What's my average km/L?"));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Fuel'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Ask'));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Answer to: What's my average km/L?"), findsOneWidget);
+    });
+
+    testWidgets('asks for a vehicle first when the garage is empty', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1236, 2745);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: testOverrides(
+            tokens: InMemoryTokenStore(
+              const AuthTokens(accessToken: 'a', refreshToken: 'r'),
+            ),
+            vehicleApi: FakeVehicleApi(),
+            assistantApi: assistant,
+          ),
+          child: const DrivonApp(),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Ask'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Add a vehicle first'), findsOneWidget);
+      expect(find.byType(TextField), findsNothing);
+      expect(assistant.asked, isEmpty);
+    });
 
     testWidgets('offers example questions about the selected vehicle', (
       tester,
@@ -237,9 +295,7 @@ void main() {
       expect(find.text('Try asking'), findsOneWidget);
     });
 
-    testWidgets('the garage opens Ask My Vehicle from its tile too', (
-      tester,
-    ) async {
+    testWidgets('the garage tile switches to the Ask tab', (tester) async {
       tester.view.physicalSize = const Size(1236, 2745);
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.reset);
@@ -268,6 +324,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Try asking'), findsOneWidget);
+      expect(
+        tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+        3,
+      );
     });
   });
 }

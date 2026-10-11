@@ -6,6 +6,7 @@ import com.drivon.api.user.Emails;
 import com.drivon.api.user.User;
 import com.drivon.api.user.UserRepository;
 import com.drivon.api.user.UserResponse;
+import com.drivon.api.user.UserService;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
@@ -31,6 +32,7 @@ public class AuthService {
   private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
   private final UserRepository users;
+  private final UserService userService;
   private final RefreshTokenRepository refreshTokens;
   private final PasswordEncoder passwordEncoder;
   private final TokenService tokens;
@@ -41,11 +43,13 @@ public class AuthService {
 
   AuthService(
       UserRepository users,
+      UserService userService,
       RefreshTokenRepository refreshTokens,
       PasswordEncoder passwordEncoder,
       TokenService tokens,
       Clock clock) {
     this.users = users;
+    this.userService = userService;
     this.refreshTokens = refreshTokens;
     this.passwordEncoder = passwordEncoder;
     this.tokens = tokens;
@@ -115,6 +119,22 @@ public class AuthService {
     refreshTokens
         .findByTokenHash(TokenService.hash(request.refreshToken()))
         .ifPresent(token -> refreshTokens.revokeFamily(token.getFamilyId(), clock.instant()));
+  }
+
+  /**
+   * Deletes the account after checking its password again, so a phone left unlocked or a stolen
+   * access token isn't enough. All of the user's sessions end with it.
+   */
+  @Transactional
+  public void deleteAccount(UUID userId, DeleteAccountRequest request) {
+    User user =
+        users.findById(userId).orElseThrow(() -> new DrivonException(ErrorCode.UNAUTHENTICATED));
+    if (isTooLong(request.password())
+        || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+      throw new DrivonException(ErrorCode.PASSWORD_INCORRECT, "The password is incorrect.");
+    }
+    userService.delete(userId);
+    log.info("Deleted account {}", userId);
   }
 
   private AuthResponse issueTokens(User user, UUID familyId) {
