@@ -261,13 +261,32 @@ class ReminderIntegrationTest {
   }
 
   @Test
-  void theDailyRunPushesEachStageOnce() {
+  void aReminderAddedForTodayIsPushedRightAway() {
     Session session = api.register();
     String vehicleId = api.createVehicle(session, "CAB-1234", 45_000);
     String device = token();
     registerDevice(session, device);
-    String id = addReminder(session, vehicleId, TODAY, null);
 
+    addReminder(session, vehicleId, TODAY, null);
+
+    assertThat(pushes.sentTo(device))
+        .extracting(PushMessage::title)
+        .containsExactly("Emission test is due");
+  }
+
+  @Test
+  void aReminderDueBeforeAnyPhoneRegisteredIsPushedOnceOneCan() {
+    Session session = api.register();
+    String vehicleId = api.createVehicle(session, "CAB-1234", 45_000);
+    String id = addReminder(session, vehicleId, TODAY, null);
+    assertThat(runJob(JOB_SECRET)).hasStatusOk();
+    assertThat(
+            jdbc.queryForObject(
+                "select notified_stage from reminders where id = ?::uuid", String.class, id))
+        .isEqualTo("NONE");
+
+    String device = token();
+    registerDevice(session, device);
     assertThat(runJob(JOB_SECRET)).hasStatusOk();
     assertThat(runJob(JOB_SECRET)).hasStatusOk();
 

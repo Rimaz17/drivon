@@ -114,12 +114,15 @@ class ReminderNotifierTest {
   }
 
   @Test
-  void aUserWithoutDevicesIsSettledSoTheStageIsNotRetriedForever() {
+  void aReminderDueBeforeAnyPhoneRegisteredIsSentOnceOneHas() {
     Reminder reminder = Reminder.manual(null, VEHICLE, "Emission test", TODAY, null);
     pending(reminder);
-    when(push.notifyUser(eq(USER), any())).thenReturn(Outcome.NO_DEVICES);
+    when(push.notifyUser(eq(USER), any())).thenReturn(Outcome.NO_DEVICES, Outcome.DELIVERED);
 
     assertThat(notifier.notifyAllDue()).isEqualTo(new RunSummary(1, 0, 0));
+    assertThat(reminder.getNotifiedStage()).isEqualTo(NotificationStage.NONE);
+
+    assertThat(notifier.notifyAllDue()).isEqualTo(new RunSummary(1, 1, 0));
     assertThat(reminder.getNotifiedStage()).isEqualTo(NotificationStage.DUE);
   }
 
@@ -169,5 +172,21 @@ class ReminderNotifierTest {
     when(reminders.findPendingIdsForVehicle(any(), any(), anyInt()))
         .thenThrow(new IllegalStateException("db down"));
     notifier.onOdometerChanged(new OdometerChangedEvent(VEHICLE));
+  }
+
+  @Test
+  void aReminderChangeChecksThatVehicleAndNeverThrows() {
+    Reminder reminder = Reminder.manual(null, VEHICLE, "Emission test", TODAY, null);
+    when(reminders.findPendingIdsForVehicle(VEHICLE, TODAY.plusDays(30), ReminderRules.KM_LEAD))
+        .thenReturn(List.of(reminder.getId()));
+    when(reminders.findByIdForUpdate(reminder.getId())).thenReturn(Optional.of(reminder));
+    when(push.notifyUser(eq(USER), any())).thenReturn(Outcome.DELIVERED);
+
+    notifier.onRemindersChanged(new RemindersChangedEvent(VEHICLE));
+    assertThat(reminder.getNotifiedStage()).isEqualTo(NotificationStage.DUE);
+
+    when(reminders.findPendingIdsForVehicle(any(), any(), anyInt()))
+        .thenThrow(new IllegalStateException("db down"));
+    notifier.onRemindersChanged(new RemindersChangedEvent(VEHICLE));
   }
 }

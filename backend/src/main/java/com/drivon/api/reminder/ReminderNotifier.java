@@ -25,8 +25,10 @@ import org.springframework.transaction.support.TransactionTemplate;
  * the last one, however long ago, and a stage is pushed at most once ({@code notifiedStage}). A
  * reminder that jumped straight to due gets only the due notification.
  *
- * <p>Runs daily through {@link ReminderJobController} and right after an odometer change, so
- * mileage reminders don't wait for the next day.
+ * <p>Runs daily through {@link ReminderJobController}, and for one vehicle right after its odometer
+ * or its reminders change, so mileage reminders and reminders added for today don't wait for the
+ * next day. A stage is only recorded once a phone received it, so a reminder that came due before
+ * the user turned notifications on still reaches them.
  */
 @Component
 public class ReminderNotifier {
@@ -83,10 +85,23 @@ public class ReminderNotifier {
    */
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   void onOdometerChanged(OdometerChangedEvent event) {
+    checkAfterChange(event.vehicleId(), "an odometer change");
+  }
+
+  /**
+   * A reminder added or moved may already be due (for example one due today), and the daily run may
+   * have passed for the day; check it now rather than tomorrow.
+   */
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  void onRemindersChanged(RemindersChangedEvent event) {
+    checkAfterChange(event.vehicleId(), "a reminder change");
+  }
+
+  private void checkAfterChange(UUID vehicleId, String cause) {
     try {
-      notifyDue(event.vehicleId());
+      notifyDue(vehicleId);
     } catch (RuntimeException e) {
-      log.warn("Checking reminders after an odometer change failed", e);
+      log.warn("Checking reminders after {} failed", cause, e);
     }
   }
 
@@ -136,11 +151,12 @@ public class ReminderNotifier {
     }
     Outcome outcome =
         push.notifyUser(vehicle.getUserId(), ReminderMessages.compose(reminder, vehicle, timing));
-    if (!outcome.settled()) {
-      // Not configured or temporarily unreachable: leave the stage open for the next run.
+    if (outcome != Outcome.DELIVERED) {
+      // Nobody got it: no phone registered yet, push not set up, or Firebase unreachable. Leave the
+      // stage open, so it goes out on a later run once a phone can receive it.
       return outcome == Outcome.FAILED ? Result.FAILED : Result.UNCHANGED;
     }
     reminder.markNotified(timing.stage(), clock.instant());
-    return outcome == Outcome.DELIVERED ? Result.NOTIFIED : Result.UNCHANGED;
+    return Result.NOTIFIED;
   }
 }

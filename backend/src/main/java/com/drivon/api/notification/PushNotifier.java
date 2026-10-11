@@ -14,17 +14,15 @@ public class PushNotifier {
   public enum Outcome {
     /** At least one device accepted it. */
     DELIVERED,
-    /** The user has no devices that can receive pushes (e.g. iPhone users in the MVP). */
+    /**
+     * The user has no devices that can receive pushes yet: they haven't turned notifications on, or
+     * use an iPhone (no push in the MVP). Worth sending again once a device registers.
+     */
     NO_DEVICES,
     /** Every device failed for a reason that may pass; worth trying again later. */
     FAILED,
     /** Push isn't set up on this server. */
-    NOT_CONFIGURED;
-
-    /** True when trying again wouldn't change anything. */
-    public boolean settled() {
-      return this == DELIVERED || this == NO_DEVICES;
-    }
+    NOT_CONFIGURED
   }
 
   private final DeviceTokenRepository tokens;

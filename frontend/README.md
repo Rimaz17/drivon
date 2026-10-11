@@ -117,8 +117,10 @@ To try push on a phone:
 
 1. Sign in.
 2. Open *Garage → Reminders* and tap *Turn on notifications*.
-3. Add your own reminder due today.
-4. Start a reminder run: Postman → *Reminders → Run daily reminders (job)*.
+3. Check that the panel says *Notifications are on.* (push is connected).
+4. Add your own reminder due today: the push arrives within a few seconds.
+
+Reminders that came due before notifications were turned on are pushed by the next daily run (Postman → *Reminders → Run daily reminders (job)* starts one).
 
 Mileage reminders are pushed right after a fill-up or odometer reading reaches them.
 

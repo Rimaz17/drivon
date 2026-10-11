@@ -29,7 +29,7 @@ Constraints: the free Render instance sleeps after 15 minutes, so an in-process 
   - Daily: `POST /internal/reminders/run` with the `X-Drivon-Job-Secret` header (`REMINDERS_JOB_SECRET`, at least 32 characters, compared in constant time). It is called by the scheduled `reminders-cron.yml` workflow. Without a configured secret the endpoint answers `404`.
   - Right away: `OdometerService` publishes `OdometerChangedEvent`; after the commit, the vehicle's reminders are checked, so a fill-up that crosses a mileage is pushed immediately. Failures there are logged and never fail the request.
   - Each reminder is processed in its own `REQUIRES_NEW` transaction with a row lock, so one failure doesn't undo others and two concurrent runs can't push the same stage twice.
-- **Push (Android):** Firebase Admin SDK with the service account JSON in `FIREBASE_SERVICE_ACCOUNT_BASE64`. Firestore, Cloud Storage and Netty are excluded from the dependency to keep the image small. Messages go to channel `drivon_reminders` with the reminder ID as the tag, so the "due" notification replaces the "due soon" one. Tokens that FCM reports as `UNREGISTERED` or `SENDER_ID_MISMATCH` are deleted. A stage counts as sent when a device accepted it or the user has no devices; it stays open when FCM failed or push isn't configured.
+- **Push (Android):** Firebase Admin SDK with the service account JSON in `FIREBASE_SERVICE_ACCOUNT_BASE64`. Firestore, Cloud Storage and Netty are excluded from the dependency to keep the image small. Messages go to channel `drivon_reminders` with the reminder ID as the tag, so the "due" notification replaces the "due soon" one. Tokens that FCM reports as `UNREGISTERED` or `SENDER_ID_MISMATCH` are deleted. A stage counts as sent only when a device accepted it; it stays open when the user has no devices yet, FCM failed or push isn't configured (amended 2026-10-11, see below).
 - **Device tokens:** a `device_tokens` table (one row per installation) instead of `User.fcmToken`, because a user can have several phones. `PUT /device-tokens` registers (a token moves to whoever registered it last), `DELETE /device-tokens/{token}` unregisters, and only the newest 10 per user are kept.
 - **App:**
   - On Android with push registered, reminders arrive by push.
@@ -43,3 +43,9 @@ Constraints: the free Render instance sleeps after 15 minutes, so an in-process 
 - Reminders depend on events being published by every write path; the integration tests cover create, update and delete for services and documents.
 - The daily run depends on GitHub Actions; GitHub disables scheduled workflows after 60 days without repository activity. A missed day is caught up on the next run.
 - On iPhones, date reminders work offline, and mileage reminders show only inside the app until APNs is set up.
+
+## Amendment (2026-10-11)
+
+Counting "no devices" as sent lost notifications: a reminder that came due before the user turned notifications on was marked as sent and never pushed once a phone registered. Now a stage is recorded only when a phone accepted the push, so the next run sends it. Users without a phone (iPhones in the MVP) have their pending reminders checked on every run; at this scale that is a few cheap queries.
+
+A vehicle's reminders are also checked right after they are added or changed (`RemindersChangedEvent`, after commit), not only after odometer changes and in the daily run, so a reminder due today that is added after the 08:00 run is pushed at once instead of the next morning.
