@@ -173,6 +173,12 @@ iOS push needs an APNs key from the paid Apple Developer Program, so it is not s
 - At launch the saved session is confirmed with `/users/me`. If the server is unreachable or still waking up, the cached profile keeps the user signed in.
 - Signing out revokes the session on the server and clears tokens, the profile and the remembered vehicle selection.
 
+### App icon and launch
+
+- The logo's vector sources are in `docs/brand`. The iOS icon set and the legacy Android icons are PNGs generated from the 1024 px icon by `python tool/generate_app_icons.py` (needs Pillow). Android 8+ uses the vector adaptive icon (`res/drawable/ic_launcher_foreground.xml`) with a themed-icon layer, and reminder notifications use the logo silhouette (`ic_stat_drivon.xml`).
+- The native launch screen on both platforms (including the Android 12+ system splash) is the plain `#0B0B0D` canvas, with no logo, because the Flutter animation draws the logo in from an empty canvas.
+- `LaunchIntro` (`lib/app/launch_intro.dart`) plays the launch animation over the router while the saved session is restored. The intro runs for 1.2 s, then the logo holds for 150 ms, exits over 250 ms and the canvas fades away. If the session takes longer, a soft highlight loops along the rim until it is ready. Timings and easing are in `LaunchTimeline` (`lib/app/launch_timeline.dart`). Under reduced motion the finished logo only fades in and out. The app routes and starts loading underneath, and touches and screen readers reach it only after the animation ends.
+
 ## Design system
 
 Dark theme first, built from the inspiration boards' palette and shapes. Feature code uses only tokens and components from `lib/design_system/`: no literal colors, font sizes, spacing or radii.
@@ -181,7 +187,7 @@ Dark theme first, built from the inspiration boards' palette and shapes. Feature
 - **Type:** Hanken Grotesk (OFL) through `Theme.of(context).textTheme`; numeric styles use tabular figures.
 - **Spacing / radii / motion / widths:** `DrivonSpacing` (including `formMaxWidth` and `contentMaxWidth`), `DrivonRadii`, `DrivonMotion`.
 - **Layout:** tab bodies use `SheetScrollView`: headline content on the dark canvas, details on a light paper sheet that gets `DrivonTheme.paper()`. Cards on the sheet stay dark; widgets on it read the theme in their own build (see ADR 0010).
-- **Components:** `DrivonCard` (surface, highlight, hero), `PillSegmentedControl`, `SectionTitle`, `TagChip`, `StatTile`, `ArcGauge`, `BarList`, `InlineNotice`, `PrimaryButton`, `ContentWidth`, `EmptyState`, `ErrorState`, `LoadingState`. Form and list helpers live in `core/ui/`: `DateFormField` opens the Material calendar on Android and a Cupertino wheel on iOS (optional dates can be cleared), `RecordTile` is a history row, and `PagedListController` with `LoadMoreFooter` pages any list.
+- **Components:** `DrivonLogo` (the logo, animatable part by part), `DrivonCard` (surface, highlight, hero), `PillSegmentedControl`, `SectionTitle`, `TagChip`, `StatTile`, `ArcGauge`, `BarList`, `InlineNotice`, `PrimaryButton`, `ContentWidth`, `EmptyState`, `ErrorState`, `LoadingState`. Form and list helpers live in `core/ui/`: `DateFormField` opens the Material calendar on Android and a Cupertino wheel on iOS (optional dates can be cleared), `RecordTile` is a history row, and `PagedListController` with `LoadMoreFooter` pages any list.
 
 A test checks every text/surface pairing in both the dark and paper themes, including the hero gradient, for WCAG AA contrast.
 
