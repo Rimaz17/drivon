@@ -19,6 +19,9 @@ import 'launch_timeline.dart';
 class LaunchIntro extends ConsumerStatefulWidget {
   const LaunchIntro({required this.child, super.key});
 
+  /// Marks the animation layer, which is removed when it ends.
+  static const Key animationKey = ValueKey('launch-animation');
+
   final Widget child;
 
   @override
@@ -98,6 +101,7 @@ class _LaunchIntroState extends ConsumerState<LaunchIntro>
   Widget _buildAnimation(BuildContext context) {
     final canvas = Theme.of(context).colorScheme.surface;
     return AnnotatedRegion<SystemUiOverlayStyle>(
+      key: LaunchIntro.animationKey,
       // Light status bar icons on the dark canvas.
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,

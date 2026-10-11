@@ -1,6 +1,6 @@
 import 'package:drivon/app/app.dart';
+import 'package:drivon/app/launch_intro.dart';
 import 'package:drivon/core/storage/token_store.dart';
-import 'package:drivon/design_system/design_system.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -26,11 +26,11 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 16));
 
-    expect(find.byType(DrivonLogo), findsOneWidget);
+    expect(find.byKey(LaunchIntro.animationKey), findsOneWidget);
 
     await tester.pumpAndSettle();
 
-    expect(find.byType(DrivonLogo), findsNothing);
+    expect(find.byKey(LaunchIntro.animationKey), findsNothing);
     expect(find.text('Welcome back'), findsOneWidget);
   });
 
