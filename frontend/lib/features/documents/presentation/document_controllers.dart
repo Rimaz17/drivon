@@ -30,7 +30,7 @@ final documentListProvider = AsyncNotifierProvider.autoDispose
 /// vehicles, soonest first.
 final expiringDocumentsProvider =
     FutureProvider.autoDispose<List<VehicleDocument>>((ref) {
-      ref.watch(currentUserProvider);
+      ref.watch(currentUserIdProvider);
       return ref.read(documentRepositoryProvider).expiringSoon();
     }, retry: (_, _) => null);
 

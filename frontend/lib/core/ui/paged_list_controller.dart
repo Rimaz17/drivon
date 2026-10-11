@@ -40,7 +40,7 @@ abstract class PagedListController<T> extends AsyncNotifier<PagedList<T>> {
 
   @override
   Future<PagedList<T>> build() async {
-    ref.watch(currentUserProvider);
+    ref.watch(currentUserIdProvider);
     final page = await fetchPage(0);
     _nextPage = 1;
     return PagedList(items: page.items, hasMore: page.hasMore);

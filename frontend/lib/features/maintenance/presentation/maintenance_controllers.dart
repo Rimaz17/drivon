@@ -55,7 +55,7 @@ final maintenanceHistoryProvider = AsyncNotifierProvider.autoDispose
 /// What is due next for a vehicle, soonest first.
 final upcomingServicesProvider = FutureProvider.autoDispose
     .family<List<UpcomingService>, String>((ref, vehicleId) {
-      ref.watch(currentUserProvider);
+      ref.watch(currentUserIdProvider);
       return ref.read(maintenanceRepositoryProvider).upcoming(vehicleId);
     }, retry: (_, _) => null);
 

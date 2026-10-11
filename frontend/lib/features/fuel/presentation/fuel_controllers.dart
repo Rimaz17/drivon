@@ -35,7 +35,7 @@ final fuelHistoryProvider = AsyncNotifierProvider.autoDispose
 /// All-time fuel figures and recent monthly spend for a vehicle.
 final fuelSummaryProvider = FutureProvider.autoDispose
     .family<FuelSummary, String>((ref, vehicleId) {
-      ref.watch(currentUserProvider);
+      ref.watch(currentUserIdProvider);
       return ref.read(fuelRepositoryProvider).summary(vehicleId);
     }, retry: (_, _) => null);
 

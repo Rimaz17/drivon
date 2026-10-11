@@ -101,3 +101,9 @@ final currentUserProvider = Provider<User?>((ref) {
   final session = ref.watch(sessionControllerProvider);
   return session is SignedIn ? session.user : null;
 });
+
+/// ID of the signed-in user, or null. Data providers watch this rather than
+/// [currentUserProvider], so editing the profile doesn't reload them.
+final currentUserIdProvider = Provider<String?>(
+  (ref) => ref.watch(currentUserProvider.select((user) => user?.id)),
+);

@@ -8,15 +8,14 @@ import '../domain/reminder.dart';
 /// A vehicle's reminders, most urgent first.
 final vehicleRemindersProvider = FutureProvider.autoDispose
     .family<List<Reminder>, String>((ref, vehicleId) {
-      ref.watch(currentUserProvider);
+      ref.watch(currentUserIdProvider);
       return ref.read(reminderRepositoryProvider).list(vehicleId);
     }, retry: (_, _) => null);
 
 /// The user's reminders across vehicles, most urgent first. Local
 /// notifications are scheduled from this list.
 final allRemindersProvider = FutureProvider.autoDispose<List<Reminder>>((ref) {
-  final user = ref.watch(currentUserProvider);
-  if (user == null) return const [];
+  if (ref.watch(currentUserIdProvider) == null) return const [];
   return ref.read(reminderRepositoryProvider).listAll();
 }, retry: (_, _) => null);
 

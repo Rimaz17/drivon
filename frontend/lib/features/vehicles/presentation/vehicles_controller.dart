@@ -13,8 +13,7 @@ import '../domain/vehicle.dart';
 class VehiclesController extends AsyncNotifier<List<Vehicle>> {
   @override
   Future<List<Vehicle>> build() async {
-    final user = ref.watch(currentUserProvider);
-    if (user == null) return const [];
+    if (ref.watch(currentUserIdProvider) == null) return const [];
     return ref.read(vehicleRepositoryProvider).list();
   }
 
@@ -68,9 +67,9 @@ final vehiclesControllerProvider =
 class SelectedVehicleIdController extends Notifier<String?> {
   @override
   String? build() {
-    final user = ref.watch(currentUserProvider);
-    if (user != null) {
-      unawaited(_restore(user.id));
+    final userId = ref.watch(currentUserIdProvider);
+    if (userId != null) {
+      unawaited(_restore(userId));
     }
     return null;
   }
@@ -82,9 +81,9 @@ class SelectedVehicleIdController extends Notifier<String?> {
 
   Future<void> select(String vehicleId) async {
     state = vehicleId;
-    final user = ref.read(currentUserProvider);
-    if (user != null) {
-      await ref.read(selectedVehicleStoreProvider).write(user.id, vehicleId);
+    final userId = ref.read(currentUserIdProvider);
+    if (userId != null) {
+      await ref.read(selectedVehicleStoreProvider).write(userId, vehicleId);
     }
   }
 }
