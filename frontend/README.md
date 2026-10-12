@@ -264,3 +264,4 @@ Development happens on Windows. The `build-ios` CI job runs `flutter build ios -
 4. Connect the iPhone, trust the Mac, and enable *Developer Mode* on the phone (*Settings → Privacy & Security*).
 5. Run `flutter run --release --dart-define=API_BASE_URL=https://<deployed-api>`.
 6. On first launch, trust the developer profile on the phone (*Settings → General → VPN & Device Management*). Free-account builds expire after 7 days.
+7. Work through the [final iPhone test checklist](../docs/testing/iphone-test-checklist.md).
