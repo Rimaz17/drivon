@@ -24,6 +24,15 @@ class ApiBaselineIntegrationTest {
   }
 
   @Test
+  void infoEndpointNamesTheDeployedCommit() {
+    assertThat(mvc.get().uri("/actuator/info"))
+        .hasStatusOk()
+        .bodyJson()
+        .extractingPath("$.app.commit")
+        .isEqualTo("local");
+  }
+
+  @Test
   void openApiDocsArePublic() {
     assertThat(mvc.get().uri("/v3/api-docs"))
         .hasStatusOk()

@@ -56,6 +56,9 @@ info:
   app:
     name: Drivon API
     version: '@project.version@'
+    # The deployed commit, set by Render; the deploy workflow waits until it
+    # shows here. "local" everywhere else.
+    commit: ${RENDER_GIT_COMMIT:local}
 
 springdoc:
   # Every response body is JSON; without this springdoc lists them as */*.
