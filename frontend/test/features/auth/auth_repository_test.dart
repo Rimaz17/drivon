@@ -56,6 +56,14 @@ void main() {
     expect(user?.email, 'rimaz@example.com');
   });
 
+  test('restore waits only briefly for the server', () async {
+    tokens.tokens = const AuthTokens(accessToken: 'a', refreshToken: 'r');
+
+    await repository.restore();
+
+    expect(api.lastMeReceiveTimeout, AuthRepository.launchCheckTimeout);
+  });
+
   test(
     'restore keeps the cached user when the server is unreachable',
     () async {

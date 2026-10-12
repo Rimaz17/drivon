@@ -34,8 +34,13 @@ class AuthApi {
     ),
   );
 
-  Future<UserDto> me() => guardApi(() async {
-    final response = await _dio.get<Map<String, dynamic>>('/api/v1/users/me');
+  /// The signed-in user. [receiveTimeout] replaces the usual wait for an
+  /// answer, e.g. a short one at launch.
+  Future<UserDto> me({Duration? receiveTimeout}) => guardApi(() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/v1/users/me',
+      options: Options(receiveTimeout: receiveTimeout),
+    );
     return UserDto.fromJson(response.data!);
   });
 
