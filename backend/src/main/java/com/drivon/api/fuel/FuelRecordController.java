@@ -35,6 +35,7 @@ class FuelRecordController {
 
   @GetMapping
   @Operation(
+      operationId = "listFuelRecords",
       summary = "List fill-ups, newest first",
       description =
           "Sortable by `date`, `odometerKm`, `amount` and `litres`. Full fills that close a"
@@ -50,7 +51,7 @@ class FuelRecordController {
   }
 
   @GetMapping("/{recordId}")
-  @Operation(summary = "Get one fill-up")
+  @Operation(operationId = "getFuelRecord", summary = "Get one fill-up")
   @ApiResponse(responseCode = "404", description = "VEHICLE_NOT_FOUND, FUEL_RECORD_NOT_FOUND")
   FuelRecordResponse get(
       @CurrentUserId UUID userId, @PathVariable UUID vehicleId, @PathVariable UUID recordId) {
@@ -59,6 +60,7 @@ class FuelRecordController {
 
   @PostMapping
   @Operation(
+      operationId = "createFuelRecord",
       summary = "Log a fill-up",
       description =
           "Send an app-generated `id` to make retries safe: resending it returns the saved"
@@ -80,7 +82,7 @@ class FuelRecordController {
   }
 
   @PutMapping("/{recordId}")
-  @Operation(summary = "Replace a fill-up's details")
+  @Operation(operationId = "updateFuelRecord", summary = "Replace a fill-up's details")
   @ApiResponse(responseCode = "200", description = "Updated fill-up")
   @ApiResponse(responseCode = "404", description = "VEHICLE_NOT_FOUND, FUEL_RECORD_NOT_FOUND")
   @ApiResponse(
@@ -96,7 +98,9 @@ class FuelRecordController {
 
   @DeleteMapping("/{recordId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "Delete a fill-up and its odometer reading")
+  @Operation(
+      operationId = "deleteFuelRecord",
+      summary = "Delete a fill-up and its odometer reading")
   @ApiResponse(responseCode = "204", description = "Deleted")
   @ApiResponse(responseCode = "404", description = "VEHICLE_NOT_FOUND, FUEL_RECORD_NOT_FOUND")
   void delete(

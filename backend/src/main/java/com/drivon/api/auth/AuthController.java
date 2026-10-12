@@ -30,7 +30,7 @@ class AuthController {
   }
 
   @PostMapping("/register")
-  @Operation(summary = "Create an account and sign in")
+  @Operation(operationId = "register", summary = "Create an account and sign in")
   @ApiResponse(responseCode = "201", description = "Account created; tokens returned")
   @ApiResponse(responseCode = "400", description = "VALIDATION_FAILED")
   @ApiResponse(responseCode = "409", description = "EMAIL_ALREADY_REGISTERED")
@@ -42,7 +42,7 @@ class AuthController {
   }
 
   @PostMapping("/login")
-  @Operation(summary = "Sign in with email and password")
+  @Operation(operationId = "login", summary = "Sign in with email and password")
   @ApiResponse(responseCode = "200", description = "Signed in; tokens returned")
   @ApiResponse(responseCode = "401", description = "INVALID_CREDENTIALS")
   @ApiResponse(responseCode = "429", description = "RATE_LIMITED")
@@ -53,6 +53,7 @@ class AuthController {
 
   @PostMapping("/refresh")
   @Operation(
+      operationId = "refreshTokens",
       summary = "Exchange a refresh token for new tokens",
       description = "The presented refresh token is revoked; always store the new one.")
   @ApiResponse(responseCode = "200", description = "New access and refresh tokens")
@@ -63,7 +64,7 @@ class AuthController {
 
   @PostMapping("/logout")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "End the session that the refresh token belongs to")
+  @Operation(operationId = "logout", summary = "End the session that the refresh token belongs to")
   @ApiResponse(responseCode = "204", description = "Signed out (also for unknown tokens)")
   void logout(@Valid @RequestBody RefreshRequest request) {
     auth.logout(request);

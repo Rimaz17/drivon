@@ -42,6 +42,7 @@ class ReminderController {
 
   @GetMapping("/reminders")
   @Operation(
+      operationId = "listAllReminders",
       summary = "The user's reminders across vehicles, most urgent first",
       description =
           "Overdue first, then due soon, then upcoming. Not paginated: a vehicle has at most one"
@@ -56,7 +57,7 @@ class ReminderController {
   }
 
   @GetMapping(REMINDERS)
-  @Operation(summary = "A vehicle's reminders, most urgent first")
+  @Operation(operationId = "listReminders", summary = "A vehicle's reminders, most urgent first")
   @ApiResponse(responseCode = "200", description = "The reminders")
   @ApiResponse(responseCode = "404", description = "VEHICLE_NOT_FOUND")
   List<ReminderResponse> list(
@@ -68,7 +69,7 @@ class ReminderController {
   }
 
   @GetMapping(REMINDERS + "/{reminderId}")
-  @Operation(summary = "Get one reminder")
+  @Operation(operationId = "getReminder", summary = "Get one reminder")
   @ApiResponse(responseCode = "404", description = "VEHICLE_NOT_FOUND, REMINDER_NOT_FOUND")
   ReminderResponse get(
       @CurrentUserId UUID userId, @PathVariable UUID vehicleId, @PathVariable UUID reminderId) {
@@ -77,6 +78,7 @@ class ReminderController {
 
   @PostMapping(REMINDERS)
   @Operation(
+      operationId = "createReminder",
       summary = "Add your own reminder",
       description =
           "Due on a date, at a mileage or at whichever comes first. Send an app-generated `id` to"
@@ -101,6 +103,7 @@ class ReminderController {
 
   @PutMapping(REMINDERS + "/{reminderId}")
   @Operation(
+      operationId = "updateReminder",
       summary = "Replace one of your own reminders",
       description = "Service and document reminders change with their records instead.")
   @ApiResponse(responseCode = "200", description = "Updated reminder")
@@ -119,7 +122,7 @@ class ReminderController {
 
   @DeleteMapping(REMINDERS + "/{reminderId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "Delete one of your own reminders")
+  @Operation(operationId = "deleteReminder", summary = "Delete one of your own reminders")
   @ApiResponse(responseCode = "204", description = "Deleted")
   @ApiResponse(responseCode = "404", description = "VEHICLE_NOT_FOUND, REMINDER_NOT_FOUND")
   @ApiResponse(responseCode = "422", description = "REMINDER_READ_ONLY")

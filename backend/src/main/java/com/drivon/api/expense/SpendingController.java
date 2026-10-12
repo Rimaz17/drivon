@@ -35,6 +35,7 @@ class SpendingController {
 
   @GetMapping("/vehicles/{vehicleId}/spending")
   @Operation(
+      operationId = "getSpendingSummary",
       summary = "A vehicle's spend by category for a date range",
       description = "Both dates are optional and inclusive; every category is listed.")
   @ApiResponse(responseCode = "400", description = "INVALID_DATE_RANGE")
@@ -55,6 +56,7 @@ class SpendingController {
 
   @GetMapping("/vehicles/{vehicleId}/spending/monthly")
   @Operation(
+      operationId = "getMonthlySpending",
       summary = "A vehicle's total spend per month",
       description = "One entry per month up to the current one, oldest first; empty months are 0.")
   @ApiResponse(responseCode = "400", description = "VALIDATION_FAILED (months outside 1–24)")
@@ -70,6 +72,7 @@ class SpendingController {
 
   @GetMapping("/spending/vehicles")
   @Operation(
+      operationId = "getSpendingByVehicle",
       summary = "Total spend of each of the user's vehicles",
       description = "For comparing vehicles; both dates are optional and inclusive.")
   @ApiResponse(responseCode = "400", description = "INVALID_DATE_RANGE")

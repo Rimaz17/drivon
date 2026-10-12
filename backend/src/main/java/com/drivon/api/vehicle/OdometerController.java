@@ -36,6 +36,7 @@ class OdometerController {
 
   @GetMapping
   @Operation(
+      operationId = "listOdometerReadings",
       summary = "List readings, newest first",
       description = "Sortable by `date` and `readingKm`. Includes fill-up and service readings.")
   @ApiResponse(responseCode = "200", description = "A page of readings")
@@ -49,7 +50,7 @@ class OdometerController {
   }
 
   @GetMapping("/{readingId}")
-  @Operation(summary = "Get one reading")
+  @Operation(operationId = "getOdometerReading", summary = "Get one reading")
   @ApiResponse(responseCode = "404", description = "VEHICLE_NOT_FOUND, ODOMETER_READING_NOT_FOUND")
   OdometerReadingResponse get(
       @CurrentUserId UUID userId, @PathVariable UUID vehicleId, @PathVariable UUID readingId) {
@@ -57,7 +58,7 @@ class OdometerController {
   }
 
   @PostMapping
-  @Operation(summary = "Add a manual reading")
+  @Operation(operationId = "addOdometerReading", summary = "Add a manual reading")
   @ApiResponse(responseCode = "201", description = "Created; Location points to the reading")
   @ApiResponse(responseCode = "404", description = "VEHICLE_NOT_FOUND")
   @ApiResponse(
@@ -78,6 +79,7 @@ class OdometerController {
 
   @PutMapping("/{readingId}")
   @Operation(
+      operationId = "correctOdometerReading",
       summary = "Correct an initial or manual reading",
       description =
           "The explicit way to fix a mistyped odometer; may lower the vehicle's current odometer."
@@ -97,7 +99,7 @@ class OdometerController {
 
   @DeleteMapping("/{readingId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "Delete a manual reading")
+  @Operation(operationId = "deleteOdometerReading", summary = "Delete a manual reading")
   @ApiResponse(responseCode = "204", description = "Deleted")
   @ApiResponse(responseCode = "404", description = "VEHICLE_NOT_FOUND, ODOMETER_READING_NOT_FOUND")
   @ApiResponse(responseCode = "422", description = "ODOMETER_READING_LOCKED")

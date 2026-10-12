@@ -33,6 +33,7 @@ class FuelStatsController {
 
   @GetMapping
   @Operation(
+      operationId = "getFuelStats",
       summary = "Fuel spend and efficiency for a date range",
       description =
           "Total spend, litres and fill-ups, plus average, best and latest km/L and fuel cost per"
@@ -56,6 +57,7 @@ class FuelStatsController {
 
   @GetMapping("/monthly")
   @Operation(
+      operationId = "getMonthlyFuelStats",
       summary = "Fuel spend per month",
       description = "One entry per month up to the current one, oldest first; empty months are 0.")
   @ApiResponse(responseCode = "200", description = "Monthly totals")

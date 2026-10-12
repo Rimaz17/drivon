@@ -24,7 +24,7 @@ class UserController {
   }
 
   @GetMapping("/me")
-  @Operation(summary = "Get the signed-in user's profile")
+  @Operation(operationId = "getCurrentUser", summary = "Get the signed-in user's profile")
   @ApiResponse(responseCode = "200", description = "Profile")
   @ApiResponse(responseCode = "401", description = "UNAUTHENTICATED")
   UserResponse me(@CurrentUserId UUID userId) {
@@ -32,7 +32,9 @@ class UserController {
   }
 
   @PutMapping("/me")
-  @Operation(summary = "Update the signed-in user's name and email")
+  @Operation(
+      operationId = "updateCurrentUser",
+      summary = "Update the signed-in user's name and email")
   @ApiResponse(responseCode = "200", description = "Updated profile")
   @ApiResponse(responseCode = "400", description = "VALIDATION_FAILED")
   @ApiResponse(responseCode = "401", description = "UNAUTHENTICATED")

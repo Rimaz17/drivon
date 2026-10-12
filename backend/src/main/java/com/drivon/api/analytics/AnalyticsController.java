@@ -37,6 +37,7 @@ class AnalyticsController {
 
   @GetMapping(VEHICLE + "/cost-per-km")
   @Operation(
+      operationId = "getCostPerKm",
       summary = "Running cost per km for a date range",
       description =
           "Everything spent in the range (fill-ups, services, expenses) over the distance the"
@@ -63,6 +64,7 @@ class AnalyticsController {
 
   @GetMapping(VEHICLE + "/monthly-costs")
   @Operation(
+      operationId = "getMonthlyCosts",
       summary = "Cost, distance and cost per km for each month",
       description = "One entry per month up to the current one, oldest first; empty months are 0.")
   @ApiResponse(responseCode = "200", description = "Monthly figures")
@@ -79,6 +81,7 @@ class AnalyticsController {
 
   @GetMapping(VEHICLE + "/efficiency-trend")
   @Operation(
+      operationId = "getEfficiencyTrend",
       summary = "km/L of each tank over time",
       description =
           "Every full-to-full stretch that ended in the range, oldest first, with its distance,"
@@ -96,6 +99,7 @@ class AnalyticsController {
 
   @GetMapping("/analytics/vehicle-comparison")
   @Operation(
+      operationId = "compareVehicles",
       summary = "Compare the user's vehicles",
       description =
           "Cost per km with its parts, distance, total cost and average km/L of each vehicle for"

@@ -38,6 +38,7 @@ class ExpenseController {
 
   @GetMapping
   @Operation(
+      operationId = "listExpenses",
       summary = "List expenses, newest first",
       description = "Sortable by `date` and `amount`.")
   @ApiResponse(responseCode = "200", description = "A page of expenses")
@@ -53,7 +54,7 @@ class ExpenseController {
   }
 
   @GetMapping("/{expenseId}")
-  @Operation(summary = "Get one expense")
+  @Operation(operationId = "getExpense", summary = "Get one expense")
   @ApiResponse(responseCode = "404", description = "VEHICLE_NOT_FOUND, EXPENSE_NOT_FOUND")
   ExpenseResponse get(
       @CurrentUserId UUID userId, @PathVariable UUID vehicleId, @PathVariable UUID expenseId) {
@@ -62,6 +63,7 @@ class ExpenseController {
 
   @PostMapping
   @Operation(
+      operationId = "createExpense",
       summary = "Log an expense",
       description = "Send an app-generated `id` to make retries return the saved record (200).")
   @ApiResponse(responseCode = "201", description = "Created; Location points to the expense")
@@ -79,7 +81,7 @@ class ExpenseController {
   }
 
   @PutMapping("/{expenseId}")
-  @Operation(summary = "Replace an expense")
+  @Operation(operationId = "updateExpense", summary = "Replace an expense")
   @ApiResponse(responseCode = "200", description = "Updated expense")
   @ApiResponse(responseCode = "404", description = "VEHICLE_NOT_FOUND, EXPENSE_NOT_FOUND")
   @ApiResponse(responseCode = "422", description = "DATE_IN_FUTURE")
@@ -93,7 +95,7 @@ class ExpenseController {
 
   @DeleteMapping("/{expenseId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "Delete an expense")
+  @Operation(operationId = "deleteExpense", summary = "Delete an expense")
   @ApiResponse(responseCode = "204", description = "Deleted")
   @ApiResponse(responseCode = "404", description = "VEHICLE_NOT_FOUND, EXPENSE_NOT_FOUND")
   void delete(

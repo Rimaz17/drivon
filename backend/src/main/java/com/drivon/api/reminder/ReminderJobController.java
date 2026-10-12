@@ -41,6 +41,7 @@ class ReminderJobController {
 
   @PostMapping(PATH)
   @Operation(
+      operationId = "runReminderJob",
       summary = "Send due reminder notifications",
       description =
           "Pushes every reminder stage (due soon, due) not sent yet, across all users. Needs the"
