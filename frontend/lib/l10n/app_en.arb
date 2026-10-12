@@ -35,7 +35,7 @@
   "passwordRequired": "Enter your password.",
   "passwordTooShort": "Use at least 8 characters.",
   "passwordTooLong": "Use 72 characters or fewer.",
-  "slowServerNotice": "Waking up the server. The first request can take up to a minute.",
+  "slowServerNotice": "Waking up the server. After a quiet spell this can take a minute or two.",
   "@slowServerNotice": {
     "description": "Shown when a request takes long, because the free server sleeps when idle."
   },
