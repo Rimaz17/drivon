@@ -1,0 +1,85 @@
+name: Deploy
+
+# Ships the API to Render once Backend CI has passed on main
+# (docs/adr/0018-deployment.md). Render's own auto-deploy is off, so only
+# tested commits go live. A manual run redeploys main's latest commit.
+on:
+  workflow_run:
+    workflows: ["Backend CI"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+defaults:
+  run:
+    # Explicit bash adds pipefail to the runner's default -e.
+    shell: bash
+
+jobs:
+  deploy:
+    name: Deploy the API to Render
+    # Green CI runs for pushes to main only (not pull requests), or a manual run on main.
+    if: >-
+      (github.event_name == 'workflow_run'
+        && github.event.workflow_run.conclusion == 'success'
+        && github.event.workflow_run.event == 'push')
+      || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      # Named like the secrets, so errors point at the right one.
+      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      DRIVON_API_URL: ${{ secrets.DRIVON_API_URL }}
+      # The commit Backend CI tested, not whatever main points to by now.
+      COMMIT: ${{ github.event.workflow_run.head_sha || github.sha }}
+    steps:
+      - name: Check deploy settings
+        run: |
+          failed=0
+          for name in RENDER_DEPLOY_HOOK_URL DRIVON_API_URL; do
+            if [ -z "${!name}" ]; then
+              echo "::error::The ${name} secret is missing (see docs/deployment.md)."
+              failed=1
+            fi
+          done
+          exit "${failed}"
+
+      # The hook URL already carries the secret key as a query parameter;
+      # ref pins the deploy to the tested commit.
+      - name: Start the deploy
+        run: |
+          separator='?'
+          if [[ "${RENDER_DEPLOY_HOOK_URL}" == *\?* ]]; then
+            separator='&'
+          fi
+          curl --fail-with-body --silent --show-error --output /dev/null \
+            --retry 3 --retry-all-errors --max-time 60 \
+            -X POST "${RENDER_DEPLOY_HOOK_URL}${separator}ref=${COMMIT}"
+          echo "Render is deploying ${COMMIT}."
+
+      # Building and starting on the free instance takes about 5-10 minutes,
+      # plus a cold start if the old instance was asleep.
+      - name: Wait until the new version answers
+        run: |
+          api="${DRIVON_API_URL%/}"
+          deadline=$((SECONDS + 25 * 60))
+          while (( SECONDS < deadline )); do
+            serving="$(curl --silent --max-time 90 "${api}/actuator/info" | jq -r '.app.commit // empty' 2> /dev/null || true)"
+            if [[ "${serving}" == "${COMMIT}" ]]; then
+              health="$(curl --silent --max-time 30 "${api}/actuator/health" | jq -r '.status // empty' 2> /dev/null || true)"
+              if [[ "${health}" == "UP" ]]; then
+                echo "${COMMIT} is live and healthy."
+                exit 0
+              fi
+            fi
+            echo "Waiting: the API is serving ${serving:-nothing yet}."
+            sleep 30
+          done
+          echo "::error::${COMMIT} wasn't live within 25 minutes. Check the deploy's logs in the Render dashboard."
+          exit 1
