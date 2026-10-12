@@ -45,7 +45,7 @@ Ask My Vehicle calls Google Gemini (`GEMINI_API_KEY`, model `GEMINI_MODEL`, defa
 
 Push notifications go through Firebase Cloud Messaging when `FIREBASE_SERVICE_ACCOUNT_BASE64` is set, and the daily reminder run needs `REMINDERS_JOB_SECRET` (at least 32 characters). Both are required in `prod`; `dev` has a built-in job secret and runs without Firebase. Tests record pushes instead of sending them.
 
-The Docker image defaults to `prod`, so a misconfigured deploy fails at startup instead of silently using dev settings.
+The Docker image defaults to `prod`, so a misconfigured deploy fails at startup instead of silently using dev settings. Production runs on Render with Neon and R2, and deploys automatically after Backend CI passes on `main`; see [`docs/deployment.md`](../docs/deployment.md).
 
 ## Endpoints
 
@@ -91,7 +91,8 @@ The Docker image defaults to `prod`, so a misconfigured deploy fails at startup 
 | `POST /internal/reminders/run` | `X-Drivon-Job-Secret` header | Daily reminder run, called by `.github/workflows/reminders-cron.yml`; idempotent |
 | `GET/POST /api/v1/vehicles/{id}/odometer-readings` | Bearer | Odometer history (paged) / add a manual reading |
 | `GET/PUT/DELETE /api/v1/vehicles/{id}/odometer-readings/{readingId}` | Bearer | Correct an initial or manual reading; delete a manual one |
-| `GET /actuator/health`, `/actuator/info` | Public | Render health check |
+| `GET /actuator/health`, `/actuator/info` | Public | Render health check; `info` shows the app version and the deployed commit (`app.commit`) |
+| `GET /` | Public | Redirects to Swagger UI |
 | `GET /v3/api-docs`, `/v3/api-docs.yaml`, `/swagger-ui.html` | Public | API documentation (OpenAPI JSON and YAML, Swagger UI) |
 
 Tokens: access tokens are 15-minute JWTs sent as `Authorization: Bearer <token>`; refresh tokens last 30 days and rotate on each use (`docs/adr/0005-authentication-tokens.md`). The OpenAPI description and a Postman collection are in [`docs/api/`](../docs/api/README.md); `OpenApiSpecIntegrationTest` fails the build when `docs/api/openapi.json` no longer matches the code (regenerate it with `./mvnw test -Dtest=OpenApiSpecIntegrationTest -Dopenapi.write=true`).
