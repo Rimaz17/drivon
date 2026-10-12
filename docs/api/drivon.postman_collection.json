@@ -72,6 +72,28 @@
               }
             }
           ]
+        },
+        {
+          "name": "OpenAPI document (YAML)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/v3/api-docs.yaml"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('is YAML', () => pm.expect(pm.response.text()).to.include('openapi:'));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -574,6 +596,25 @@
           ]
         },
         {
+          "name": "Get odometer reading",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/odometer-readings/{{readingId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('returns the requested record', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('readingId')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Correct odometer reading",
           "request": {
             "method": "PUT",
@@ -680,6 +721,25 @@
           ]
         },
         {
+          "name": "Get service",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/maintenance-records/{{serviceId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('returns the requested record', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('serviceId')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Upcoming services",
           "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/maintenance-records/upcoming" },
           "event": [
@@ -757,6 +817,25 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get expense",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/expenses/{{expenseId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('returns the requested record', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('expenseId')));"
                 ]
               }
             }
@@ -1021,6 +1100,25 @@
           ]
         },
         {
+          "name": "Get document",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/documents/{{documentId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('returns the requested record', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('documentId')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Update document",
           "request": {
             "method": "PUT",
@@ -1123,6 +1221,25 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get own reminder",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/vehicles/{{vehicleId}}/reminders/{{reminderId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('returns the requested record', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('reminderId')));"
                 ]
               }
             }
