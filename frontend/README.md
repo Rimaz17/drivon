@@ -57,7 +57,7 @@ A build from the steps above talks to the API on your laptop through the USB cab
 Notes:
 
 - Production has its own database, so create a new account there; accounts from your laptop's database don't exist in it.
-- The first request after the API has slept takes 2–3 minutes; the launch screen waits for it.
+- The first request after the API has slept takes a minute or two. Launch doesn't wait for it: after 10 seconds the app opens with what it saved, and the screens fill in once the server is up.
 - Without `android/key.properties` the APK is signed with your debug key, so it installs over (and is replaced by) the builds Android Studio installs. Running from Android Studio again puts the cable-connected development build back.
 - Once releases are published, install the signed APK from GitHub Releases instead (see [Release APK](#release-apk)); uninstall the debug-signed build first, because the keys differ.
 
@@ -249,7 +249,7 @@ iOS push needs an APNs key from the paid Apple Developer Program, so it is not s
 
 - Access and refresh tokens, and the cached profile, live in `flutter_secure_storage` (iOS Keychain, this device only; Android Keystore-backed). Nothing session-related goes into SharedPreferences.
 - `AuthInterceptor` adds the access token, refreshes it once on a 401 and retries. Concurrent 401s share one refresh, because the server treats refresh-token reuse as theft.
-- At launch the saved session is confirmed with `/users/me`. If the server is unreachable or still waking up, the cached profile keeps the user signed in.
+- At launch the saved session is confirmed with `/users/me`, waiting at most 10 seconds (`AuthRepository.launchCheckTimeout`). If the server is unreachable or still waking up, the cached profile keeps the user signed in. Other requests wait up to 2 minutes, long enough for the free server to wake.
 - Signing out revokes the session on the server and clears tokens, the profile and the remembered vehicle selection.
 - The Profile page (account button in the Garage app bar) edits the name and email (`PUT /users/me`; a taken email shows under the field), signs out, and deletes the account after asking for the password (`POST /users/me/deletion`). After a deletion the app clears the user's tokens, offline data and vehicle selection, cancels scheduled notifications, and the sign-in screen says the account was deleted.
 - Data providers watch `currentUserIdProvider`, not the whole user, so editing the profile doesn't reload them.

@@ -58,7 +58,7 @@ flowchart TD
 
 ## Live API
 
-The API runs on Render's free tier at <https://drivon-api-vhtu.onrender.com>, which opens its [API documentation](https://drivon-api-vhtu.onrender.com/swagger-ui.html). The free instance sleeps after 15 idle minutes, so the first request can take 2–3 minutes. [`docs/deployment.md`](docs/deployment.md) describes production and how changes reach it.
+The API runs on Render's free tier at <https://drivon-api-vhtu.onrender.com>, which opens its [API documentation](https://drivon-api-vhtu.onrender.com/swagger-ui.html). The free instance sleeps after 15 idle minutes, so the first request after a quiet spell can take a minute or two. [`docs/deployment.md`](docs/deployment.md) describes production and how changes reach it.
 
 ## Install
 

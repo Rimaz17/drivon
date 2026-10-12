@@ -33,7 +33,7 @@ Some things to know when reading it:
 ## Postman collection
 
 1. *Import* `drivon.postman_collection.json`.
-2. Set the collection variable `baseUrl`: `http://localhost:8080` (the default) or production, `https://drivon-api-vhtu.onrender.com` (allow 2–3 minutes for the first request if it was asleep).
+2. Set the collection variable `baseUrl`: `http://localhost:8080` (the default) or production, `https://drivon-api-vhtu.onrender.com` (allow a minute or two for the first request if it was asleep).
 3. Run *Auth → Register* (the collection makes up an email the first time; clear the `email` variable for another account) or *Login*, then the folders from top to bottom, by hand or with the Collection Runner.
 
 Test scripts check each response and store tokens and IDs (`vehicleId`, `fuelRecordId`, `documentId`, …) in collection variables for later requests. *Cleanup* deletes the vehicle and *Delete account* removes the test account.
