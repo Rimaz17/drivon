@@ -111,7 +111,7 @@ drivon:
       model: ${GROQ_MODEL:openai/gpt-oss-120b}
       base-url: https://api.groq.com/openai/v1
     call-timeout: 25s
-    # Below the app's 70-second receive timeout.
+    # Below the app's 2-minute receive timeout.
     total-timeout: 60s
     max-tool-rounds: 5
     # Per user: 30 questions, refilled over a day, to stay inside free quotas.
