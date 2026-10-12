@@ -41,6 +41,26 @@ Run from `frontend/`.
 
 The Android emulator can skip steps 2 and 5: leave *Additional run args* empty, because the default `http://10.0.2.2:8080` is the emulator's address for your laptop.
 
+## Using the live API on your phone (no cable)
+
+A build from the steps above talks to the API on your laptop through the USB cable. To use Drivon like a normal app, install a release build that talks to the live API (`docs/deployment.md`):
+
+1. From `frontend/` (with `android/app/google-services.json` in place, so push works):
+
+   ```bash
+   flutter build apk --release --dart-define=API_BASE_URL=https://drivon-api-vhtu.onrender.com
+   ```
+
+2. Install it: with the phone connected once, run `adb install -r build/app/outputs/flutter-apk/app-release.apk`. Or copy the APK to the phone and open it there.
+3. Unplug the phone. Drivon now works anywhere with mobile data or Wi-Fi.
+
+Notes:
+
+- Production has its own database, so create a new account there; accounts from your laptop's database don't exist in it.
+- The first request after the API has slept takes 2–3 minutes; the launch screen waits for it.
+- Without `android/key.properties` the APK is signed with your debug key, so it installs over (and is replaced by) the builds Android Studio installs. Running from Android Studio again puts the cable-connected development build back.
+- Once releases are published, install the signed APK from GitHub Releases instead (see [Release APK](#release-apk)); uninstall the debug-signed build first, because the keys differ.
+
 ## Release APK
 
 The APK people install is built by the *Android release* workflow (`.github/workflows/android-release.yml`, `docs/adr/0017-android-release-apk.md`): pushing a tag such as `v1.0.0` builds it against the deployed API, signs it with the release key and attaches it to a GitHub Release. A manual run (*Actions → Android release → Run workflow*) builds the same APK as a workflow artifact, without a release.
