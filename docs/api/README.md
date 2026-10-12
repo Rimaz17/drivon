@@ -4,7 +4,7 @@ The Drivon API is a REST API under `/api/v1`, with JSON bodies, bearer-token aut
 
 | What | Where | Best for |
 |---|---|---|
-| Swagger UI | `/swagger-ui.html` on a running API, e.g. <http://localhost:8080/swagger-ui.html> | Reading and trying endpoints in the browser |
+| Swagger UI | `/swagger-ui.html` on a running API: [production](https://drivon-api-vhtu.onrender.com/swagger-ui.html) or <http://localhost:8080/swagger-ui.html> | Reading and trying endpoints in the browser |
 | OpenAPI 3.1 description | [`openapi.json`](openapi.json) in this folder; live at `/v3/api-docs` (JSON) and `/v3/api-docs.yaml` | Tools, client generation, reading without running the API |
 | Postman collection | [`drivon.postman_collection.json`](drivon.postman_collection.json) | Walking through every endpoint in order with checks |
 
@@ -33,7 +33,7 @@ Some things to know when reading it:
 ## Postman collection
 
 1. *Import* `drivon.postman_collection.json`.
-2. Set the collection variable `baseUrl` (`http://localhost:8080` by default; the deployed API's HTTPS address otherwise).
+2. Set the collection variable `baseUrl`: `http://localhost:8080` (the default) or production, `https://drivon-api-vhtu.onrender.com` (allow 2–3 minutes for the first request if it was asleep).
 3. Run *Auth → Register* (the collection makes up an email the first time; clear the `email` variable for another account) or *Login*, then the folders from top to bottom, by hand or with the Collection Runner.
 
 Test scripts check each response and store tokens and IDs (`vehicleId`, `fuelRecordId`, `documentId`, …) in collection variables for later requests. *Cleanup* deletes the vehicle and *Delete account* removes the test account.
