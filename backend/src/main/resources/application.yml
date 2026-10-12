@@ -57,6 +57,10 @@ info:
     name: Drivon API
     version: '@project.version@'
 
+springdoc:
+  # Every response body is JSON; without this springdoc lists them as */*.
+  default-produces-media-type: application/json
+
 logging:
   pattern:
     # requestId is put into the MDC by RequestIdFilter.

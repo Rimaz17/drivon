@@ -6,7 +6,11 @@ import com.drivon.api.config.ReminderJobProperties;
 import com.drivon.api.reminder.ReminderNotifier.RunSummary;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -24,10 +28,16 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @Tag(name = "Jobs", description = "Internal endpoints called by scheduled workflows")
+@SecurityScheme(
+    name = ReminderJobController.SECURITY_SCHEME,
+    type = SecuritySchemeType.APIKEY,
+    in = SecuritySchemeIn.HEADER,
+    paramName = ReminderJobController.SECRET_HEADER)
 class ReminderJobController {
 
   static final String PATH = "/internal/reminders/run";
   static final String SECRET_HEADER = "X-Drivon-Job-Secret";
+  static final String SECURITY_SCHEME = "jobSecret";
 
   private static final Logger log = LoggerFactory.getLogger(ReminderJobController.class);
 
@@ -40,6 +50,7 @@ class ReminderJobController {
   }
 
   @PostMapping(PATH)
+  @SecurityRequirement(name = SECURITY_SCHEME)
   @Operation(
       operationId = "runReminderJob",
       summary = "Send due reminder notifications",
