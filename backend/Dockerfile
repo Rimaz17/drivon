@@ -27,9 +27,12 @@ USER drivon
 EXPOSE 8080
 
 # Render's free instance has 512 MB: cap the heap (~300 MB) and leave room for
-# metaspace, threads and the OS. Prod profile by default so a misconfigured
-# deploy fails fast instead of silently using dev settings.
+# metaspace, threads and the OS. It also has 0.1 CPU, where the optimizing JIT
+# compiler competes with startup: compiling with C1 only started the API about
+# 2.5x faster under a 0.1 CPU limit, and this API never needs C2's peak speed.
+# Prod profile by default so a misconfigured deploy fails fast instead of
+# silently using dev settings.
 ENV SPRING_PROFILES_ACTIVE=prod \
-    JAVA_OPTS="-XX:MaxRAMPercentage=60 -XX:+UseSerialGC -XX:+ExitOnOutOfMemoryError"
+    JAVA_OPTS="-XX:MaxRAMPercentage=60 -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -XX:+ExitOnOutOfMemoryError"
 
 ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar drivon-api.jar"]
