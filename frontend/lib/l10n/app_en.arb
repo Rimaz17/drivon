@@ -18,7 +18,7 @@
   "noAccountPrompt": "New to Drivon?",
   "goToCreateAccount": "Create an account",
   "createAccountTitle": "Create your account",
-  "createAccountSubtitle": "Track fuel, services and costs for up to two vehicles.",
+  "createAccountSubtitle": "Track fuel, services and costs for up to two vehicles, and ask your AI assistant anything about them.",
   "createAccountAction": "Create account",
   "creatingAccount": "Creating your account",
   "haveAccountPrompt": "Already have an account?",
