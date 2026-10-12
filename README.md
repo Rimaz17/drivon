@@ -4,9 +4,10 @@
 
 [![Backend CI](https://github.com/Rimaz17/drivon/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/Rimaz17/drivon/actions/workflows/backend-ci.yml)
 [![Frontend CI](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml)
+[![Deploy](https://github.com/Rimaz17/drivon/actions/workflows/deploy.yml/badge.svg)](https://github.com/Rimaz17/drivon/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-violet.svg)](LICENSE)
 
-> **Status:** the MVP features (Phases 0–8) are complete: accounts, two vehicles with an odometer history, fuel, services, expenses, documents on Cloudflare R2, Insights, reminders with notifications, the Ask My Vehicle assistant and offline use. Phase 9 (release builds, documentation, hosting and the final iPhone test) is in progress; see the [roadmap](#roadmap).
+> **Status:** the MVP features (Phases 0–8) are complete: accounts, two vehicles with an odometer history, fuel, services, expenses, documents on Cloudflare R2, Insights, reminders with notifications, the Ask My Vehicle assistant and offline use. The API is [live](#live-api) and deploys automatically after CI. Still to come in Phase 9: the first Android release, the final iPhone test, screenshots and a demo video; see the [roadmap](#roadmap).
 
 ## Features (MVP)
 
@@ -25,6 +26,18 @@ Units are kilometres, litres and Sri Lankan Rupees (`Rs. 18,500`).
 
 ## Architecture
 
+<p align="center">
+  <img src="docs/architecture/drivon-architecture.png" alt="Drivon architecture: the Flutter app (Android and iOS) calls the Spring Boot API on Render over HTTPS with JWT; the API's feature modules use Gemini with Groq as fallback for Ask My Vehicle, PostgreSQL on Neon, Cloudflare R2 for documents and Firebase Cloud Messaging for push; GitHub Actions runs CI, deploys and the daily reminders job." width="720">
+</p>
+
+- **One app, two platforms:** a Flutter app for Android and iOS with an on-device SQLite cache, so saved data and new fill-ups work offline.
+- **One API:** a Spring Boot modular monolith (package by feature, Controller → Service → Repository) in a Docker container on Render. It is the single source of truth for every figure: km/L, cost per km, totals and reminder dates.
+- **Secrets stay on the server:** the database, AI, storage and Firebase credentials live only in the API's environment. The app holds none; document files go straight between the phone and R2 through short-lived signed URLs that the API hands out.
+- **Ask My Vehicle:** the API gives Gemini (or Groq, if Gemini fails) 20 read-only tools and runs them for the signed-in user only, so answers come from the user's real data.
+
+<details>
+<summary>Text version of the diagram</summary>
+
 ```mermaid
 flowchart TD
     app["Flutter app<br/>(Android + iOS)"] -- "HTTPS + JWT" --> api
@@ -35,11 +48,17 @@ flowchart TD
     end
     r --> db[("PostgreSQL<br/>(Neon)")]
     s --> r2["Cloudflare R2<br/>(documents)"]
+    app -. "signed upload / download" .-> r2
     s --> ai["Gemini Flash<br/>(Groq fallback)"]
     s --> fcm["Firebase Cloud Messaging"]
+    gha["GitHub Actions"] -- "deploy after CI · daily reminders" --> api
 ```
 
-The app only talks to the API. Every secret (database, AI, storage, Firebase) lives in backend environment variables; nothing sensitive ships inside the app. The backend is the single source of truth for all calculations.
+</details>
+
+## Live API
+
+The API runs on Render's free tier at <https://drivon-api-vhtu.onrender.com>, which opens its [API documentation](https://drivon-api-vhtu.onrender.com/swagger-ui.html). The free instance sleeps after 15 idle minutes, so the first request can take 2–3 minutes. [`docs/deployment.md`](docs/deployment.md) describes production and how changes reach it.
 
 ## Install
 
@@ -56,7 +75,7 @@ iOS: there is no App Store or TestFlight build (both need the paid Apple Develop
 | Database | PostgreSQL 17 (Neon in production, Docker locally) |
 | Storage / AI / Push | Cloudflare R2, Google Gemini Flash + Groq, Firebase Cloud Messaging |
 | Quality | JUnit 5, Mockito, Testcontainers, Spotless (google-java-format), flutter_lints, widget tests |
-| Delivery | Docker, Docker Compose, GitHub Actions (API tests, Android build, iOS build, signed release APK, daily reminders run), Render |
+| Delivery | Docker, Docker Compose, GitHub Actions (API tests, Android build, iOS build, deploy to Render after CI, signed release APK, daily reminders run), Render (Singapore) |
 
 ## Getting started
 
@@ -95,7 +114,7 @@ See [`backend/README.md`](backend/README.md) and [`frontend/README.md`](frontend
 
 ## Environment variables
 
-All variables are listed with placeholders in [`backend/.env.example`](backend/.env.example) (copy it to `.env` at the repo root).
+All variables are listed with placeholders in [`backend/.env.example`](backend/.env.example) (copy it to `.env` at the repo root). Production values are set in Render and GitHub secrets ([`docs/deployment.md`](docs/deployment.md#configuration)).
 
 | Variable | Used by | Purpose |
 |---|---|---|
@@ -105,6 +124,7 @@ All variables are listed with placeholders in [`backend/.env.example`](backend/.
 | `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | Backend | Database connection (Neon needs `sslmode=require`) |
 | `JWT_SECRET` | Backend | Base64 HS256 signing key (≥ 256 bits, `openssl rand -base64 48`); required in prod |
 | `PORT` | Backend | HTTP port, injected by Render |
+| `RENDER_GIT_COMMIT` | Backend | Set by Render to the deployed commit; shown as `app.commit` at `/actuator/info` (`local` elsewhere) |
 | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | Backend | Cloudflare R2 bucket for documents; required in prod, optional locally (without them only document endpoints are unavailable) |
 | `FIREBASE_SERVICE_ACCOUNT_BASE64` | Backend | Firebase service account JSON, Base64-encoded, for push notifications; required in prod, optional locally (reminders then show in the app only) |
 | `REMINDERS_JOB_SECRET` | Backend, GitHub secret | Shared secret (≥ 32 characters) of the daily reminder run; required in prod. The `reminders-cron.yml` workflow also needs the `DRIVON_API_URL` secret |
@@ -116,7 +136,7 @@ The Flutter app takes only non-secret build settings via `--dart-define` (`API_B
 
 The API is documented with OpenAPI 3.1 (see [`docs/api`](docs/api/README.md)):
 
-- **Swagger UI** at `/swagger-ui.html` on a running API (locally <http://localhost:8080/swagger-ui.html>).
+- **Swagger UI** at `/swagger-ui.html` on a running API: [live](https://drivon-api-vhtu.onrender.com/swagger-ui.html), or <http://localhost:8080/swagger-ui.html> locally.
 - **[`docs/api/openapi.json`](docs/api/openapi.json)**: the full description, generated from the code. A test fails the build when it no longer matches the API.
 - **[Postman collection](docs/api/drivon.postman_collection.json)** that walks through every endpoint in order, with checks.
 
@@ -137,8 +157,8 @@ CI runs the same checks on every push and pull request, builds a debug APK, and 
 drivon/
 ├── backend/            Spring Boot API (package-by-feature under com.drivon.api) + .env.example
 ├── frontend/           Flutter app (app/, core/, design_system/, features/)
-├── docs/               ADRs, API reference (OpenAPI + Postman), brand assets, test guides, screenshots
-├── .github/            CI, release and reminder workflows, Dependabot, PR template
+├── docs/               ADRs, deployment runbook, architecture diagram, API reference (OpenAPI + Postman), brand assets, test guides, screenshots
+├── .github/            CI, deploy, release and reminder workflows, Dependabot, PR template
 └── docker-compose.yml  Local Postgres + API (reads .env from the repo root)
 ```
 
