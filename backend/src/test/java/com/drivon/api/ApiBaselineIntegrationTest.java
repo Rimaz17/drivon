@@ -33,6 +33,11 @@ class ApiBaselineIntegrationTest {
   }
 
   @Test
+  void rootRedirectsToTheApiDocumentation() {
+    assertThat(mvc.get().uri("/")).hasStatus(HttpStatus.FOUND).hasRedirectedUrl("/swagger-ui.html");
+  }
+
+  @Test
   void openApiDocsArePublic() {
     assertThat(mvc.get().uri("/v3/api-docs"))
         .hasStatusOk()

@@ -27,6 +27,9 @@ public class SecurityConfig {
 
   static final String AUTH_PATH_PREFIX = "/api/v1/auth/";
 
+  /** Redirects to Swagger UI (see {@link WebConfig}). */
+  static final String ROOT_PATH = "/";
+
   /** Called by the scheduled reminders workflow, which proves itself with a shared secret. */
   static final String REMINDER_JOB_PATH = "/internal/reminders/run";
 
@@ -74,6 +77,8 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST, AUTH_PATH_PREFIX + "**")
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, REMINDER_JOB_PATH)
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, ROOT_PATH)
                     .permitAll()
                     .anyRequest()
                     .authenticated())
