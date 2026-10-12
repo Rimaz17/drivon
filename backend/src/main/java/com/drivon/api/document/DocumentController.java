@@ -47,6 +47,7 @@ class DocumentController {
 
   @GetMapping(DOCUMENTS)
   @Operation(
+      operationId = "listDocuments",
       summary = "List documents, newest first",
       description =
           "Only documents whose upload was confirmed. Sortable by `createdAt`, `issueDate` and"
@@ -64,7 +65,7 @@ class DocumentController {
   }
 
   @GetMapping(DOCUMENTS + "/{documentId}")
-  @Operation(summary = "Get one document's details")
+  @Operation(operationId = "getDocument", summary = "Get one document's details")
   @ApiResponse(responseCode = "404", description = "VEHICLE_NOT_FOUND, DOCUMENT_NOT_FOUND")
   DocumentResponse get(
       @CurrentUserId UUID userId, @PathVariable UUID vehicleId, @PathVariable UUID documentId) {
@@ -73,6 +74,7 @@ class DocumentController {
 
   @PostMapping(DOCUMENTS)
   @Operation(
+      operationId = "startDocumentUpload",
       summary = "Start a document upload",
       description =
           """
@@ -101,6 +103,7 @@ class DocumentController {
 
   @PostMapping(DOCUMENTS + "/{documentId}/confirm")
   @Operation(
+      operationId = "confirmDocumentUpload",
       summary = "Confirm a finished upload",
       description = "Checks the stored file's size and type, then makes the document visible.")
   @ApiResponse(responseCode = "200", description = "The document, now ACTIVE")
@@ -115,7 +118,10 @@ class DocumentController {
   }
 
   @PutMapping(DOCUMENTS + "/{documentId}")
-  @Operation(summary = "Replace a document's details", description = "The file stays the same.")
+  @Operation(
+      operationId = "updateDocument",
+      summary = "Replace a document's details",
+      description = "The file stays the same.")
   @ApiResponse(responseCode = "200", description = "Updated document")
   @ApiResponse(responseCode = "404", description = "VEHICLE_NOT_FOUND, DOCUMENT_NOT_FOUND")
   @ApiResponse(responseCode = "422", description = "DOCUMENT_DATES_INVALID")
@@ -130,6 +136,7 @@ class DocumentController {
   @DeleteMapping(DOCUMENTS + "/{documentId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
+      operationId = "deleteDocument",
       summary = "Delete a document and its file",
       description = "Also removes an upload that was never confirmed.")
   @ApiResponse(responseCode = "204", description = "Deleted")
@@ -141,6 +148,7 @@ class DocumentController {
 
   @GetMapping(DOCUMENTS + "/{documentId}/download-url")
   @Operation(
+      operationId = "getDocumentDownloadUrl",
       summary = "Get a short-lived URL to the document's file",
       description =
           "A presigned GET, valid for 5 minutes; open it without the Authorization header.")
@@ -154,6 +162,7 @@ class DocumentController {
 
   @GetMapping("/documents/expiring")
   @Operation(
+      operationId = "listExpiringDocuments",
       summary = "Documents expiring soon, across the user's vehicles",
       description = "Includes documents that already expired. Soonest expiry first.")
   @ApiResponse(responseCode = "200", description = "The documents")

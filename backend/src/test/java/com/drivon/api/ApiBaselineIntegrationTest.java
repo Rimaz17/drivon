@@ -33,6 +33,14 @@ class ApiBaselineIntegrationTest {
   }
 
   @Test
+  void openApiDocsArePublicAsYaml() {
+    assertThat(mvc.get().uri("/v3/api-docs.yaml"))
+        .hasStatusOk()
+        .bodyText()
+        .contains("title: Drivon API");
+  }
+
+  @Test
   void apiEndpointsRequireAuthentication() {
     assertThat(mvc.get().uri("/api/v1/vehicles")).hasStatus(HttpStatus.UNAUTHORIZED);
   }

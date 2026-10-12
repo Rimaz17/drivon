@@ -1,0 +1,168 @@
+name: Android release
+
+# Builds the signed release APK (docs/adr/0017-android-release-apk.md).
+# Pushing a version tag such as v1.0.0 publishes it on a GitHub Release;
+# a manual run only keeps it as a workflow artifact for testing.
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # Must match the locally installed Flutter; change both together.
+  FLUTTER_VERSION: "3.44.7"
+
+defaults:
+  run:
+    # Explicit bash adds pipefail to the runner's default -e.
+    shell: bash
+    working-directory: frontend
+
+jobs:
+  apk:
+    name: Build signed APK
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    permissions:
+      # Creates the GitHub Release and uploads the APK to it.
+      contents: write
+    env:
+      # Named like the secrets, so errors point at the right one.
+      DRIVON_API_URL: ${{ secrets.DRIVON_API_URL }}
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      # A release must reach the deployed API over HTTPS and be signed with the
+      # release key, so stop before building anything if either is missing.
+      - name: Check release settings
+        run: |
+          failed=0
+          for name in DRIVON_API_URL ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::The ${name} secret is missing (see frontend/README.md, Release APK)."
+              failed=1
+            fi
+          done
+          if [ -n "${DRIVON_API_URL}" ] && [[ "${DRIVON_API_URL}" != https://* ]]; then
+            echo "::error::DRIVON_API_URL must start with https://; release builds don't allow plain HTTP."
+            failed=1
+          fi
+          exit "${failed}"
+
+      - name: Work out the version
+        id: version
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            version="${GITHUB_REF_NAME#v}"
+            if [[ ! "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::Tag ${GITHUB_REF_NAME} is not vMAJOR.MINOR.PATCH."
+              exit 1
+            fi
+            echo "build_name=${version}" >> "${GITHUB_OUTPUT}"
+            echo "apk_name=drivon-${version}.apk" >> "${GITHUB_OUTPUT}"
+          else
+            # Manual runs keep pubspec.yaml's version name.
+            echo "build_name=" >> "${GITHUB_OUTPUT}"
+            echo "apk_name=drivon-manual-${GITHUB_RUN_NUMBER}.apk" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - uses: actions/setup-java@v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2.23.0
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install the release key
+        run: |
+          keystore="${RUNNER_TEMP}/drivon-release.jks"
+          printf '%s' "${ANDROID_KEYSTORE_BASE64}" | base64 --decode > "${keystore}"
+          {
+            echo "storeFile=${keystore}"
+            echo "storePassword=${ANDROID_KEYSTORE_PASSWORD}"
+            echo "keyAlias=${ANDROID_KEY_ALIAS}"
+            echo "keyPassword=${ANDROID_KEY_PASSWORD}"
+          } > android/key.properties
+
+      # Optional: without it the app falls back to on-device reminders (no push).
+      - name: Add the Firebase config
+        if: env.GOOGLE_SERVICES_JSON_BASE64 != ''
+        run: printf '%s' "${GOOGLE_SERVICES_JSON_BASE64}" | base64 --decode > android/app/google-services.json
+
+      # pub get also generates the localization code.
+      - run: flutter pub get
+      # Models (freezed / json_serializable) are generated, not committed (docs/adr/0003).
+      - run: dart run build_runner build --delete-conflicting-outputs
+      - run: flutter analyze
+      - run: flutter test
+
+      # The build number is the run number, so every build installs over the
+      # previous one.
+      - name: Build the APK
+        env:
+          BUILD_NAME: ${{ steps.version.outputs.build_name }}
+        run: |
+          flutter build apk --release \
+            --dart-define=API_BASE_URL="${DRIVON_API_URL%/}" \
+            --build-number="${GITHUB_RUN_NUMBER}" \
+            ${BUILD_NAME:+--build-name="${BUILD_NAME}"}
+
+      - name: Check the signature
+        run: |
+          apksigner="$(ls -d "${ANDROID_HOME}"/build-tools/* | sort -V | tail -n 1)/apksigner"
+          certs="$("${apksigner}" verify --print-certs build/app/outputs/flutter-apk/app-release.apk)"
+          echo "${certs}"
+          if grep -q "CN=Android Debug" <<< "${certs}"; then
+            echo "::error::The APK is signed with the debug key."
+            exit 1
+          fi
+
+      - name: Name the APK
+        env:
+          APK_NAME: ${{ steps.version.outputs.apk_name }}
+        run: |
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk "dist/${APK_NAME}"
+          (cd dist && sha256sum "${APK_NAME}" > "${APK_NAME}.sha256")
+
+      - uses: actions/upload-artifact@v7.0.1
+        with:
+          name: drivon-release-apk
+          path: frontend/dist/
+          retention-days: 30
+
+      - name: Publish the GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          APK_NAME: ${{ steps.version.outputs.apk_name }}
+        run: |
+          files=("dist/${APK_NAME}" "dist/${APK_NAME}.sha256")
+          # A re-run replaces the files on the existing release.
+          if gh release view "${GITHUB_REF_NAME}" > /dev/null 2>&1; then
+            gh release upload "${GITHUB_REF_NAME}" "${files[@]}" --clobber
+          else
+            gh release create "${GITHUB_REF_NAME}" "${files[@]}" \
+              --verify-tag --title "Drivon ${GITHUB_REF_NAME}" --generate-notes
+          fi
+
+      - name: Remove the release key
+        if: always()
+        run: rm -f "${RUNNER_TEMP}/drivon-release.jks" android/key.properties

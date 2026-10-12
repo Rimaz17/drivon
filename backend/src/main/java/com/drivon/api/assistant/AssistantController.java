@@ -26,6 +26,7 @@ class AssistantController {
 
   @PostMapping("/chat")
   @Operation(
+      operationId = "askMyVehicle",
       summary = "Ask a question",
       description =
           "The assistant looks up the user's own data with read-only tools and answers in plain"

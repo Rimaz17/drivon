@@ -34,13 +34,13 @@ class VehicleController {
 
   /** Not paginated: the list is capped at two vehicles by a business rule. */
   @GetMapping
-  @Operation(summary = "List vehicles, oldest first")
+  @Operation(operationId = "listVehicles", summary = "List vehicles, oldest first")
   List<VehicleResponse> list(@CurrentUserId UUID userId) {
     return vehicles.list(userId);
   }
 
   @GetMapping("/{vehicleId}")
-  @Operation(summary = "Get one vehicle")
+  @Operation(operationId = "getVehicle", summary = "Get one vehicle")
   @ApiResponse(responseCode = "200", description = "The vehicle")
   @ApiResponse(responseCode = "404", description = "VEHICLE_NOT_FOUND (also for others' vehicles)")
   VehicleResponse get(@CurrentUserId UUID userId, @PathVariable UUID vehicleId) {
@@ -48,7 +48,7 @@ class VehicleController {
   }
 
   @PostMapping
-  @Operation(summary = "Add a vehicle")
+  @Operation(operationId = "createVehicle", summary = "Add a vehicle")
   @ApiResponse(responseCode = "201", description = "Created; Location points to the vehicle")
   @ApiResponse(responseCode = "400", description = "VALIDATION_FAILED")
   @ApiResponse(responseCode = "409", description = "REGISTRATION_NUMBER_IN_USE")
@@ -65,7 +65,7 @@ class VehicleController {
   }
 
   @PutMapping("/{vehicleId}")
-  @Operation(summary = "Replace a vehicle's details")
+  @Operation(operationId = "updateVehicle", summary = "Replace a vehicle's details")
   @ApiResponse(responseCode = "200", description = "Updated vehicle")
   @ApiResponse(responseCode = "404", description = "VEHICLE_NOT_FOUND")
   @ApiResponse(responseCode = "409", description = "REGISTRATION_NUMBER_IN_USE")
@@ -79,7 +79,7 @@ class VehicleController {
 
   @DeleteMapping("/{vehicleId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "Delete a vehicle")
+  @Operation(operationId = "deleteVehicle", summary = "Delete a vehicle")
   @ApiResponse(responseCode = "204", description = "Deleted")
   @ApiResponse(responseCode = "404", description = "VEHICLE_NOT_FOUND")
   void delete(@CurrentUserId UUID userId, @PathVariable UUID vehicleId) {

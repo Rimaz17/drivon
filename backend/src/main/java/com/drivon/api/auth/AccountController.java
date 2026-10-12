@@ -37,6 +37,7 @@ class AccountController {
   @PostMapping("/deletion")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
+      operationId = "deleteAccount",
       summary = "Delete the signed-in user's account",
       description =
           "Permanently deletes the account with its vehicles, records, documents and sessions."

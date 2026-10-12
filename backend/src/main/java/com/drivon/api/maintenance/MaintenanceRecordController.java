@@ -39,6 +39,7 @@ class MaintenanceRecordController {
 
   @GetMapping
   @Operation(
+      operationId = "listMaintenanceRecords",
       summary = "List services, newest first",
       description = "Sortable by `date`, `cost` and `odometerKm`.")
   @ApiResponse(responseCode = "200", description = "A page of services")
@@ -55,6 +56,7 @@ class MaintenanceRecordController {
 
   @GetMapping("/upcoming")
   @Operation(
+      operationId = "listUpcomingServices",
       summary = "Upcoming services",
       description =
           "When each service type is next due, from its latest record: overdue first, then by"
@@ -65,7 +67,7 @@ class MaintenanceRecordController {
   }
 
   @GetMapping("/{recordId}")
-  @Operation(summary = "Get one service")
+  @Operation(operationId = "getMaintenanceRecord", summary = "Get one service")
   @ApiResponse(
       responseCode = "404",
       description = "VEHICLE_NOT_FOUND, MAINTENANCE_RECORD_NOT_FOUND")
@@ -76,6 +78,7 @@ class MaintenanceRecordController {
 
   @PostMapping
   @Operation(
+      operationId = "createMaintenanceRecord",
       summary = "Log a service",
       description = "Send an app-generated `id` to make retries return the saved record (200).")
   @ApiResponse(responseCode = "201", description = "Created; Location points to the service")
@@ -97,7 +100,7 @@ class MaintenanceRecordController {
   }
 
   @PutMapping("/{recordId}")
-  @Operation(summary = "Replace a service's details")
+  @Operation(operationId = "updateMaintenanceRecord", summary = "Replace a service's details")
   @ApiResponse(responseCode = "200", description = "Updated service")
   @ApiResponse(
       responseCode = "404",
@@ -117,7 +120,9 @@ class MaintenanceRecordController {
 
   @DeleteMapping("/{recordId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "Delete a service and its odometer reading")
+  @Operation(
+      operationId = "deleteMaintenanceRecord",
+      summary = "Delete a service and its odometer reading")
   @ApiResponse(responseCode = "204", description = "Deleted")
   @ApiResponse(
       responseCode = "404",

@@ -6,7 +6,7 @@
 [![Frontend CI](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-violet.svg)](LICENSE)
 
-> **Status:** Phases 1–8 are complete: accounts, up to two vehicles with an odometer history, fuel tracking with km/L and fuel cost per km, service records with upcoming services, expenses with spending totals by period, category, month and vehicle, vehicle documents (photos and PDFs) stored privately on Cloudflare R2 with expiry tracking, Insights (from the Garage) with running cost per km (fuel, maintenance, other), monthly cost and efficiency charts, and a two-vehicle comparison, reminders for services, document expiry and your own, pushed on Android and scheduled on the device on iOS, Ask My Vehicle, an assistant on its own tab that answers questions from your own data (Google Gemini, with Groq as fallback), a profile page to edit your details or delete your account, and offline use: saved data when there's no connection and fill-ups that sync once you're back online. Features land phase by phase; see the [roadmap](#roadmap).
+> **Status:** the MVP features (Phases 0–8) are complete: accounts, two vehicles with an odometer history, fuel, services, expenses, documents on Cloudflare R2, Insights, reminders with notifications, the Ask My Vehicle assistant and offline use. Phase 9 (release builds, documentation, hosting and the final iPhone test) is in progress; see the [roadmap](#roadmap).
 
 ## Features (MVP)
 
@@ -41,6 +41,12 @@ flowchart TD
 
 The app only talks to the API. Every secret (database, AI, storage, Firebase) lives in backend environment variables; nothing sensitive ships inside the app. The backend is the single source of truth for all calculations.
 
+## Install
+
+Android: every tagged version publishes a signed APK on the repository's [Releases](https://github.com/Rimaz17/drivon/releases) page (built by the `Android release` workflow; see the [frontend README](frontend/README.md#release-apk)). Download it on the phone and open it to install.
+
+iOS: there is no App Store or TestFlight build (both need the paid Apple Developer Program). The app runs on an iPhone from source with a free Apple ID; see [Running on an iPhone](frontend/README.md#running-on-an-iphone-borrowed-mac-free-apple-id).
+
 ## Tech stack
 
 | Layer | Choice |
@@ -50,7 +56,7 @@ The app only talks to the API. Every secret (database, AI, storage, Firebase) li
 | Database | PostgreSQL 17 (Neon in production, Docker locally) |
 | Storage / AI / Push | Cloudflare R2, Google Gemini Flash + Groq, Firebase Cloud Messaging |
 | Quality | JUnit 5, Mockito, Testcontainers, Spotless (google-java-format), flutter_lints, widget tests |
-| Delivery | Docker, Docker Compose, GitHub Actions (API tests, Android build, iOS build), Render |
+| Delivery | Docker, Docker Compose, GitHub Actions (API tests, Android build, iOS build, signed release APK, daily reminders run), Render |
 
 ## Getting started
 
@@ -106,14 +112,24 @@ All variables are listed with placeholders in [`backend/.env.example`](backend/.
 
 The Flutter app takes only non-secret build settings via `--dart-define` (`API_BASE_URL`).
 
+## API documentation
+
+The API is documented with OpenAPI 3.1 (see [`docs/api`](docs/api/README.md)):
+
+- **Swagger UI** at `/swagger-ui.html` on a running API (locally <http://localhost:8080/swagger-ui.html>).
+- **[`docs/api/openapi.json`](docs/api/openapi.json)**: the full description, generated from the code. A test fails the build when it no longer matches the API.
+- **[Postman collection](docs/api/drivon.postman_collection.json)** that walks through every endpoint in order, with checks.
+
+Errors are RFC 9457 Problem Details with a stable `code` (for example `VEHICLE_LIMIT_REACHED`); the [backend README](backend/README.md#endpoints) lists the endpoints and data conventions.
+
 ## Testing
 
 ```bash
-cd backend && ./mvnw verify      # formatting check + unit + Testcontainers integration tests (Postgres, S3Mock)
+cd backend && ./mvnw verify      # formatting check + unit + Testcontainers integration tests (Postgres, S3Mock) + OpenAPI spec check
 cd frontend && flutter test      # unit and widget tests
 ```
 
-CI runs the same checks on every push and pull request, builds a debug APK, and compiles the iOS app on a macOS runner without code signing.
+CI runs the same checks on every push and pull request, builds a debug APK, and compiles the iOS app on a macOS runner without code signing. Manual checks are written down in [`docs/testing`](docs/testing): a [manual test guide for Phases 1–8](docs/testing/manual-test-guide-phases-1-8.pdf) with expected values, and the [final iPhone test](docs/testing/iphone-test-checklist.md) checklist.
 
 ## Project structure
 
@@ -121,8 +137,8 @@ CI runs the same checks on every push and pull request, builds a debug APK, and 
 drivon/
 ├── backend/            Spring Boot API (package-by-feature under com.drivon.api) + .env.example
 ├── frontend/           Flutter app (app/, core/, design_system/, features/)
-├── docs/               ADRs, API collection, screenshots
-├── .github/            CI workflows, Dependabot, PR template
+├── docs/               ADRs, API reference (OpenAPI + Postman), brand assets, test guides, screenshots
+├── .github/            CI, release and reminder workflows, Dependabot, PR template
 └── docker-compose.yml  Local Postgres + API (reads .env from the repo root)
 ```
 
@@ -139,7 +155,7 @@ drivon/
 | 6 | Reminders & notifications | ✅ Done |
 | 7 | Ask My Vehicle | ✅ Done |
 | 8 | Offline support | ✅ Done |
-| 9 | Deploy & polish | Next |
+| 9 | Deploy & polish | In progress |
 
 Out of scope for the MVP: more than two vehicles, OCR, PDF/CSV export, assistant write actions, store publishing, shared vehicles and iOS push notifications.
 

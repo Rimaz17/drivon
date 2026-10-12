@@ -92,9 +92,9 @@ The Docker image defaults to `prod`, so a misconfigured deploy fails at startup 
 | `GET/POST /api/v1/vehicles/{id}/odometer-readings` | Bearer | Odometer history (paged) / add a manual reading |
 | `GET/PUT/DELETE /api/v1/vehicles/{id}/odometer-readings/{readingId}` | Bearer | Correct an initial or manual reading; delete a manual one |
 | `GET /actuator/health`, `/actuator/info` | Public | Render health check |
-| `GET /v3/api-docs`, `/swagger-ui.html` | Public | API documentation |
+| `GET /v3/api-docs`, `/v3/api-docs.yaml`, `/swagger-ui.html` | Public | API documentation (OpenAPI JSON and YAML, Swagger UI) |
 
-Tokens: access tokens are 15-minute JWTs sent as `Authorization: Bearer <token>`; refresh tokens last 30 days and rotate on each use (`docs/adr/0005-authentication-tokens.md`). A Postman collection is in `docs/api/`.
+Tokens: access tokens are 15-minute JWTs sent as `Authorization: Bearer <token>`; refresh tokens last 30 days and rotate on each use (`docs/adr/0005-authentication-tokens.md`). The OpenAPI description and a Postman collection are in [`docs/api/`](../docs/api/README.md); `OpenApiSpecIntegrationTest` fails the build when `docs/api/openapi.json` no longer matches the code (regenerate it with `./mvnw test -Dtest=OpenApiSpecIntegrationTest -Dopenapi.write=true`).
 
 ### Data conventions
 
@@ -116,10 +116,10 @@ Every error is an RFC 9457 Problem Details body (`application/problem+json`) wit
 
 ```json
 {
-  "type": "about:blank",
   "title": "Vehicle limit reached",
   "status": 422,
   "detail": "You can add up to 2 vehicles.",
+  "instance": "/api/v1/vehicles",
   "code": "VEHICLE_LIMIT_REACHED",
   "requestId": "9b1c…"
 }

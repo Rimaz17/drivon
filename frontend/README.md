@@ -27,6 +27,7 @@ Run from `frontend/`.
 | Analyze | `flutter analyze` |
 | Test | `flutter test` |
 | Debug APK | `flutter build apk --debug` |
+| Release APK (see [Release APK](#release-apk)) | `flutter build apk --release --dart-define=API_BASE_URL=https://<deployed-api>` |
 
 ## Running on an Android phone from Android Studio
 
@@ -39,6 +40,61 @@ Run from `frontend/`.
 7. **Run:** choose your phone in the device dropdown and press *Run* (▶). The first build takes a few minutes.
 
 The Android emulator can skip steps 2 and 5: leave *Additional run args* empty, because the default `http://10.0.2.2:8080` is the emulator's address for your laptop.
+
+## Release APK
+
+The APK people install is built by the *Android release* workflow (`.github/workflows/android-release.yml`, `docs/adr/0017-android-release-apk.md`): pushing a tag such as `v1.0.0` builds it against the deployed API, signs it with the release key and attaches it to a GitHub Release. A manual run (*Actions → Android release → Run workflow*) builds the same APK as a workflow artifact, without a release.
+
+### One-time setup
+
+1. **Create the release key** (once, and keep it forever: an app signed with a different key can't update an installed one). In Git Bash, outside the repo:
+
+   ```bash
+   "/c/Program Files/Java/jdk-17/bin/keytool.exe" -genkeypair -v -keystore drivon-release.jks -keyalg RSA -keysize 2048 -validity 10000 -alias drivon
+   ```
+
+   Use passwords of letters and digits only (the build reads them from a properties file, where `\` has a special meaning). Back up the `.jks` file and both passwords somewhere safe, such as a password manager. Never put the keystore inside the repo.
+2. **Encode it for GitHub:** `base64 -w 0 drivon-release.jks > drivon-release.jks.b64` (Git Bash), then open the `.b64` file and copy its single line. Delete the `.b64` file afterwards.
+3. **Add repository secrets** under *Settings → Secrets and variables → Actions → New repository secret*:
+
+   | Secret | Value |
+   |---|---|
+   | `ANDROID_KEYSTORE_BASE64` | The line from step 2 |
+   | `ANDROID_KEYSTORE_PASSWORD` | The keystore password |
+   | `ANDROID_KEY_ALIAS` | `drivon` (the `-alias` from step 1) |
+   | `ANDROID_KEY_PASSWORD` | The same password again (keytool's default PKCS12 format uses one password for the keystore and the key) |
+   | `DRIVON_API_URL` | The deployed API, e.g. `https://<service>.onrender.com` (also used by the reminders workflow) |
+   | `GOOGLE_SERVICES_JSON_BASE64` | Optional, for push: `base64 -w 0 android/app/google-services.json` |
+
+The workflow stops with a clear error if a required secret is missing, the URL isn't HTTPS, or the APK came out debug-signed.
+
+### Publishing a release
+
+From an up-to-date `main` whose CI is green:
+
+```bash
+git tag -a v1.0.0 -m "Drivon 1.0.0"
+git push origin v1.0.0
+```
+
+The tag sets the version name (`1.0.0`); the workflow run number is the version code, so each release installs over the previous one. The release page gets `drivon-1.0.0.apk` and its `.sha256`.
+
+### Installing the APK
+
+On the phone, download the APK from the release page and open it. Android asks to allow installs from the browser or file manager once (*Install unknown apps*). A build signed with another key (for example a debug build from Android Studio) must be uninstalled first.
+
+### Building a release APK locally
+
+`flutter build apk --release --dart-define=API_BASE_URL=https://<deployed-api>` signs with `android/key.properties` if it exists (gitignored; `storeFile` is absolute or relative to `android/app`):
+
+```properties
+storeFile=C:/path/outside/the/repo/drivon-release.jks
+storePassword=...
+keyAlias=drivon
+keyPassword=...
+```
+
+Without that file the build uses the debug key: fine for `flutter run --release` on your own phone, but don't share that APK. Always pass `API_BASE_URL`: the default is the emulator's plain-HTTP address, which release builds can't reach.
 
 ## Configuration
 
@@ -208,3 +264,4 @@ Development happens on Windows. The `build-ios` CI job runs `flutter build ios -
 4. Connect the iPhone, trust the Mac, and enable *Developer Mode* on the phone (*Settings → Privacy & Security*).
 5. Run `flutter run --release --dart-define=API_BASE_URL=https://<deployed-api>`.
 6. On first launch, trust the developer profile on the phone (*Settings → General → VPN & Device Management*). Free-account builds expire after 7 days.
+7. Work through the [final iPhone test checklist](../docs/testing/iphone-test-checklist.md).

@@ -31,6 +31,7 @@ class DeviceTokenController {
   @PutMapping
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
+      operationId = "registerDeviceToken",
       summary = "Register this installation for push notifications",
       description =
           "Idempotent. Send the Firebase Cloud Messaging token after sign-in and whenever it"
@@ -44,6 +45,7 @@ class DeviceTokenController {
   @DeleteMapping("/{token}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
+      operationId = "unregisterDeviceToken",
       summary = "Stop push notifications to this installation",
       description = "Call before signing out. Idempotent: unknown tokens are ignored.")
   @ApiResponse(responseCode = "204", description = "Unregistered")
