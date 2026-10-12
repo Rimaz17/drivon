@@ -5,12 +5,14 @@ import '../errors/app_exception.dart';
 import 'error_mapper.dart';
 
 /// Shared HTTP settings. The receive timeout is generous because the free
-/// Render instance can take close to a minute to wake from sleep.
+/// Render instance takes a minute or two to wake from sleep, and the request
+/// that wakes it is answered once it is up. Without a network, requests fail
+/// quickly instead, so this doesn't delay the offline copy.
 BaseOptions apiBaseOptions({String? baseUrl}) => BaseOptions(
   baseUrl: baseUrl ?? Environment.apiBaseUrl,
   connectTimeout: const Duration(seconds: 20),
   sendTimeout: const Duration(seconds: 20),
-  receiveTimeout: const Duration(seconds: 70),
+  receiveTimeout: const Duration(minutes: 2),
   contentType: Headers.jsonContentType,
 );
 

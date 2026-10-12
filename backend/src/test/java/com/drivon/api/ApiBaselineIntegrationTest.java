@@ -24,6 +24,20 @@ class ApiBaselineIntegrationTest {
   }
 
   @Test
+  void infoEndpointNamesTheDeployedCommit() {
+    assertThat(mvc.get().uri("/actuator/info"))
+        .hasStatusOk()
+        .bodyJson()
+        .extractingPath("$.app.commit")
+        .isEqualTo("local");
+  }
+
+  @Test
+  void rootRedirectsToTheApiDocumentation() {
+    assertThat(mvc.get().uri("/")).hasStatus(HttpStatus.FOUND).hasRedirectedUrl("/swagger-ui.html");
+  }
+
+  @Test
   void openApiDocsArePublic() {
     assertThat(mvc.get().uri("/v3/api-docs"))
         .hasStatusOk()

@@ -15,6 +15,11 @@ class AuthRepository {
     required this._userCache,
   });
 
+  /// How long launch waits for the server before carrying on with the cached
+  /// profile. The free server can take minutes to wake from sleep; the request
+  /// still wakes it, so the screens that follow load once it is up.
+  static const Duration launchCheckTimeout = Duration(seconds: 10);
+
   final AuthApi _api;
   final TokenStore _tokens;
   final UserCache _userCache;
@@ -44,7 +49,9 @@ class AuthRepository {
   Future<User?> restore() async {
     if (await _tokens.read() == null) return null;
     try {
-      final user = (await _api.me()).toDomain();
+      final user = (await _api.me(
+        receiveTimeout: launchCheckTimeout,
+      )).toDomain();
       await _userCache.save(user);
       return user;
     } on SessionExpiredException {

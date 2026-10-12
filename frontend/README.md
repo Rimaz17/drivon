@@ -41,6 +41,26 @@ Run from `frontend/`.
 
 The Android emulator can skip steps 2 and 5: leave *Additional run args* empty, because the default `http://10.0.2.2:8080` is the emulator's address for your laptop.
 
+## Using the live API on your phone (no cable)
+
+A build from the steps above talks to the API on your laptop through the USB cable. To use Drivon like a normal app, install a release build that talks to the live API (`docs/deployment.md`):
+
+1. From `frontend/` (with `android/app/google-services.json` in place, so push works):
+
+   ```bash
+   flutter build apk --release --dart-define=API_BASE_URL=https://drivon-api-vhtu.onrender.com
+   ```
+
+2. Install it: with the phone connected once, run `adb install -r build/app/outputs/flutter-apk/app-release.apk`. Or copy the APK to the phone and open it there.
+3. Unplug the phone. Drivon now works anywhere with mobile data or Wi-Fi.
+
+Notes:
+
+- Production has its own database, so create a new account there; accounts from your laptop's database don't exist in it.
+- The first request after the API has slept takes a minute or two. Launch doesn't wait for it: after 10 seconds the app opens with what it saved, and the screens fill in once the server is up.
+- Without `android/key.properties` the APK is signed with your debug key, so it installs over (and is replaced by) the builds Android Studio installs. Running from Android Studio again puts the cable-connected development build back.
+- Once releases are published, install the signed APK from GitHub Releases instead (see [Release APK](#release-apk)); uninstall the debug-signed build first, because the keys differ.
+
 ## Release APK
 
 The APK people install is built by the *Android release* workflow (`.github/workflows/android-release.yml`, `docs/adr/0017-android-release-apk.md`): pushing a tag such as `v1.0.0` builds it against the deployed API, signs it with the release key and attaches it to a GitHub Release. A manual run (*Actions → Android release → Run workflow*) builds the same APK as a workflow artifact, without a release.
@@ -229,7 +249,7 @@ iOS push needs an APNs key from the paid Apple Developer Program, so it is not s
 
 - Access and refresh tokens, and the cached profile, live in `flutter_secure_storage` (iOS Keychain, this device only; Android Keystore-backed). Nothing session-related goes into SharedPreferences.
 - `AuthInterceptor` adds the access token, refreshes it once on a 401 and retries. Concurrent 401s share one refresh, because the server treats refresh-token reuse as theft.
-- At launch the saved session is confirmed with `/users/me`. If the server is unreachable or still waking up, the cached profile keeps the user signed in.
+- At launch the saved session is confirmed with `/users/me`, waiting at most 10 seconds (`AuthRepository.launchCheckTimeout`). If the server is unreachable or still waking up, the cached profile keeps the user signed in. Other requests wait up to 2 minutes, long enough for the free server to wake.
 - Signing out revokes the session on the server and clears tokens, the profile and the remembered vehicle selection.
 - The Profile page (account button in the Garage app bar) edits the name and email (`PUT /users/me`; a taken email shows under the field), signs out, and deletes the account after asking for the password (`POST /users/me/deletion`). After a deletion the app clears the user's tokens, offline data and vehicle selection, cancels scheduled notifications, and the sign-in screen says the account was deleted.
 - Data providers watch `currentUserIdProvider`, not the whole user, so editing the profile doesn't reload them.

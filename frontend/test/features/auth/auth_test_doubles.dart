@@ -32,6 +32,7 @@ class FakeAuthApi implements AuthApi {
   AppException? deleteAccountError;
   final List<String> deletionPasswords = [];
   int meCalls = 0;
+  Duration? lastMeReceiveTimeout;
 
   @override
   Future<AuthResponseDto> login({
@@ -50,8 +51,9 @@ class FakeAuthApi implements AuthApi {
   }) async => _resolve(registerResult);
 
   @override
-  Future<UserDto> me() async {
+  Future<UserDto> me({Duration? receiveTimeout}) async {
     meCalls++;
+    lastMeReceiveTimeout = receiveTimeout;
     return _resolve(meResult);
   }
 
