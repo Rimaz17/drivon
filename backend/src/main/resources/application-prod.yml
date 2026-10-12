@@ -8,7 +8,9 @@ spring:
     password: ${DB_PASSWORD}
     hikari:
       # Neon autosuspends; retire connections before its idle timeout closes them.
+      # Idle connections must time out sooner than that, or Hikari ignores the setting.
       max-lifetime: 240000
+      idle-timeout: 120000
       keepalive-time: 60000
 
 server:
