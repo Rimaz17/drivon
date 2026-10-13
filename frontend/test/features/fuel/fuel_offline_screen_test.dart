@@ -140,6 +140,25 @@ void main() {
     expect(find.textContaining("You're offline"), findsNothing);
   });
 
+  testWidgets('the app says when the server is waking up', (tester) async {
+    await openApp(tester);
+
+    container.read(connectionStatusProvider.notifier).serverSlow();
+    await tester.pumpAndSettle();
+    expect(
+      find.text(
+        'Waking up the server. After a quiet spell this can take a minute or '
+        'two.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.textContaining("You're offline"), findsNothing);
+
+    container.read(connectionStatusProvider.notifier).reachedServer();
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Waking up the server'), findsNothing);
+  });
+
   testWidgets('signing out warns about unsynced fill-ups and clears them', (
     tester,
   ) async {

@@ -117,9 +117,7 @@ class NotificationController extends Notifier<NotificationStatus> {
     // A registration that failed because the server was asleep or the phone
     // was offline is tried again as soon as a request gets through.
     ref.listen(connectionStatusProvider, (previous, next) {
-      if (previous is Offline && next is Online) {
-        unawaited(_retryRegistration());
-      }
+      if (serverCameBack(previous, next)) unawaited(_retryRegistration());
     });
     ref.onDispose(_cancelSubscriptions);
     return NotificationStatus.checking;

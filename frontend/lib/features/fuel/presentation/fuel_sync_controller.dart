@@ -43,7 +43,7 @@ class FuelSyncController extends Notifier<FuelSyncState> {
     ref
       ..onDispose(network.cancel)
       ..listen(connectionStatusProvider, (previous, next) {
-        if (previous is Offline && next is Online) unawaited(syncNow());
+        if (serverCameBack(previous, next)) unawaited(syncNow());
       });
     unawaited(Future.microtask(() => _loadAndSync(userId)));
     return const FuelSyncState();

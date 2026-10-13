@@ -37,7 +37,7 @@ class AppShell extends StatelessWidget {
 
     final body = Column(
       children: [
-        const _OfflineBanner(),
+        const _ConnectionBanner(),
         Expanded(child: navigationShell),
       ],
     );
@@ -86,16 +86,21 @@ class AppShell extends StatelessWidget {
   }
 }
 
-/// Says the app is offline and showing what it saved earlier; hidden online.
-class _OfflineBanner extends ConsumerWidget {
-  const _OfflineBanner();
+/// Says when requests don't get through: offline (showing what was saved
+/// earlier), or the server still waking up. Hidden online.
+class _ConnectionBanner extends ConsumerWidget {
+  const _ConnectionBanner();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (ref.watch(connectionStatusProvider) is! Offline) {
-      return const SizedBox.shrink();
-    }
     final l10n = AppLocalizations.of(context);
+    final banner = switch (ref.watch(connectionStatusProvider)) {
+      Online() => null,
+      Offline() => (Icons.cloud_off_rounded, l10n.offlineBanner),
+      ServerWaking() => (Icons.hourglass_top_rounded, l10n.slowServerNotice),
+    };
+    if (banner == null) return const SizedBox.shrink();
+    final (icon, message) = banner;
     final scheme = Theme.of(context).colorScheme;
     return Semantics(
       liveRegion: true,
@@ -111,14 +116,14 @@ class _OfflineBanner extends ConsumerWidget {
             child: Row(
               children: [
                 Icon(
-                  Icons.cloud_off_rounded,
+                  icon,
                   size: DrivonSpacing.xl,
                   color: context.drivonColors.warning,
                 ),
                 const SizedBox(width: DrivonSpacing.sm),
                 Expanded(
                   child: Text(
-                    l10n.offlineBanner,
+                    message,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
