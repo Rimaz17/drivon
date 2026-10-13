@@ -154,6 +154,7 @@ public class ReminderNotifier {
     if (outcome != Outcome.DELIVERED) {
       // Nobody got it: no phone registered yet, push not set up, or Firebase unreachable. Leave the
       // stage open, so it goes out on a later run once a phone can receive it.
+      log.info("Reminder {} is {} but wasn't pushed: {}", reminderId, timing.stage(), outcome);
       return outcome == Outcome.FAILED ? Result.FAILED : Result.UNCHANGED;
     }
     reminder.markNotified(timing.stage(), clock.instant());
