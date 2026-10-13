@@ -57,7 +57,7 @@ A build from the steps above talks to the API on your laptop through the USB cab
 Notes:
 
 - Production has its own database, so create a new account there; accounts from your laptop's database don't exist in it.
-- The first request after the API has slept takes a minute or two. Launch doesn't wait for it: after 10 seconds the app opens with what it saved, and the screens fill in once the server is up.
+- The first request after the API has slept takes about a minute and a half (95 seconds measured). Launch doesn't wait for it: after 10 seconds the app opens with what it saved, and the screens fill in once the server is up.
 - Without `android/key.properties` the APK is signed with your debug key, so it installs over (and is replaced by) the builds Android Studio installs. Running from Android Studio again puts the cable-connected development build back.
 - Once releases are published, install the signed APK from GitHub Releases instead (see [Release APK](#release-apk)); uninstall the debug-signed build first, because the keys differ.
 
@@ -180,7 +180,8 @@ Signed-in screens sit in a tab shell (`app/app_shell.dart`, go_router `StatefulS
   - The server works out the status (overdue, due soon, upcoming) and the remaining days and kilometres (`docs/adr/0013-reminders-and-notifications.md`).
   - Services, documents, fill-ups and odometer changes refresh them (`refreshReminders`).
 - `NotificationController` (`features/notifications/`) decides how reminders reach the user, after they tap *Turn on notifications* on the Reminders screen:
-  - **Push (Android):** with Firebase set up, the phone's FCM token is registered with the API, which pushes "due soon" and "due" notifications. Pushes that arrive while the app is open are shown through the same channel.
+  - **Push (Android):** with Firebase set up, the phone's FCM token is registered with the API, which pushes "due soon" and "due" notifications. Pushes that arrive while the app is open are shown through the same channel, from the moment the app has a token: the server may still hold this phone's token from an earlier run even when today's registration hasn't gone through.
+  - If registering fails (offline, or the server is still waking up), date reminders are scheduled on the device meanwhile, and registration is retried as soon as a request gets through again.
   - **Local (iOS, or Android without Firebase):** date reminders are scheduled on the device at 9:00 Sri Lanka time on the first due-soon day and on the due day (at most 60, the iOS limit). Mileage reminders show in the app.
   - Signing out unregisters the token on the server, deletes it on the phone and cancels every scheduled notification.
 - Tapping a notification opens that vehicle's reminders, also when the tap launched the app.
@@ -229,7 +230,7 @@ iOS push needs an APNs key from the paid Apple Developer Program, so it is not s
 
 ### Offline
 
-- Every API read is saved per user in a local SQLite database (`core/storage/local_store.dart`, `sqflite`). When the server can't be reached, `OfflineCacheInterceptor` answers from that copy, and the tabs show "You're offline. Showing what was saved on this phone." (`docs/adr/0015-offline-support.md`).
+- Every API read is saved per user in a local SQLite database (`core/storage/local_store.dart`, `sqflite`). When the server can't be reached, `OfflineCacheInterceptor` answers from that copy, and the tabs show "You're offline. Showing what was saved on this phone." (`docs/adr/0015-offline-support.md`). When the phone reaches the server but no answer comes in time (the free server waking from sleep), the copy is used the same way and the banner says "Waking up the server" instead; it disappears with the first answer.
 - A fill-up logged without a connection is kept on the phone with its own ID and listed under *Waiting to sync* on the Fuel tab. `FuelSyncController` sends it when the phone gets a network (`connectivity_plus`), when the server answers again, at sign-in, or on *Sync now*.
   - Sending twice is safe: the server recognises the ID.
   - A fill-up the server refuses (for example an odometer out of order) shows the reason and can be retried or discarded.
