@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/app_exception.dart';
+import '../../../core/network/connection_status.dart';
 import '../../../core/services/local_notifications.dart';
 import '../../../core/services/push_messaging.dart';
 import '../../../l10n/app_localizations.dart';
@@ -96,7 +97,10 @@ class NotificationController extends Notifier<NotificationStatus> {
 
   StreamSubscription<String>? _tokenRefreshes;
   StreamSubscription<PushNotice>? _foreground;
+
+  /// This phone's current push token, and the one the server last accepted.
   String? _token;
+  String? _registeredToken;
 
   /// Bumped whenever the user changes, so late results of an earlier
   /// session are ignored.
@@ -110,6 +114,13 @@ class NotificationController extends Notifier<NotificationStatus> {
       if (previous != null) unawaited(Future.microtask(_stop));
       if (next != null) unawaited(Future.microtask(_start));
     }, fireImmediately: true);
+    // A registration that failed because the server was asleep or the phone
+    // was offline is tried again as soon as a request gets through.
+    ref.listen(connectionStatusProvider, (previous, next) {
+      if (previous is Offline && next is Online) {
+        unawaited(_retryRegistration());
+      }
+    });
     ref.onDispose(_cancelSubscriptions);
     return NotificationStatus.checking;
   }
@@ -191,34 +202,57 @@ class NotificationController extends Notifier<NotificationStatus> {
   /// accepts the token; local notifications otherwise.
   Future<void> _deliver(int session) async {
     final push = ref.read(pushMessagingProvider);
+    String? token;
     try {
       if (push.supported && await push.initialize()) {
-        final token = await push.token();
-        if (token != null) {
-          await ref.read(deviceTokenApiProvider).register(token);
-          if (!_isCurrent(session)) return;
-          _token = token;
-          _listenToPush(push);
-          state = NotificationStatus.push;
-          return;
-        }
+        token = await push.token();
       }
     } on Object catch (error) {
-      // Offline or Firebase unavailable: reminders still come locally.
-      debugPrint('Push registration failed: $error');
+      // Firebase unavailable: reminders still come locally.
+      debugPrint('Push is unavailable: $error');
     }
-    if (_isCurrent(session)) state = NotificationStatus.local;
+    if (!_isCurrent(session)) return;
+    if (token == null) {
+      state = NotificationStatus.local;
+      return;
+    }
+    // Listen before the server confirms: it may still have this phone's token
+    // from an earlier run and push to it, and a push that arrives while the
+    // app is open is only shown if the app shows it.
+    _token = token;
+    _listenToPush(push);
+    await _register(session, token);
+  }
+
+  /// Sends this phone's push token to the server. Until that works,
+  /// reminders are also scheduled on the device.
+  Future<void> _register(int session, String token) async {
+    try {
+      await ref.read(deviceTokenApiProvider).register(token);
+      if (_isCurrent(session) && _token == token) {
+        _registeredToken = token;
+        state = NotificationStatus.push;
+      }
+    } on Object catch (error) {
+      // Offline, or the server is still waking up: retried once it answers.
+      debugPrint('Push registration failed: $error');
+      if (_isCurrent(session) && state != NotificationStatus.push) {
+        state = NotificationStatus.local;
+      }
+    }
+  }
+
+  Future<void> _retryRegistration() async {
+    final token = _token;
+    if (token == null || token == _registeredToken) return;
+    await _register(_session, token);
   }
 
   void _listenToPush(PushMessaging push) {
     _cancelSubscriptions();
-    _tokenRefreshes = push.tokenRefreshes.listen((token) async {
+    _tokenRefreshes = push.tokenRefreshes.listen((token) {
       _token = token;
-      try {
-        await ref.read(deviceTokenApiProvider).register(token);
-      } on AppException catch (error) {
-        debugPrint('Could not register the new push token: $error');
-      }
+      unawaited(_register(_session, token));
     });
     // Android shows pushes itself only while the app is in the background.
     _foreground = push.foregroundMessages.listen((notice) {
@@ -240,6 +274,7 @@ class NotificationController extends Notifier<NotificationStatus> {
     _cancelSubscriptions();
     final hadToken = _token != null;
     _token = null;
+    _registeredToken = null;
     if (ref.mounted) state = NotificationStatus.checking;
     try {
       await _local.cancelAll();

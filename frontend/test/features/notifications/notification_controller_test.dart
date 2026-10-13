@@ -1,4 +1,5 @@
 import 'package:drivon/core/errors/app_exception.dart';
+import 'package:drivon/core/network/connection_status.dart';
 import 'package:drivon/core/services/push_messaging.dart';
 import 'package:drivon/core/storage/token_store.dart';
 import 'package:drivon/features/auth/presentation/session_controller.dart';
@@ -132,6 +133,70 @@ void main() {
       );
     },
   );
+
+  test(
+    'shows pushes that arrive while registration with the server fails',
+    () async {
+      // The server can still have this phone's token from an earlier run.
+      local.enabled = true;
+      push = FakePushMessaging(supported: true);
+      devices.registerError = const ServerTimeoutException();
+      await start();
+
+      push.foreground.add(
+        const PushNotice(
+          title: 'Insurance is due today',
+          body: 'Toyota Aqua CAB-1234: due 14 Oct 2026',
+          data: {'vehicleId': 'vehicle-1', 'reminderId': 'reminder-1'},
+        ),
+      );
+      await pumpEventQueue();
+
+      expect(local.shown.single.title, 'Insurance is due today');
+    },
+  );
+
+  test('registers again once the server answers', () async {
+    local.enabled = true;
+    push = FakePushMessaging(supported: true);
+    devices.registerError = const ServerTimeoutException();
+    final container = await start();
+    expect(
+      container.read(notificationControllerProvider),
+      NotificationStatus.local,
+    );
+
+    devices.registerError = null;
+    container.read(connectionStatusProvider.notifier)
+      ..lostServer()
+      ..reachedServer();
+    await settle(container);
+
+    expect(devices.registered, ['push-token-1']);
+    expect(
+      container.read(notificationControllerProvider),
+      NotificationStatus.push,
+    );
+    // Push replaces the reminders scheduled on the device meanwhile.
+    expect(local.schedules.last, isEmpty);
+  });
+
+  test('a new push token that failed to register is sent again', () async {
+    local.enabled = true;
+    push = FakePushMessaging(supported: true);
+    final container = await start();
+
+    devices.registerError = const NoConnectionException();
+    push.refreshes.add('push-token-2');
+    await pumpEventQueue();
+    devices.registerError = null;
+    container.read(connectionStatusProvider.notifier)
+      ..lostServer()
+      ..reachedServer();
+    await settle(container);
+
+    expect(devices.registered, ['push-token-1', 'push-token-2']);
+  });
 
   test('falls back to local reminders without Firebase in the build', () async {
     local.enabled = true;
