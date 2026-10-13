@@ -13,7 +13,7 @@ How production runs and how changes reach it. The reasoning is in [ADR 0018](adr
 | AI | Google Gemini (primary), Groq (fallback) | — | Free tiers |
 | Deploys and jobs | GitHub Actions | — | `deploy.yml`, `reminders-cron.yml`, `android-release.yml` |
 
-Useful addresses (the first request after 15 idle minutes takes a minute or two while the instance wakes up):
+Useful addresses (the first request after 15 idle minutes takes about a minute and a half while the instance wakes up; 95 seconds measured):
 
 - Health: <https://drivon-api-vhtu.onrender.com/actuator/health>
 - Running version: <https://drivon-api-vhtu.onrender.com/actuator/info> (`app.commit` is the deployed commit)
@@ -96,7 +96,7 @@ Or run the [Postman collection](api/README.md#postman-collection) with `baseUrl`
 
 ## Limits to keep in mind
 
-- Render free: the instance sleeps after 15 idle minutes and takes a minute or two to wake; deploys cause a short outage; 750 free instance hours a month cover one always-on service.
+- Render free: the instance sleeps after 15 idle minutes and takes about 95 seconds to wake; deploys cause a short outage; 750 free instance hours a month cover one always-on service.
 - Neon free: about 0.5 GB of storage; the database suspends when idle and resumes on the first query.
 - R2 free: 10 GB of storage and 1 million write operations a month; documents are capped at 5 MB each and 100 per vehicle.
 - Gemini and Groq: daily request limits; the API also caps each user at 30 questions a day.

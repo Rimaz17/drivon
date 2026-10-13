@@ -27,6 +27,7 @@ final dioProvider = Provider<Dio>((ref) {
       userId: () => ref.read(activeUserIdProvider),
       onReachable: status.reachedServer,
       onUnreachable: status.lostServer,
+      onSlow: status.serverSlow,
     ),
   );
   ref.onDispose(() {

@@ -8,8 +8,9 @@ import '../storage/local_store.dart';
 
 /// Keeps a copy of every API read for the signed-in user and answers from it
 /// when the server can't be reached, so the app keeps showing data offline.
-/// Reports whether the server is reachable through [onReachable] and
-/// [onUnreachable].
+/// Reports whether the server is reachable through [onReachable],
+/// [onUnreachable] and, when it is reachable but too slow to answer (asleep),
+/// [onSlow].
 ///
 /// Only `GET`s are cached, and not short-lived links (document downloads),
 /// so stale data is never written anywhere. The server stays the source of
@@ -20,6 +21,7 @@ class OfflineCacheInterceptor extends Interceptor {
     required this._userId,
     required this._onReachable,
     required this._onUnreachable,
+    required this._onSlow,
   });
 
   /// Set on responses that came from the saved copy.
@@ -29,6 +31,7 @@ class OfflineCacheInterceptor extends Interceptor {
   final String? Function() _userId;
   final VoidCallback _onReachable;
   final VoidCallback _onUnreachable;
+  final VoidCallback _onSlow;
 
   /// Reads whose answers are worth keeping. Download links expire after
   /// minutes and the assistant's answers are not reads.
@@ -93,7 +96,13 @@ class OfflineCacheInterceptor extends Interceptor {
       handler.next(err);
       return;
     }
-    _onUnreachable();
+    // A connection was made but no answer came in time: the server is up
+    // somewhere, probably waking from sleep, rather than out of reach.
+    if (err.type == DioExceptionType.receiveTimeout) {
+      _onSlow();
+    } else {
+      _onUnreachable();
+    }
     final request = err.requestOptions;
     final userId = _userId();
     if (userId != null && cacheable(request)) {

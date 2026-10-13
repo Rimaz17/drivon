@@ -11,18 +11,26 @@ void main() {
   late List<String> events;
   String? userId;
   var online = true;
+  var asleep = false;
 
   setUp(() {
     store = InMemoryLocalStore();
     events = [];
     userId = 'user-1';
     online = true;
+    asleep = false;
     dio = Dio(BaseOptions(baseUrl: 'http://api.test'))
       ..httpClientAdapter = FakeHttpAdapter((request) async {
         if (!online) {
           throw DioException.connectionError(
             requestOptions: request,
             reason: 'offline',
+          );
+        }
+        if (asleep) {
+          throw DioException.receiveTimeout(
+            timeout: const Duration(minutes: 2),
+            requestOptions: request,
           );
         }
         if (request.uri.path.endsWith('/missing')) {
@@ -39,6 +47,7 @@ void main() {
           userId: () => userId,
           onReachable: () => events.add('reachable'),
           onUnreachable: () => events.add('unreachable'),
+          onSlow: () => events.add('slow'),
         ),
       );
   });
@@ -62,6 +71,19 @@ void main() {
     expect(response.extra[OfflineCacheInterceptor.fromCacheKey], isTrue);
     expect(events, ['reachable', 'unreachable']);
   });
+
+  test(
+    'a server too slow to answer is reported as waking, not offline',
+    () async {
+      await dio.get<Map<String, dynamic>>('/api/v1/vehicles');
+      asleep = true;
+
+      final response = await dio.get<Map<String, dynamic>>('/api/v1/vehicles');
+
+      expect(response.extra[OfflineCacheInterceptor.fromCacheKey], isTrue);
+      expect(events, ['reachable', 'slow']);
+    },
+  );
 
   test('without a saved copy the connection error comes through', () async {
     online = false;

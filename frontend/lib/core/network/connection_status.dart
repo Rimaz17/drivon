@@ -19,6 +19,18 @@ final class Offline extends ConnectionStatus {
   const Offline();
 }
 
+/// The phone reaches the server, but it doesn't answer in time: the free
+/// server is starting up after a quiet spell, which takes a minute or two.
+/// Screens show saved copies meanwhile, as when offline.
+final class ServerWaking extends ConnectionStatus {
+  const ServerWaking();
+}
+
+/// Whether a change of [ConnectionStatus] means requests get through again,
+/// so work that waited for the server can go ahead.
+bool serverCameBack(ConnectionStatus? previous, ConnectionStatus next) =>
+    previous != null && previous is! Online && next is Online;
+
 class ConnectionStatusController extends Notifier<ConnectionStatus> {
   @override
   ConnectionStatus build() => const Online();
@@ -29,6 +41,10 @@ class ConnectionStatusController extends Notifier<ConnectionStatus> {
 
   void lostServer() {
     if (state is! Offline) state = const Offline();
+  }
+
+  void serverSlow() {
+    if (state is! ServerWaking) state = const ServerWaking();
   }
 }
 
