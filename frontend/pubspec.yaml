@@ -28,7 +28,7 @@ dependencies:
   go_router: 18.0.2
   image_picker: 1.2.3
   # Must match the version flutter_localizations pins for this Flutter SDK.
-  intl: 0.20.2
+  intl: 0.20.3
   json_annotation: 4.12.0
   path: 1.9.1
   shared_preferences: 2.5.6
@@ -41,8 +41,8 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: 6.0.0
   # freezed 4.x needs Dart 3.13; 3.2.5 pins analyzer <11, which caps build_runner at 2.15.x.
-  build_runner: 2.15.1
-  freezed: 3.2.5
+  build_runner: 2.16.2
+  freezed: 4.0.2
   json_serializable: 6.14.1
 
 flutter:
