@@ -1,5 +1,5 @@
 # ---- Build stage -----------------------------------------------------------
-FROM eclipse-temurin:17.0.20_8-jdk-noble AS build
+FROM eclipse-temurin:17.0.20.1_1-jdk-noble AS build
 WORKDIR /workspace
 
 # Resolve dependencies in their own layer so source edits don't re-download them.
@@ -13,7 +13,7 @@ RUN ./mvnw -B -q package -DskipTests -Dspotless.check.skip=true \
  && java -Djarmode=tools -jar target/drivon-api.jar extract --layers --destination extracted
 
 # ---- Runtime stage ---------------------------------------------------------
-FROM eclipse-temurin:17.0.20_8-jre-noble
+FROM eclipse-temurin:17.0.20.1_1-jre-noble
 RUN groupadd --system drivon && useradd --system --gid drivon --no-create-home drivon
 WORKDIR /app
 
