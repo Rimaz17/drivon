@@ -141,7 +141,7 @@ jobs:
           cp build/app/outputs/flutter-apk/app-release.apk "dist/${APK_NAME}"
           (cd dist && sha256sum "${APK_NAME}" > "${APK_NAME}.sha256")
 
-      - uses: actions/upload-artifact@v7.0.1
+      - uses: actions/upload-artifact@v7.0.2
         with:
           name: drivon-release-apk
           path: frontend/dist/
