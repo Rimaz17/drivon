@@ -7,7 +7,7 @@
 [![Deploy](https://github.com/Rimaz17/drivon/actions/workflows/deploy.yml/badge.svg)](https://github.com/Rimaz17/drivon/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-violet.svg)](LICENSE)
 
-> **Status:** the MVP features (Phases 0–8) are complete: accounts, two vehicles with an odometer history, fuel, services, expenses, documents on Cloudflare R2, Insights, reminders with notifications, the Ask My Vehicle assistant and offline use. The API is [live](#live-api) and deploys automatically after CI. Still to come in Phase 9: the first Android release, the final iPhone test, screenshots and a demo video; see the [roadmap](#roadmap).
+> **Status:** the MVP is complete and [running in production](#production): the API is on Render with PostgreSQL on Neon and documents on Cloudflare R2, and every backend change that passes CI on `main` is deployed automatically.
 
 ## Features (MVP)
 
@@ -23,6 +23,8 @@
 | Ask My Vehicle | Natural-language questions answered through read-only backend tool calls on your real data |
 
 Units are kilometres, litres and Sri Lankan Rupees (`Rs. 18,500`).
+
+Not part of the MVP: more than two vehicles, OCR, PDF/CSV export, assistant write actions, store publishing, shared vehicles and iOS push notifications.
 
 ## Architecture
 
@@ -56,9 +58,24 @@ flowchart TD
 
 </details>
 
-## Live API
+## Production
 
-The API runs on Render's free tier at <https://drivon-api-vhtu.onrender.com>, which opens its [API documentation](https://drivon-api-vhtu.onrender.com/swagger-ui.html). The free instance sleeps after 15 idle minutes, so the first request after a quiet spell can take a minute or two. [`docs/deployment.md`](docs/deployment.md) describes production and how changes reach it.
+The API is live at <https://drivon-api-vhtu.onrender.com>, which opens its [API documentation](https://drivon-api-vhtu.onrender.com/swagger-ui.html).
+
+| Part | Runs on |
+|---|---|
+| API | Render free web service (Docker), Singapore |
+| Database | Neon PostgreSQL 17, AWS Singapore; Flyway migrates the schema at startup |
+| Documents | Cloudflare R2, private bucket with short-lived signed URLs |
+| Push / AI | Firebase Cloud Messaging; Google Gemini with Groq as fallback |
+| Deploys and jobs | GitHub Actions |
+
+- **Health:** [`/actuator/health`](https://drivon-api-vhtu.onrender.com/actuator/health). **Running version:** [`/actuator/info`](https://drivon-api-vhtu.onrender.com/actuator/info), where `app.commit` is the deployed commit.
+- **How changes go live:** when *Backend CI* passes on `main`, the *Deploy* workflow asks Render to deploy that exact commit and waits until `/actuator/info` reports it. Render's own auto-deploy is off, so untested code never ships. App changes reach phones through a new APK instead.
+- **Daily reminders:** a scheduled workflow calls a secured endpoint once a day, because the free instance can't run timers while it sleeps. Reminders are also checked whenever an odometer reading is saved.
+- **Cold starts:** the free instance sleeps after 15 idle minutes, and the first request after that takes about a minute and a half (95 seconds measured). The app opens straight away with the data saved on the phone and shows "Waking up the server" until the API answers.
+
+[`docs/deployment.md`](docs/deployment.md) is the runbook: configuration, secrets, rollbacks and free-tier limits.
 
 ## Install
 
@@ -108,7 +125,7 @@ dart run build_runner build --delete-conflicting-outputs       # generated model
 flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080   # Android emulator → host machine
 ```
 
-On a USB-connected phone, run `adb reverse tcp:8080 tcp:8080` first and use `API_BASE_URL=http://localhost:8080`. The [frontend README](frontend/README.md#running-on-an-android-phone-from-android-studio) has step-by-step Android Studio instructions.
+On a USB-connected phone, run `adb reverse tcp:8080 tcp:8080` first and use `API_BASE_URL=http://localhost:8080`. To run the app against production instead, use `API_BASE_URL=https://drivon-api-vhtu.onrender.com`. The [frontend README](frontend/README.md#running-on-an-android-phone-from-android-studio) has step-by-step Android Studio instructions.
 
 See [`backend/README.md`](backend/README.md) and [`frontend/README.md`](frontend/README.md) for details.
 
@@ -161,23 +178,6 @@ drivon/
 ├── .github/            CI, deploy, release and reminder workflows, Dependabot, PR template
 └── docker-compose.yml  Local Postgres + API (reads .env from the repo root)
 ```
-
-## Roadmap
-
-| Phase | Focus | Status |
-|---|---|---|
-| 0 | Setup: repo, Spring Boot, Docker Compose, Flutter (Android + iOS), CI, design system | ✅ Done |
-| 1 | Auth & vehicles | ✅ Done |
-| 2 | Fuel tracking | ✅ Done |
-| 3 | Maintenance & expenses | ✅ Done |
-| 4 | Documents (Cloudflare R2) | ✅ Done |
-| 5 | Analytics & cost per km | ✅ Done |
-| 6 | Reminders & notifications | ✅ Done |
-| 7 | Ask My Vehicle | ✅ Done |
-| 8 | Offline support | ✅ Done |
-| 9 | Deploy & polish | In progress |
-
-Out of scope for the MVP: more than two vehicles, OCR, PDF/CSV export, assistant write actions, store publishing, shared vehicles and iOS push notifications.
 
 ## Design decisions
 
