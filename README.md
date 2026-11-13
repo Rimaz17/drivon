@@ -1,13 +1,90 @@
-# Drivon
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/brand/drivon-lockup-dark.svg">
+    <img src="docs/brand/drivon-lockup-mono-light.svg" alt="Drivon" width="300">
+  </picture>
+</h1>
 
-**A personal vehicle companion for Android and iOS.** Drivon keeps every fill-up, service, expense, document and renewal for your vehicles in one place, then turns that data into the numbers that matter: real km/L, cost per kilometre, monthly spending and upcoming reminders. An in-app assistant, *Ask My Vehicle*, answers plain-language questions using your own data.
+<p align="center"><b>A personal vehicle companion for Android and iOS.</b></p>
 
-[![Backend CI](https://github.com/Rimaz17/drivon/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/Rimaz17/drivon/actions/workflows/backend-ci.yml)
-[![Frontend CI](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml)
-[![Deploy](https://github.com/Rimaz17/drivon/actions/workflows/deploy.yml/badge.svg)](https://github.com/Rimaz17/drivon/actions/workflows/deploy.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-violet.svg)](LICENSE)
+<p align="center">
+  <a href="https://github.com/Rimaz17/drivon/releases/latest/download/drivon.apk"><img src="https://img.shields.io/badge/Download-Android%20APK-7D56EE?style=for-the-badge&logo=android&logoColor=white" alt="Download the Android APK" height="44"></a>
+</p>
+
+<p align="center">
+  <sub>Free · Android 7.0 or later · <a href="#install">How to install</a> · <a href="https://github.com/Rimaz17/drivon/releases">All releases</a> · iPhone: <a href="frontend/README.md#running-on-an-iphone-borrowed-mac-free-apple-id">run from source</a></sub>
+</p>
+
+<p align="center">
+  <a href="https://github.com/Rimaz17/drivon/actions/workflows/backend-ci.yml"><img src="https://github.com/Rimaz17/drivon/actions/workflows/backend-ci.yml/badge.svg" alt="Backend CI"></a>
+  <a href="https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml"><img src="https://github.com/Rimaz17/drivon/actions/workflows/frontend-ci.yml/badge.svg" alt="Frontend CI"></a>
+  <a href="https://github.com/Rimaz17/drivon/actions/workflows/deploy.yml"><img src="https://github.com/Rimaz17/drivon/actions/workflows/deploy.yml/badge.svg" alt="Deploy"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-violet.svg" alt="License: MIT"></a>
+</p>
+
+Drivon keeps every fill-up, service, expense, document and renewal for your vehicles in one place, then turns that data into the numbers that matter: real km/L, cost per kilometre, monthly spending and upcoming reminders. An in-app assistant, *Ask My Vehicle*, answers plain-language questions using your own data.
 
 > **Status:** the MVP is complete and [running in production](#production): the API is on Render with PostgreSQL on Neon and documents on Cloudflare R2, and every backend change that passes CI on `main` is deployed automatically.
+
+## Screenshots
+
+### Android
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="docs/screenshots/android/01-garage.png" alt="Drivon Garage screen on an Android phone" width="220"><br><b>Garage</b><br><sub>Your vehicles at a glance</sub></td>
+    <td align="center"><img src="docs/screenshots/android/02-fuel.png" alt="Drivon Fuel screen on an Android phone" width="220"><br><b>Fuel</b><br><sub>km/L, fuel spend and fill-ups</sub></td>
+    <td align="center"><img src="docs/screenshots/android/03-service.png" alt="Drivon Service screen on an Android phone" width="220"><br><b>Service</b><br><sub>What's due next and the history</sub></td>
+  </tr>
+</table>
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="docs/screenshots/android/04-ask.png" alt="Drivon Ask My Vehicle screen on an Android phone" width="220"><br><b>Ask My Vehicle</b><br><sub>Answers from your own data</sub></td>
+    <td align="center"><img src="docs/screenshots/android/05-expenses.png" alt="Drivon Expenses screen on an Android phone" width="220"><br><b>Expenses</b><br><sub>Spending by category and month</sub></td>
+    <td align="center"><img src="docs/screenshots/android/06-insights.png" alt="Drivon Insights screen on an Android phone" width="220"><br><b>Insights</b><br><sub>Running cost per km</sub></td>
+  </tr>
+</table>
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="docs/screenshots/android/07-documents.png" alt="Drivon Documents screen on an Android phone" width="220"><br><b>Documents</b><br><sub>Insurance, licence, receipts</sub></td>
+    <td align="center"><img src="docs/screenshots/android/08-reminders.png" alt="Drivon Reminders screen on an Android phone" width="220"><br><b>Reminders</b><br><sub>By date or by mileage</sub></td>
+    <td align="center"><img src="docs/screenshots/android/09-profile.png" alt="Drivon Profile screen on an Android phone" width="220"><br><b>Profile</b><br><sub>Your account details</sub></td>
+  </tr>
+</table>
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="docs/screenshots/android/10-notification.png" alt="A Drivon reminder in the Android notification shade" width="220"><br><b>Push reminder</b><br><sub>Due reminders reach the phone</sub></td>
+  </tr>
+</table>
+
+### iPhone
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="docs/screenshots/ios/01-garage.png" alt="Drivon Garage screen on an iPhone" width="220"><br><b>Garage</b><br><sub>Your vehicles at a glance</sub></td>
+    <td align="center"><img src="docs/screenshots/ios/02-fuel.png" alt="Drivon Fuel screen on an iPhone" width="220"><br><b>Fuel</b><br><sub>km/L, fuel spend and fill-ups</sub></td>
+    <td align="center"><img src="docs/screenshots/ios/03-service.png" alt="Drivon Service screen on an iPhone" width="220"><br><b>Service</b><br><sub>What's due next and the history</sub></td>
+  </tr>
+</table>
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="docs/screenshots/ios/04-ask.png" alt="Drivon Ask My Vehicle screen on an iPhone" width="220"><br><b>Ask My Vehicle</b><br><sub>Answers from your own data</sub></td>
+    <td align="center"><img src="docs/screenshots/ios/05-expenses.png" alt="Drivon Expenses screen on an iPhone" width="220"><br><b>Expenses</b><br><sub>Spending by category and month</sub></td>
+    <td align="center"><img src="docs/screenshots/ios/06-insights.png" alt="Drivon Insights screen on an iPhone" width="220"><br><b>Insights</b><br><sub>Running cost per km</sub></td>
+  </tr>
+</table>
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="docs/screenshots/ios/07-documents.png" alt="Drivon Documents screen on an iPhone" width="220"><br><b>Documents</b><br><sub>Insurance, licence, receipts</sub></td>
+    <td align="center"><img src="docs/screenshots/ios/08-reminders.png" alt="Drivon Reminders screen on an iPhone" width="220"><br><b>Reminders</b><br><sub>By date or by mileage</sub></td>
+    <td align="center"><img src="docs/screenshots/ios/09-profile.png" alt="Drivon Profile screen on an iPhone" width="220"><br><b>Profile</b><br><sub>Your account details</sub></td>
+  </tr>
+</table>
 
 ## Features (MVP)
 
@@ -79,9 +156,15 @@ The API is live at <https://drivon-api-vhtu.onrender.com>, which opens its [API 
 
 ## Install
 
-Android: every tagged version publishes a signed APK on the repository's [Releases](https://github.com/Rimaz17/drivon/releases) page (built by the `Android release` workflow; see the [frontend README](frontend/README.md#release-apk)). Download it on the phone and open it to install.
+**Android** (7.0 or later):
 
-iOS: there is no App Store or TestFlight build (both need the paid Apple Developer Program). The app runs on an iPhone from source with a free Apple ID; see [Running on an iPhone](frontend/README.md#running-on-an-iphone-borrowed-mac-free-apple-id).
+1. On the phone, tap [**Download Android APK**](https://github.com/Rimaz17/drivon/releases/latest/download/drivon.apk). It always fetches the newest signed release; older versions are on the [Releases](https://github.com/Rimaz17/drivon/releases) page.
+2. Open the downloaded `drivon.apk`. The first time, Android asks you to allow installs from your browser or file manager (*Install unknown apps*), because the app doesn't come from Google Play.
+3. Create an account and add a vehicle. If the server has been idle, the first sign-in takes up to a minute and a half while it wakes up (see [cold starts](#production)).
+
+Each release is built and signed by the `Android release` workflow and installs over the previous one ([frontend README](frontend/README.md#release-apk)).
+
+**iOS:** there is no App Store or TestFlight build (both need the paid Apple Developer Program). The app runs on an iPhone from source with a free Apple ID; see [Running on an iPhone](frontend/README.md#running-on-an-iphone-borrowed-mac-free-apple-id).
 
 ## Tech stack
 
@@ -174,7 +257,7 @@ CI runs the same checks on every push and pull request, builds a debug APK, and 
 drivon/
 ├── backend/            Spring Boot API (package-by-feature under com.drivon.api) + .env.example
 ├── frontend/           Flutter app (app/, core/, design_system/, features/)
-├── docs/               ADRs, deployment runbook, architecture diagram, API reference (OpenAPI + Postman), brand assets, test guides, screenshots
+├── docs/               ADRs, deployment runbook, architecture diagram, API reference (OpenAPI + Postman), brand assets, test guides, framed screenshots
 ├── .github/            CI, deploy, release and reminder workflows, Dependabot, PR template
 └── docker-compose.yml  Local Postgres + API (reads .env from the repo root)
 ```

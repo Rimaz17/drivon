@@ -4,7 +4,7 @@ Screenshots for the root README, taken from the release build against the deploy
 
 ## Files
 
-Save PNGs at the phone's native resolution, one folder per platform, with the same names on both:
+The README shows each screenshot inside a phone frame. Only the framed PNGs are committed, one folder per platform, with the same names on both:
 
 ```
 docs/screenshots/
@@ -16,9 +16,11 @@ docs/screenshots/
 │   ├── 05-expenses.png
 │   ├── 06-insights.png
 │   ├── 07-documents.png
-│   └── 08-reminders.png
+│   ├── 08-reminders.png
+│   ├── 09-profile.png
+│   └── 10-notification.png   (Android only)
 └── ios/
-    └── (the same eight names)
+    └── 01-garage.png … 09-profile.png
 ```
 
 | File | Screen | Show |
@@ -26,13 +28,25 @@ docs/screenshots/
 | `01-garage` | Garage | Two vehicles (switcher visible), snapshot with km/L, cost per km, next service and this month's spend |
 | `02-fuel` | Fuel tab | km/L gauge, fuel spend, recent fill-ups |
 | `03-service` | Service tab | Next due service card and history |
-| `04-ask` | Ask tab | A data question with its answer, e.g. "How much did I spend on fuel last month?" |
+| `04-ask` | Ask tab | A data question with its answer, e.g. "How much did I spend on fuel this month?" |
 | `05-expenses` | Expenses tab | Period total, category split and vehicle comparison |
 | `06-insights` | Insights | Cost per km with its fuel / maintenance / other parts and the monthly chart |
-| `07-documents` | Documents | A list with an expiring document highlighted |
+| `07-documents` | Documents | Stored documents and their expiry |
 | `08-reminders` | Reminders | Overdue, due-soon and upcoming groups |
+| `09-profile` | Profile | Name and email (use an `example.com` address), sign out, delete account |
+| `10-notification` | Notification shade | A reminder push notification (iOS has no push in the MVP) |
 
-Android screenshots can be taken any time with the phone (*Power + Volume down*) or, in Git Bash, `adb exec-out screencap -p > 01-garage.png` (PowerShell 5 corrupts the redirected PNG). iOS ones are taken during the [final iPhone test](../testing/iphone-test-checklist.md) (*Side + Volume up*, then AirDrop them to the Mac).
+### Taking and framing them
+
+1. Take full-screen portrait screenshots, status bar included. Android: *Power + Volume down*, or in Git Bash `adb exec-out screencap -p > 01-garage.png` (PowerShell 5 corrupts the redirected PNG). iOS: *Side + Volume up* during the [final iPhone test](../testing/iphone-test-checklist.md). Copy them to the computer without a messaging app if possible; WhatsApp shrinks and recompresses them.
+2. Name each file as in the table, then frame them from `frontend/` (needs Pillow: `pip install pillow`):
+
+   ```bash
+   python tool/frame_screenshots.py android ../docs/screenshots/android path/to/01-garage.png path/to/02-fuel.png
+   python tool/frame_screenshots.py ios ../docs/screenshots/ios path/to/01-garage.png path/to/02-fuel.png
+   ```
+
+   The iPhone frame adds a Dynamic Island and the Android frame a punch-hole camera, both drawn over the middle of the status bar, which the screenshots leave empty.
 
 ## Demo video
 
