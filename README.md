@@ -1,8 +1,5 @@
 <h1 align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/brand/drivon-lockup-dark.svg">
-    <img src="docs/brand/drivon-lockup-mono-light.svg" alt="Drivon" width="300">
-  </picture>
+  <img src="docs/brand/drivon-readme-banner.svg" alt="Drivon" width="340">
 </h1>
 
 <p align="center"><b>A personal vehicle companion for Android and iOS.</b></p>

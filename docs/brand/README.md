@@ -7,6 +7,7 @@ Vector sources for the Drivon logo: a steering-wheel mark whose rim is an open g
 | `drivon-app-icon.svg` | App icon master, 1024 × 1024, full-bleed canvas (iOS icon and legacy Android icons) |
 | `drivon-notification-silhouette.svg` | Single-color silhouette with heavier strokes for the Android status bar |
 | `drivon-lockup-dark.svg` | Mark and wordmark in full color, for dark backgrounds |
+| `drivon-readme-banner.svg` | The full-color lockup on its own dark rounded card, for the root README: readable whatever theme GitHub and the browser use |
 | `drivon-lockup-mono-dark.svg` / `drivon-lockup-mono-light.svg` | One-color lockup for dark / light backgrounds |
 | `drivon-mark-mono-dark.svg` / `drivon-mark-mono-light.svg` | One-color mark for dark / light backgrounds |
 
