@@ -97,7 +97,7 @@ git tag -a v1.0.0 -m "Drivon 1.0.0"
 git push origin v1.0.0
 ```
 
-The tag sets the version name (`1.0.0`); the workflow run number is the version code, so each release installs over the previous one. The release page gets `drivon-1.0.0.apk` and its `.sha256`.
+The tag sets the version name (`1.0.0`); the workflow run number is the version code, so each release installs over the previous one. The release page gets `drivon.apk` and its `drivon.apk.sha256`. The name stays the same in every release, so <https://github.com/Rimaz17/drivon/releases/latest/download/drivon.apk> (the root README's download button) always fetches the newest APK.
 
 ### Installing the APK
 

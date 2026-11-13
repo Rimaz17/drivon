@@ -71,7 +71,9 @@ jobs:
               exit 1
             fi
             echo "build_name=${version}" >> "${GITHUB_OUTPUT}"
-            echo "apk_name=drivon-${version}.apk" >> "${GITHUB_OUTPUT}"
+            # A fixed name keeps .../releases/latest/download/drivon.apk (the
+            # README's download link) pointing at the newest release.
+            echo "apk_name=drivon.apk" >> "${GITHUB_OUTPUT}"
           else
             # Manual runs keep pubspec.yaml's version name.
             echo "build_name=" >> "${GITHUB_OUTPUT}"
