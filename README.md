@@ -19,6 +19,28 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-violet.svg" alt="License: MIT"></a>
 </p>
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Flutter-3.44-02569B?logo=flutter&logoColor=white" alt="Flutter 3.44">
+  <img src="https://img.shields.io/badge/Dart-3.12-0175C2?logo=dart&logoColor=white" alt="Dart 3.12">
+  <img src="https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white" alt="Java 17">
+  <img src="https://img.shields.io/badge/Spring%20Boot-4.1-6DB33F?logo=springboot&logoColor=white" alt="Spring Boot 4.1">
+  <img src="https://img.shields.io/badge/Spring%20Security-JWT-6DB33F?logo=springsecurity&logoColor=white" alt="Spring Security JWT">
+  <img src="https://img.shields.io/badge/Hibernate-JPA-59666C?logo=hibernate&logoColor=white" alt="Hibernate JPA">
+  <img src="https://img.shields.io/badge/OpenAPI-3.1-6BA539?logo=openapiinitiative&logoColor=white" alt="OpenAPI 3.1">
+  <br>
+  <img src="https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL 17">
+  <img src="https://img.shields.io/badge/Flyway-migrations-CC0200?logo=flyway&logoColor=white" alt="Flyway migrations">
+  <img src="https://img.shields.io/badge/SQLite-offline%20cache-003B57?logo=sqlite&logoColor=white" alt="SQLite offline cache">
+  <img src="https://img.shields.io/badge/Gemini-Flash-8E75B2?logo=googlegemini&logoColor=white" alt="Gemini Flash">
+  <img src="https://img.shields.io/badge/Firebase-Cloud%20Messaging-DD2C00?logo=firebase&logoColor=white" alt="Firebase Cloud Messaging">
+  <img src="https://img.shields.io/badge/Cloudflare-R2-F38020?logo=cloudflare&logoColor=white" alt="Cloudflare R2">
+  <br>
+  <img src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white" alt="Docker Compose">
+  <img src="https://img.shields.io/badge/Render-API%20hosting-46E3B7?logo=render&logoColor=white" alt="Render API hosting">
+  <img src="https://img.shields.io/badge/Neon-database-00E599?logo=neon&logoColor=white" alt="Neon database">
+  <img src="https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?logo=githubactions&logoColor=white" alt="GitHub Actions CI/CD">
+</p>
+
 Drivon keeps every fill-up, service, expense, document and renewal for your vehicles in one place, then turns that data into the numbers that matter: real km/L, cost per kilometre, monthly spending and upcoming reminders. An in-app assistant, *Ask My Vehicle*, answers plain-language questions using your own data.
 
 > **Status:** the MVP is complete and [running in production](#production): the API is on Render with PostgreSQL on Neon and documents on Cloudflare R2, and every backend change that passes CI on `main` is deployed automatically.
