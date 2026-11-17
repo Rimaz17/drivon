@@ -20,8 +20,10 @@ docs/screenshots/
 │   ├── 09-profile.png
 │   └── 10-notification.png   (Android only)
 └── ios/
-    └── 01-garage.png … 09-profile.png
+    └── 01-garage.png, 03-service.png … 09-profile.png
 ```
+
+`ios/02-fuel.png` is missing on purpose: the earlier one showed test data (3,220 km/L) that read as a bug. Retake it with realistic fill-ups during the next iPhone test. `android/01-garage.png` and `android/02-fuel.png` were taken on the Pixel 9a emulator against the local API with sample data, with the screen set to the phone's size (`adb shell wm size 1080x2340`, then `adb shell wm size reset`) so their frames match the other Android screenshots.
 
 | File | Screen | Show |
 |---|---|---|
@@ -50,14 +52,8 @@ docs/screenshots/
 
 ## Demo video
 
-About 90 seconds, portrait, no sound needed (add captions instead):
+The README's demo (about 3 minutes, landscape, voiceover, burned-in captions and music) walks through the Garage, logging a fill-up, the full-tank km/L method, Service, Expenses, Insights, Documents, Reminders, Ask My Vehicle, offline sync and the architecture. Every phone frame is a screenshot of the running app against the local API with sample data; forms were captured one keystroke at a time with the real keyboard.
 
-1. Launch animation → Garage with two vehicles; switch between them.
-2. Log a fill-up; km/L and cost per km update.
-3. Insights: cost per km and the monthly chart.
-4. Documents: photograph an insurance card, then open it again.
-5. Reminders: turn on notifications and send a test.
-6. Ask My Vehicle: two questions, one about fuel spend and one comparing the vehicles.
-7. Airplane mode: log a fill-up offline, turn it off, watch it sync.
+It is not committed. GitHub only plays a video inline when it is uploaded through its own attachment uploader (under 10 MB on a free account), so the README links a `github.com/user-attachments` copy compressed to 720p. To replace it, drag the new MP4 into any comment box on github.com, copy the link GitHub inserts, and swap it into the README (a bare link on its own line renders as a player).
 
-Record with the phone's built-in screen recorder. To show it in the README, drag the MP4 (under 10 MB for GitHub's editor) into the README on github.com, which uploads it and inserts a link that plays inline; or upload it to YouTube and link a thumbnail.
+Music: "Inspired" by Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0.

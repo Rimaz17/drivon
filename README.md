@@ -45,6 +45,12 @@ Drivon keeps every fill-up, service, expense, document and renewal for your vehi
 
 > **Status:** the MVP is complete and [running in production](#production): the API is on Render with PostgreSQL on Neon and documents on Cloudflare R2, and every backend change that passes CI on `main` is deployed automatically.
 
+## Demo video
+
+A three-minute tour of the app with captions and voiceover: logging a fill-up, how km/L is calculated, services, expenses, cost per km, documents, reminders, Ask My Vehicle, offline sync and the architecture. Turn the sound on for the narration.
+
+https://github.com/user-attachments/assets/ad4b7667-8946-46f7-909d-5f6b93e32b20
+
 ## Screenshots
 
 ### Android
