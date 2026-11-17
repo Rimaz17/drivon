@@ -45,6 +45,12 @@ Drivon keeps every fill-up, service, expense, document and renewal for your vehi
 
 > **Status:** the MVP is complete and [running in production](#production): the API is on Render with PostgreSQL on Neon and documents on Cloudflare R2, and every backend change that passes CI on `main` is deployed automatically.
 
+## Demo video
+
+A three-minute tour of the app with captions and voiceover: logging a fill-up, how km/L is calculated, services, expenses, cost per km, documents, reminders, Ask My Vehicle, offline sync and the architecture. Turn the sound on for the narration.
+
+https://github.com/user-attachments/assets/ad4b7667-8946-46f7-909d-5f6b93e32b20
+
 ## Screenshots
 
 ### Android
@@ -83,24 +89,22 @@ Drivon keeps every fill-up, service, expense, document and renewal for your vehi
 
 <table align="center">
   <tr>
-    <td align="center"><img src="docs/screenshots/ios/01-garage.png" alt="Drivon Garage screen on an iPhone" width="220"><br><b>Garage</b><br><sub>Your vehicles at a glance</sub></td>
-    <td align="center"><img src="docs/screenshots/ios/02-fuel.png" alt="Drivon Fuel screen on an iPhone" width="220"><br><b>Fuel</b><br><sub>km/L, fuel spend and fill-ups</sub></td>
     <td align="center"><img src="docs/screenshots/ios/03-service.png" alt="Drivon Service screen on an iPhone" width="220"><br><b>Service</b><br><sub>What's due next and the history</sub></td>
-  </tr>
-</table>
-
-<table align="center">
-  <tr>
     <td align="center"><img src="docs/screenshots/ios/04-ask.png" alt="Drivon Ask My Vehicle screen on an iPhone" width="220"><br><b>Ask My Vehicle</b><br><sub>Answers from your own data</sub></td>
     <td align="center"><img src="docs/screenshots/ios/05-expenses.png" alt="Drivon Expenses screen on an iPhone" width="220"><br><b>Expenses</b><br><sub>Spending by category and month</sub></td>
-    <td align="center"><img src="docs/screenshots/ios/06-insights.png" alt="Drivon Insights screen on an iPhone" width="220"><br><b>Insights</b><br><sub>Running cost per km</sub></td>
   </tr>
 </table>
 
 <table align="center">
   <tr>
+    <td align="center"><img src="docs/screenshots/ios/06-insights.png" alt="Drivon Insights screen on an iPhone" width="220"><br><b>Insights</b><br><sub>Running cost per km</sub></td>
     <td align="center"><img src="docs/screenshots/ios/07-documents.png" alt="Drivon Documents screen on an iPhone" width="220"><br><b>Documents</b><br><sub>Insurance, licence, receipts</sub></td>
     <td align="center"><img src="docs/screenshots/ios/08-reminders.png" alt="Drivon Reminders screen on an iPhone" width="220"><br><b>Reminders</b><br><sub>By date or by mileage</sub></td>
+  </tr>
+</table>
+
+<table align="center">
+  <tr>
     <td align="center"><img src="docs/screenshots/ios/09-profile.png" alt="Drivon Profile screen on an iPhone" width="220"><br><b>Profile</b><br><sub>Your account details</sub></td>
   </tr>
 </table>
