@@ -20,10 +20,10 @@ docs/screenshots/
 │   ├── 09-profile.png
 │   └── 10-notification.png   (Android only)
 └── ios/
-    └── 01-garage.png, 03-service.png … 09-profile.png
+    └── 03-service.png … 09-profile.png
 ```
 
-`ios/02-fuel.png` is missing on purpose: the earlier one showed test data (3,220 km/L) that read as a bug. Retake it with realistic fill-ups during the next iPhone test. `android/01-garage.png` and `android/02-fuel.png` were taken on the Pixel 9a emulator against the local API with sample data, with the screen set to the phone's size (`adb shell wm size 1080x2340`, then `adb shell wm size reset`) so their frames match the other Android screenshots.
+`ios/01-garage.png` and `ios/02-fuel.png` are missing on purpose: the earlier ones showed test data (3,220 km/L) that read as a bug. Retake them with realistic fill-ups during the next iPhone test. `android/01-garage.png` and `android/02-fuel.png` were taken on the Pixel 9a emulator against the local API with sample data, with the screen set to the phone's size (`adb shell wm size 1080x2340`, then `adb shell wm size reset`) so their frames match the other Android screenshots.
 
 | File | Screen | Show |
 |---|---|---|
